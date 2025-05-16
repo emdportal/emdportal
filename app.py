@@ -14,12 +14,13 @@ import secrets
 load_dotenv()
 
 app = Flask(__name__)
-# Use PostgreSQL DATABASE_URL from Railway, fallback to SQLite for local dev
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///exchanges.db').replace('postgres://', 'postgresql://')
+# Use PostgreSQL DATABASE_URL from Railway
+if os.environ.get('FLASK_ENV') == 'development':
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///exchanges.db').replace('postgres://', 'postgresql://')
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# Secure SECRET_KEY via environment variable, generate a secure default if not set
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
-# Set session lifetime to 24 hours
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -31,7 +32,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set in environment variables")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Models (User model removed, now handled by Supabase)
+# Models
 class GeneralInformation(db.Model):
     sn = db.Column(db.Integer, primary_key=True)
     region = db.Column(db.String(100))
@@ -90,7 +91,7 @@ class DG(db.Model):
     installed_dg = db.Column(db.String(100))
     engine_make = db.Column(db.String(100))
     installation_year = db.Column(db.Integer)
-    dg_status = db.Column(db.String(50))  # Working, Faulty, Spare
+    dg_status = db.Column(db.String(50))
     dg_starting_battery = db.Column(db.String(100))
     smart_switch_installed = db.Column(db.Boolean, default=False)
     ats_installed = db.Column(db.Boolean, default=False)
@@ -159,7 +160,7 @@ class Earthing(db.Model):
 class FireExtinguisher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'), nullable=False)
-    fe_installed = db.Column(db.Boolean, default=False)  # Corrected from fe MIGRAinstalled
+    fe_installed = db.Column(db.Boolean, default=False)
     no_of_fes = db.Column(db.Integer)
     type_of_gas = db.Column(db.String(100))
     date_of_expiry = db.Column(db.String(50))
@@ -213,14 +214,12 @@ def login():
         username = request.form['username'].lower()
         password = request.form['password']
         try:
-            # Look up user in users_info table
             user_data = supabase.table('users_info').select('user_id', 'region').eq('username', username).execute()
             if not user_data.data:
                 flash('Invalid username')
                 return redirect(url_for('login'))
             user_id = user_data.data[0]['user_id']
             region = user_data.data[0]['region']
-            # Authenticate with Supabase
             email = f"{username}@ptclgroup.com"
             response = supabase.auth.sign_in_with_password({"email": email, "password": password})
             if response.user and response.user.id == user_id:
@@ -240,20 +239,23 @@ def login():
 @login_required
 def logout():
     resp = make_response(redirect(url_for('login')))
-    resp.set_cookie('auth_token', '', expires=0)  # Clear the cookie
-    supabase.auth.sign_out()  # Sign out from Supabase
+    resp.set_cookie('auth_token', '', expires=0)
+    supabase.auth.sign_out()
     return resp
 
 @app.route('/')
 @login_required
 def index():
-    exchanges = GeneralInformation.query.all()
-    regions = db.session.query(GeneralInformation.region, db.func.count(GeneralInformation.sn)).group_by(GeneralInformation.region).all()
-    region_labels = [r[0] for r in regions if r[0] is not None]
-    region_counts = [r[1] for r in regions if r[0] is not None]
-    total_exchanges = len(exchanges)
-    year_counts = [total_exchanges // 2, total_exchanges - (total_exchanges // 2)]
-    return render_template('index.html', exchanges=exchanges, region_labels=region_labels, region_counts=region_counts, year_counts=year_counts)
+    try:
+        exchanges = GeneralInformation.query.all()
+        regions = db.session.query(GeneralInformation.region, db.func.count(GeneralInformation.sn)).group_by(GeneralInformation.region).all()
+        region_labels = [r[0] for r in regions if r[0] is not None]
+        region_counts = [r[1] for r in regions if r[0] is not None]
+        total_exchanges = len(exchanges)
+        year_counts = [total_exchanges // 2, total_exchanges - (total_exchanges // 2)]
+        return render_template('index.html', exchanges=exchanges, region_labels=region_labels, region_counts=region_counts, year_counts=year_counts)
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
@@ -277,14 +279,12 @@ def add():
             longitude=float(request.form.get('longitude')) if request.form.get('longitude') else None,
             tower_available=request.form.get('tower_available')
         )
-        # Towers
         tower_type_heights = request.form.getlist('tower_type_height[]')
         if new_exchange.tower_available == 'Yes':
             for tower_type_height in tower_type_heights:
                 if tower_type_height:
                     tower = Tower(tower_type_height=tower_type_height)
                     new_exchange.towers.append(tower)
-        # Power Information
         power_info = PowerInformation(
             wapda_ref_number=request.form.get('wapda_ref_number'),
             transformer_capacity=request.form.get('transformer_capacity'),
@@ -306,7 +306,6 @@ def add():
             no_of_faulty_spds=int(request.form.get('no_of_faulty_spds')) if request.form.get('no_of_faulty_spds') else None
         )
         new_exchange.power_info = power_info
-        # DGs
         installed_dgs = request.form.getlist('installed_dg[]')
         engine_makes = request.form.getlist('engine_make[]')
         installation_years = request.form.getlist('installation_year[]')
@@ -346,7 +345,6 @@ def add():
                     site_load_p3=float(site_load_p3s[i]) if site_load_p3s[i] else None
                 )
                 new_exchange.dgs.append(dg)
-        # Battery Banks
         make_of_batteries = request.form.getlist('make_of_battery[]')
         battery_capacities = request.form.getlist('battery_capacity[]')
         battery_types = request.form.getlist('battery_type[]')
@@ -370,7 +368,6 @@ def add():
                     battery_moved_from=battery_moved_froms[i]
                 )
                 new_exchange.battery_banks.append(battery)
-        # AC Units
         location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
         working_status_acs = request.form.getlist('working_status_ac[]')
         ac_makes = request.form.getlist('ac_make[]')
@@ -400,7 +397,6 @@ def add():
                     estimate_to_repair_ac=float(estimate_to_repair_acs[i]) if estimate_to_repair_acs[i] else None
                 )
                 new_exchange.ac_units.append(ac_unit)
-        # Solar Information
         solar_info = InstalledSolarInformation(
             total_solar_size=float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None,
             pv_solar_panel_capacity=float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None,
@@ -416,13 +412,11 @@ def add():
             roof_top_ground=request.form.get('roof_top_ground')
         )
         new_exchange.solar_info = solar_info
-        # Earthing
         earthing = Earthing(
             earthing_value=float(request.form.get('earthing_value')) if request.form.get('earthing_value') else None,
             no_of_pits=int(request.form.get('no_of_pits')) if request.form.get('no_of_pits') else None
         )
         new_exchange.earthing = earthing
-        # Fire Extinguishers
         fe_installeds = request.form.getlist('fe_installed[]')
         no_of_fes_list = request.form.getlist('no_of_fes[]')
         type_of_gases = request.form.getlist('type_of_gas[]')
@@ -436,20 +430,17 @@ def add():
                     date_of_expiry=date_of_expiries[i]
                 )
                 new_exchange.fire_extinguishers.append(fire_extinguisher)
-        # PMR Information
         pmr_info = PMRInformation(
             pmr_performed='pmr_performed' in request.form,
             last_performed_date=request.form.get('last_performed_date')
         )
         new_exchange.pmr_info = pmr_info
-        # Alarm Extension
         alarm_extension = AlarmExtension(
             ac_main_failure='ac_main_failure' in request.form,
             dc_low_voltages='dc_low_voltages' in request.form,
             rectifier_failure='rectifier_failure' in request.form
         )
         new_exchange.alarm_extension = alarm_extension
-        # Colocation Information
         colocation_info = ColocationInformation(
             colocation='colocation' in request.form,
             name_of_colocation_vendors=request.form.get('name_of_colocation_vendors'),
@@ -457,7 +448,6 @@ def add():
             total_load=float(request.form.get('total_load')) if request.form.get('total_load') else None
         )
         new_exchange.colocation_info = colocation_info
-        # Building Information
         building_info = BuildingInformation(
             building_status=request.form.get('building_status'),
             wall_doors_condition=request.form.get('wall_doors_condition')
@@ -484,7 +474,6 @@ def edit(sn):
         exchange.latitude = float(request.form.get('latitude')) if request.form.get('latitude') else None
         exchange.longitude = float(request.form.get('longitude')) if request.form.get('longitude') else None
         exchange.tower_available = request.form.get('tower_available')
-        # Update Towers
         tower_type_heights = request.form.getlist('tower_type_height[]')
         db.session.query(Tower).filter_by(general_id=exchange.sn).delete()
         if exchange.tower_available == 'Yes':
@@ -492,7 +481,6 @@ def edit(sn):
                 if tower_type_height:
                     tower = Tower(tower_type_height=tower_type_height, general_id=exchange.sn)
                     db.session.add(tower)
-        # Update Power Information
         exchange.power_info.wapda_ref_number = request.form.get('wapda_ref_number')
         exchange.power_info.transformer_capacity = request.form.get('transformer_capacity')
         exchange.power_info.transformer_earthing = request.form.get('transformer_earthing')
@@ -511,7 +499,6 @@ def edit(sn):
         exchange.power_info.spd_model = request.form.get('spd_model')
         exchange.power_info.total_installed_spds = int(request.form.get('total_installed_spds')) if request.form.get('total_installed_spds') else None
         exchange.power_info.no_of_faulty_spds = int(request.form.get('no_of_faulty_spds')) if request.form.get('no_of_faulty_spds') else None
-        # Update DGs
         db.session.query(DG).filter_by(general_id=exchange.sn).delete()
         installed_dgs = request.form.getlist('installed_dg[]')
         engine_makes = request.form.getlist('engine_make[]')
@@ -553,7 +540,6 @@ def edit(sn):
                     general_id=exchange.sn
                 )
                 db.session.add(dg)
-        # Update Battery Banks
         db.session.query(BatteryBank).filter_by(general_id=exchange.sn).delete()
         make_of_batteries = request.form.getlist('make_of_battery[]')
         battery_capacities = request.form.getlist('battery_capacity[]')
@@ -579,7 +565,6 @@ def edit(sn):
                     general_id=exchange.sn
                 )
                 db.session.add(battery)
-        # Update AC Units
         db.session.query(ACUnit).filter_by(general_id=exchange.sn).delete()
         location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
         working_status_acs = request.form.getlist('working_status_ac[]')
@@ -611,7 +596,6 @@ def edit(sn):
                     general_id=exchange.sn
                 )
                 db.session.add(ac_unit)
-        # Update Solar Information
         exchange.solar_info.total_solar_size = float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None
         exchange.solar_info.pv_solar_panel_capacity = float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None
         exchange.solar_info.no_of_pv_panels_installed = int(request.form.get('no_of_pv_panels_installed')) if request.form.get('no_of_pv_panels_installed') else None
@@ -624,10 +608,8 @@ def edit(sn):
         exchange.solar_info.no_of_inverters = int(request.form.get('no_of_inverters')) if request.form.get('no_of_inverters') else None
         exchange.solar_info.on_grid_hybrid = request.form.get('on_grid_hybrid')
         exchange.solar_info.roof_top_ground = request.form.get('roof_top_ground')
-        # Update Earthing
         exchange.earthing.earthing_value = float(request.form.get('earthing_value')) if request.form.get('earthing_value') else None
         exchange.earthing.no_of_pits = int(request.form.get('no_of_pits')) if request.form.get('no_of_pits') else None
-        # Update Fire Extinguishers
         db.session.query(FireExtinguisher).filter_by(general_id=exchange.sn).delete()
         fe_installeds = request.form.getlist('fe_installed[]')
         no_of_fes_list = request.form.getlist('no_of_fes[]')
@@ -643,19 +625,15 @@ def edit(sn):
                     general_id=exchange.sn
                 )
                 db.session.add(fire_extinguisher)
-        # Update PMR Information
         exchange.pmr_info.pmr_performed = 'pmr_performed' in request.form
         exchange.pmr_info.last_performed_date = request.form.get('last_performed_date')
-        # Update Alarm Extension
         exchange.alarm_extension.ac_main_failure = 'ac_main_failure' in request.form
         exchange.alarm_extension.dc_low_voltages = 'dc_low_voltages' in request.form
         exchange.alarm_extension.rectifier_failure = 'rectifier_failure' in request.form
-        # Update Colocation Information
         exchange.colocation_info.colocation = 'colocation' in request.form
         exchange.colocation_info.name_of_colocation_vendors = request.form.get('name_of_colocation_vendors')
         exchange.colocation_info.load_of_each_vendor = float(request.form.get('load_of_each_vendor')) if request.form.get('load_of_each_vendor') else None
         exchange.colocation_info.total_load = float(request.form.get('total_load')) if request.form.get('total_load') else None
-        # Update Building Information
         exchange.building_info.building_status = request.form.get('building_status')
         exchange.building_info.wall_doors_condition = request.form.get('wall_doors_condition')
         db.session.commit()
@@ -669,28 +647,23 @@ def export():
     exchanges = GeneralInformation.query.all()
     data = []
     for exchange in exchanges:
-        # Aggregate tower data
-        tower_types = [tower.tower_type_hight for tower in exchange.towers] if exchange.tower_available == 'Yes' else ['N/A']
+        tower_types = [tower.tower_type_height for tower in exchange.towers] if exchange.tower_available == 'Yes' else ['N/A']
         tower_types_str = "; ".join(tower_types) if tower_types else 'N/A'
-        # Aggregate DG data
         dg_details = []
         for dg in exchange.dgs:
             dg_info = f"DG: {dg.installed_dg}, Engine Make: {dg.engine_make}, Year: {dg.installation_year}, Status: {dg.dg_status}"
             dg_details.append(dg_info)
         dg_details_str = "; ".join(dg_details) if dg_details else 'N/A'
-        # Aggregate Battery Bank data
         battery_details = []
         for battery in exchange.battery_banks:
             battery_info = f"Make: {battery.make_of_battery}, Capacity: {battery.battery_capacity}, Type: {battery.battery_type}"
             battery_details.append(battery_info)
         battery_details_str = "; ".join(battery_details) if battery_details else 'N/A'
-        # Aggregate AC Unit data
         ac_details = []
         for ac in exchange.ac_units:
             ac_info = f"Location: {ac.location_of_ac_unit}, Make: {ac.ac_make}, Capacity: {ac.capacity_tons}"
             ac_details.append(ac_info)
         ac_details_str = "; ".join(ac_details) if ac_details else 'N/A'
-        # Aggregate Fire Extinguisher data
         fe_details = []
         for fe in exchange.fire_extinguishers:
             fe_info = f"Installed: {fe.fe_installed}, No: {fe.no_of_fes}, Gas: {fe.type_of_gas}"
@@ -774,8 +747,5 @@ def view_exchanges():
     exchanges = GeneralInformation.query.all()
     return render_template('view_exchanges.html', exchanges=exchanges)
 
-# Simplified for Railway; gunicorn will handle the server startup
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)  # For local development only
+    app.run(debug=True)
