@@ -214,7 +214,7 @@ def login():
         password = request.form['password']
         try:
             # Look up email from username in users table
-            user_data = supabase.table('users').select('email').eq('username', username).execute()
+            user_data = supabase.table('users_info').select('email').eq('username', username).execute()
             if not user_data.data:
                 flash('Invalid username')
                 return redirect(url_for('login'))
