@@ -1,14 +1,14 @@
-# Use Python 3.9 and pip/setuptools from Nix
+# Use Python 3.9 and pip/setuptools from Nix, with libstdc++ for compiled dependencies
 [phases.setup]
-  nixPkgs = ["python39", "python39Packages.pip", "python39Packages.setuptools", "postgresql"]
-  nixLibs = ["postgresql"]
+  nixPkgs = ["python39", "python39Packages.pip", "python39Packages.setuptools", "postgresql", "stdenv.cc.cc.lib"]  # Add stdenv.cc.cc.lib for libstdc++
+  nixLibs = ["postgresql"]  # Ensure PostgreSQL libraries are available
 
 # Create a virtual environment and install dependencies
 [phases.install]
   cmds = [
     "python3.9 -m venv /opt/venv",
     "/opt/venv/bin/pip install --upgrade pip setuptools",
-    "/opt/venv/bin/pip install numpy==1.26.4 pandas==2.2.2 scipy==1.13.1",  # Add scipy
+    "/opt/venv/bin/pip install numpy==1.26.4 pandas==2.2.2 scipy==1.13.1",  # Pre-install core dependencies
     "/opt/venv/bin/pip install -r requirements.txt"
   ]
 
