@@ -210,7 +210,7 @@ def login_required(f):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].lower()
         password = request.form['password']
         try:
             # Look up user in users_info table
@@ -220,12 +220,11 @@ def login():
                 return redirect(url_for('login'))
             user_id = user_data.data[0]['user_id']
             region = user_data.data[0]['region']
-            # Authenticate with Supabase using the username as part of the email (assuming email is username@ptclgroup.com)
+            # Authenticate with Supabase
             email = f"{username}@ptclgroup.com"
             response = supabase.auth.sign_in_with_password({"email": email, "password": password})
             if response.user and response.user.id == user_id:
                 access_token = response.session.access_token
-                # Store region in session (for future filtering)
                 session['region'] = region
                 resp = make_response(redirect(url_for('index')))
                 resp.set_cookie('auth_token', access_token, httponly=True, secure=True, samesite='Lax')
