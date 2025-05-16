@@ -156,7 +156,7 @@ class Earthing(db.Model):
 class FireExtinguisher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'), nullable=False)
-    fe MIGRAinstalled = db.Column(db.Boolean, default=False)
+    fe_installed = db.Column(db.Boolean, default=False)  # Corrected from fe MIGRAinstalled
     no_of_fes = db.Column(db.Integer)
     type_of_gas = db.Column(db.String(100))
     date_of_expiry = db.Column(db.String(50))
