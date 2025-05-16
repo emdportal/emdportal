@@ -213,24 +213,20 @@ def login():
         username = request.form['username']
         password = request.form['password']
         try:
-            # Look up email from username in users table
-            user_data = supabase.table('users_info').select('email').eq('username', username).execute()
+            # Look up user in users_info table
+            user_data = supabase.table('users_info').select('user_id', 'region').eq('username', username).execute()
             if not user_data.data:
                 flash('Invalid username')
                 return redirect(url_for('login'))
-            email = user_data.data[0]['email']
-            # Authenticate with Supabase
+            user_id = user_data.data[0]['user_id']
+            region = user_data.data[0]['region']
+            # Authenticate with Supabase using the username as part of the email (assuming email is username@ptclgroup.com)
+            email = f"{username}@ptclgroup.com"
             response = supabase.auth.sign_in_with_password({"email": email, "password": password})
-            if response.user:
+            if response.user and response.user.id == user_id:
                 access_token = response.session.access_token
-                # Fetch additional user info (e.g., region) from users_info table
-                user_info = supabase.table('users_info').select('region').eq('user_id', response.user.id).execute()
-                if user_info.data:
-                    region = user_info.data[0]['region']
-                    session['region'] = region
-                else:
-                    flash('User info not found in database')
-                    return redirect(url_for('login'))
+                # Store region in session (for future filtering)
+                session['region'] = region
                 resp = make_response(redirect(url_for('index')))
                 resp.set_cookie('auth_token', access_token, httponly=True, secure=True, samesite='Lax')
                 return resp
