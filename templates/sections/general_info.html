@@ -1,67 +1,69 @@
-<div class="form-group">
-    <label for="sn">SN:</label>
-    <input type="text" class="form-control" id="sn" name="sn" value="{{ general.sn if general else '' }}" required>
+<div class="mb-3">
+    <label for="sn" class="form-label">SN</label>
+    <input type="number" class="form-control" id="sn" name="sn" value="{{ general.sn if general else '' }}" {% if general %}readonly{% endif %} required>
 </div>
-<div class="form-group">
-    <label for="region">Region:</label>
-    <input type="text" class="form-control" id="region" name="region" value="{{ general.region if general else '' }}">
+<div class="mb-3">
+    <label for="region" class="form-label">Region</label>
+    <input type="text" class="form-control" id="region" name="region" value="{{ general.region if general else '' }}" required>
 </div>
-<div class="form-group">
-    <label for="domain">Domain:</label>
+<div class="mb-3">
+    <label for="domain" class="form-label">Domain</label>
     <input type="text" class="form-control" id="domain" name="domain" value="{{ general.domain if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="exchange_name">Exchange Name:</label>
+<div class="mb-3">
+    <label for="exchange_name" class="form-label">Exchange Name</label>
     <input type="text" class="form-control" id="exchange_name" name="exchange_name" value="{{ general.exchange_name if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="exchange_lic">Exchange LIC:</label>
+<div class="mb-3">
+    <label for="exchange_lic" class="form-label">Exchange LIC</label>
     <input type="text" class="form-control" id="exchange_lic" name="exchange_lic" value="{{ general.exchange_lic if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="flc">FLC:</label>
+<div class="mb-3">
+    <label for="flc" class="form-label">FLC</label>
     <input type="text" class="form-control" id="flc" name="flc" value="{{ general.flc if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="site_category">Site Category:</label>
+<div class="mb-3">
+    <label for="site_category" class="form-label">Site Category</label>
     <input type="text" class="form-control" id="site_category" name="site_category" value="{{ general.site_category if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="nes_installed">NEs Installed:</label>
+<div class="mb-3">
+    <label for="nes_installed" class="form-label">NEs Installed</label>
     <textarea class="form-control" id="nes_installed" name="nes_installed">{{ general.nes_installed if general else '' }}</textarea>
 </div>
-<div class="form-group">
-    <label for="latitude">Latitude:</label>
+<div class="mb-3">
+    <label for="latitude" class="form-label">Latitude</label>
     <input type="number" step="any" class="form-control" id="latitude" name="latitude" value="{{ general.latitude if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="longitude">Longitude:</label>
+<div class="mb-3">
+    <label for="longitude" class="form-label">Longitude</label>
     <input type="number" step="any" class="form-control" id="longitude" name="longitude" value="{{ general.longitude if general else '' }}">
 </div>
-<div class="form-group">
-    <label for="tower_available">Tower Available (Y/N):</label>
+<div class="mb-3">
+    <label for="tower_available" class="form-label">Tower Available</label>
     <select class="form-control" id="tower_available" name="tower_available" onchange="toggleTowerFields()">
-        <option value="No" {{ 'selected' if not general or general.tower_available == 'No' else '' }}>No</option>
-        <option value="Yes" {{ 'selected' if general and general.tower_available == 'Yes' else '' }}>Yes</option>
+        <option value="No" {% if general and general.tower_available == 'No' %}selected{% endif %}>No</option>
+        <option value="Yes" {% if general and general.tower_available == 'Yes' %}selected{% endif %}>Yes</option>
     </select>
 </div>
-<div id="tower_fields" style="display: {{ 'block' if general and general.tower_available == 'Yes' else 'none' }};">
+<div id="tower_fields" style="display: {% if general and general.tower_available == 'Yes' %}block{% else %}none{% endif %};">
+    <h4>Tower Details</h4>
     <div id="tower_container">
-        {% if general and general.tower_available == 'Yes' %}
+        {% if general %}
             {% for tower in general.towers %}
-                <div class="tower_entry form-group">
-                    <label>Type and Height of Tower:</label>
+                <div class="dynamic-field">
+                    <label class="form-label">Tower Type/Height</label>
                     <input type="text" class="form-control" name="tower_type_height[]" value="{{ tower.tower_type_height }}">
-                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-tower">Remove</button>
+                    <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeField(this)">Remove</button>
                 </div>
             {% endfor %}
         {% else %}
-            <div class="tower_entry form-group">
-                <label>Type and Height of Tower:</label>
+            <div class="dynamic-field">
+                <label class="form-label">Tower Type/Height</label>
                 <input type="text" class="form-control" name="tower_type_height[]">
-                <button type="button" class="btn btn-danger btn-sm mt-2 remove-tower">Remove</button>
+                <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeField(this)">Remove</button>
             </div>
         {% endif %}
     </div>
-    <button type="button" class="btn btn-primary mt-2" id="add_tower">Add More Tower</button>
+    <button type="button" class="btn btn-secondary mt-2" onclick="addTowerField()">Add Tower</button>
 </div>
+<p>User Region: {% if session.get('region') %}{{ session['region'] }}{% else %}Unknown{% endif %}</p>

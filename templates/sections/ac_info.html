@@ -1,112 +1,111 @@
 <div id="ac_container">
-    {% if general and general.ac_units %}
+    {% if general %}
         {% for ac in general.ac_units %}
-            <div class="ac_entry">
-                <h4>AC Unit {{ loop.index }}</h4>
-                <div class="form-group">
-                    <label>Location of AC Unit:</label>
+            <div class="dynamic-field">
+                <div class="mb-3">
+                    <label class="form-label">Location of AC Unit</label>
                     <input type="text" class="form-control" name="location_of_ac_unit[]" value="{{ ac.location_of_ac_unit }}">
                 </div>
-                <div class="form-group">
-                    <label>Working Status (Y/N):</label>
-                    <input type="checkbox" name="working_status_ac_{{ loop.index0 }}" value="Yes" {{ 'checked' if ac.working_status else '' }}>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" name="working_status_ac[]" value="working_status_ac_{{ loop.index0 }}" {% if ac.working_status %}checked{% endif %}>
+                    <label class="form-check-label" for="working_status_ac_{{ loop.index0 }}">Working Status</label>
                 </div>
-                <div class="form-group">
-                    <label>AC Make:</label>
+                <div class="mb-3">
+                    <label class="form-label">AC Make</label>
                     <input type="text" class="form-control" name="ac_make[]" value="{{ ac.ac_make }}">
                 </div>
-                <div class="form-group">
-                    <label>Capacity (Tons):</label>
+                <div class="mb-3">
+                    <label class="form-label">Capacity (Tons)</label>
                     <input type="number" step="any" class="form-control" name="capacity_tons[]" value="{{ ac.capacity_tons }}">
                 </div>
-                <div class="form-group">
-                    <label>Type of AC:</label>
+                <div class="mb-3">
+                    <label class="form-label">Type of AC</label>
                     <input type="text" class="form-control" name="type_of_ac[]" value="{{ ac.type_of_ac }}">
                 </div>
-                <div class="form-group">
-                    <label>Mount Type:</label>
+                <div class="mb-3">
+                    <label class="form-label">Mount Type</label>
                     <input type="text" class="form-control" name="mount_type[]" value="{{ ac.mount_type }}">
                 </div>
-                <div class="form-group">
-                    <label>Date of Installation:</label>
-                    <input type="date" class="form-control" name="date_of_installation_ac[]" value="{{ ac.date_of_installation }}">
+                <div class="mb-3">
+                    <label class="form-label">Date of Installation</label>
+                    <input type="text" class="form-control" name="date_of_installation_ac[]" value="{{ ac.date_of_installation }}">
                 </div>
-                <div class="form-group">
-                    <label>Sequence Controller Installed:</label>
-                    <input type="checkbox" name="sequence_controller_installed_{{ loop.index0 }}" value="Yes" {{ 'checked' if ac.sequence_controller_installed else '' }}>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" name="sequence_controller_installed[]" value="sequence_controller_installed_{{ loop.index0 }}" {% if ac.sequence_controller_installed %}checked{% endif %}>
+                    <label class="form-check-label" for="sequence_controller_installed_{{ loop.index0 }}">Sequence Controller Installed</label>
                 </div>
-                <div class="form-group">
-                    <label>AC Load:</label>
+                <div class="mb-3">
+                    <label class="form-label">AC Load</label>
                     <input type="number" step="any" class="form-control" name="ac_load[]" value="{{ ac.ac_load }}">
                 </div>
-                <div class="form-group">
-                    <label>Total AC Load:</label>
+                <div class="mb-3">
+                    <label class="form-label">Total AC Load</label>
                     <input type="number" step="any" class="form-control" name="total_ac_load[]" value="{{ ac.total_ac_load }}">
                 </div>
-                <div class="form-group">
-                    <label>Fault Nature of AC Unit:</label>
+                <div class="mb-3">
+                    <label class="form-label">Fault Nature of AC Unit</label>
                     <input type="text" class="form-control" name="fault_nature_of_ac_unit[]" value="{{ ac.fault_nature_of_ac_unit }}">
                 </div>
-                <div class="form-group">
-                    <label>Estimate to Repair AC:</label>
+                <div class="mb-3">
+                    <label class="form-label">Estimate to Repair AC</label>
                     <input type="number" step="any" class="form-control" name="estimate_to_repair_ac[]" value="{{ ac.estimate_to_repair_ac }}">
                 </div>
-                <button type="button" class="btn btn-danger btn-sm mt-2 remove-ac">Remove AC</button>
+                <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeField(this)">Remove AC Unit</button>
             </div>
         {% endfor %}
     {% else %}
-        <div class="ac_entry">
-            <h4>AC Unit 1</h4>
-            <div class="form-group">
-                <label>Location of AC Unit:</label>
+        <div class="dynamic-field">
+            <div class="mb-3">
+                <label class="form-label">Location of AC Unit</label>
                 <input type="text" class="form-control" name="location_of_ac_unit[]">
             </div>
-            <div class="form-group">
-                <label>Working Status (Y/N):</label>
-                <input type="checkbox" name="working_status_ac_0" value="Yes">
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" name="working_status_ac[]" value="working_status_ac_0">
+                <label class="form-check-label" for="working_status_ac_0">Working Status</label>
             </div>
-            <div class="form-group">
-                <label>AC Make:</label>
+            <div class="mb-3">
+                <label class="form-label">AC Make</label>
                 <input type="text" class="form-control" name="ac_make[]">
             </div>
-            <div class="form-group">
-                <label>Capacity (Tons):</label>
+            <div class="mb-3">
+                <label class="form-label">Capacity (Tons)</label>
                 <input type="number" step="any" class="form-control" name="capacity_tons[]">
             </div>
-            <div class="form-group">
-                <label>Type of AC:</label>
+            <div class="mb-3">
+                <label class="form-label">Type of AC</label>
                 <input type="text" class="form-control" name="type_of_ac[]">
             </div>
-            <div class="form-group">
-                <label>Mount Type:</label>
+            <div class="mb-3">
+                <label class="form-label">Mount Type</label>
                 <input type="text" class="form-control" name="mount_type[]">
             </div>
-            <div class="form-group">
-                <label>Date of Installation:</label>
-                <input type="date" class="form-control" name="date_of_installation_ac[]">
+            <div class="mb-3">
+                <label class="form-label">Date of Installation</label>
+                <input type="text" class="form-control" name="date_of_installation_ac[]">
             </div>
-            <div class="form-group">
-                <label>Sequence Controller Installed:</label>
-                <input type="checkbox" name="sequence_controller_installed_0" value="Yes">
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" name="sequence_controller_installed[]" value="sequence_controller_installed_0">
+                <label class="form-check-label" for="sequence_controller_installed_0">Sequence Controller Installed</label>
             </div>
-            <div class="form-group">
-                <label>AC Load:</label>
+            <div class="mb-3">
+                <label class="form-label">AC Load</label>
                 <input type="number" step="any" class="form-control" name="ac_load[]">
             </div>
-            <div class="form-group">
-                <label>Total AC Load:</label>
+            <div class="mb-3">
+                <label class="form-label">Total AC Load</label>
                 <input type="number" step="any" class="form-control" name="total_ac_load[]">
             </div>
-            <div class="form-group">
-                <label>Fault Nature of AC Unit:</label>
+            <div class="mb-3">
+                <label class="form-label">Fault Nature of AC Unit</label>
                 <input type="text" class="form-control" name="fault_nature_of_ac_unit[]">
             </div>
-            <div class="form-group">
-                <label>Estimate to Repair AC:</label>
+            <div class="mb-3">
+                <label class="form-label">Estimate to Repair AC</label>
                 <input type="number" step="any" class="form-control" name="estimate_to_repair_ac[]">
             </div>
-            <button type="button" class="btn btn-danger btn-sm mt-2 remove-ac">Remove AC</button>
+            <button type="button" class="btn btn-danger btn-sm mt-2" onclick="removeField(this)">Remove AC Unit</button>
         </div>
     {% endif %}
 </div>
-<button type="button" class="btn btn-primary mt-2" id="add_ac">Add More AC</button>
+<button type="button" class="btn btn-secondary mt-2" onclick="addACField()">Add AC Unit</button>
+<p>User Region: {% if session.get('region') %}{{ session['region'] }}{% else %}Unknown{% endif %}</p>
