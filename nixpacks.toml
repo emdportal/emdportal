@@ -1,12 +1,17 @@
 # Use Python 3.9 as the base environment
 [phases.setup]
-  nixPkgs = ["python39", "postgresql"]  # Install Python 3.9 and PostgreSQL client (not dev)
+  nixPkgs = ["python39", "postgresql"]  # Install Python 3.9 and PostgreSQL client
   nixLibs = ["postgresql"]  # Ensure PostgreSQL libraries are available for psycopg2-binary
 
-# Install Python dependencies from requirements.txt
+# Install pip and set up a virtual environment
 [phases.install]
-  cmds = ["pip install -r requirements.txt"]
+  cmds = [
+    "python3.9 -m ensurepip --upgrade",  # Ensure pip is installed
+    "python3.9 -m pip install --upgrade pip",  # Upgrade pip
+    "python3.9 -m venv /opt/venv",  # Create a virtual environment
+    "/opt/venv/bin/pip install -r requirements.txt"  # Install dependencies in the virtual environment
+  ]
 
-# Start the app with gunicorn
+# Activate the virtual environment and start the app with gunicorn
 [start]
-  cmd = "gunicorn -b 0.0.0.0:$PORT app:app"
+  cmd = "source /opt/venv/bin/activate && gunicorn -b 0.0.0.0:$PORT app:app"
