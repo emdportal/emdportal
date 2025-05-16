@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Home - Exchange Portal{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4>Exchange Dashboard</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Deployed Exchanges</h5>
+                        <p class="card-text">{{ exchanges|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Allocated Exchanges</h5>
+                        <p class="card-text">0</p> <!-- Placeholder, update with actual data if available -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">Pending Exchanges</h5>
+                        <p class="card-text">0</p> <!-- Placeholder, update with actual data if available -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Removed Exchanges</h5>
+                        <p class="card-text">0</p> <!-- Placeholder, update with actual data if available -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Year Wise Total Exchanges</h5>
+                        <canvas id="yearChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Region Wise Exchange Count</h5>
+                        <canvas id="regionChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Exchange List</h5>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>SN</th>
+                                    <th>Region</th>
+                                    <th>Exchange Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for exchange in exchanges %}
+                                <tr>
+                                    <td>{{ exchange.sn }}</td>
+                                    <td>{{ exchange.region }}</td>
+                                    <td>{{ exchange.exchange_name }}</td>
+                                    <td>
+                                        <a href="{{ url_for('edit', sn=exchange.sn) }}" class="btn btn-sm btn-primary">Edit</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const yearCtx = document.getElementById('yearChart').getContext('2d');
+    new Chart(yearCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['2024', '2025'],
+            datasets: [{
+                data: {{ year_counts|tojson|safe }},
+                backgroundColor: ['#f6ad55', '#48bb78']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    const regionCtx = document.getElementById('regionChart').getContext('2d');
+    new Chart(regionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ region_labels|tojson|safe }},
+            datasets: [{
+                label: 'Exchange Count',
+                data: {{ region_counts|tojson|safe }},
+                backgroundColor: '#48bb78'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+</script>
+{% endblock %}

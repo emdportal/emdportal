@@ -1,0 +1,100 @@
+<div id="battery_container">
+    {% if general and general.battery_banks %}
+        {% for battery in general.battery_banks %}
+            <div class="battery_entry">
+                <h4>Battery Bank {{ loop.index }}</h4>
+                <div class="form-group">
+                    <label>Make of Battery:</label>
+                    <input type="text" class="form-control" name="make_of_battery[]" value="{{ battery.make_of_battery }}">
+                </div>
+                <div class="form-group">
+                    <label>Battery Capacity (AH):</label>
+                    <input type="number" step="any" class="form-control" name="battery_capacity[]" value="{{ battery.battery_capacity if battery.battery_capacity else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Battery Type (2V/12V):</label>
+                    <select class="form-control" name="battery_type[]">
+                        <option value="2V" {{ 'selected' if battery.battery_type == '2V' else '' }}>2V</option>
+                        <option value="12V" {{ 'selected' if battery.battery_type == '12V' else '' }}>12V</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>No. of Cells/Bank:</label>
+                    <input type="number" class="form-control" name="no_of_cells_bank[]" value="{{ battery.no_of_cells_bank if battery.no_of_cells_bank else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Date of Installation:</label>
+                    <input type="date" class="form-control" name="date_of_installation_battery[]" value="{{ battery.date_of_installation if battery.date_of_installation else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Load on Battery Bank (A):</label>
+                    <input type="number" step="any" class="form-control" name="load_on_battery_bank[]" value="{{ battery.load_on_battery_bank if battery.load_on_battery_bank else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Practical Backup Time (Hrs):</label>
+                    <input type="number" step="any" class="form-control" name="practical_backup_time[]" value="{{ battery.practical_backup_time if battery.practical_backup_time else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Battery Installed New or Used:</label>
+                    <select class="form-control" name="battery_installed_new_or_used[]">
+                        <option value="New" {{ 'selected' if battery.battery_installed_new_or_used == 'New' else '' }}>New</option>
+                        <option value="Used" {{ 'selected' if battery.battery_installed_new_or_used == 'Used' else '' }}>Used</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Battery Moved From (If Used):</label>
+                    <input type="text" class="form-control" name="battery_moved_from[]" value="{{ battery.battery_moved_from if battery.battery_moved_from else '' }}">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-battery">Remove Battery</button>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="battery_entry">
+            <h4>Battery Bank 1</h4>
+            <div class="form-group">
+                <label>Make of Battery:</label>
+                <input type="text" class="form-control" name="make_of_battery[]">
+            </div>
+            <div class="form-group">
+                <label>Battery Capacity (AH):</label>
+                <input type="number" step="any" class="form-control" name="battery_capacity[]">
+            </div>
+            <div class="form-group">
+                <label>Battery Type (2V/12V):</label>
+                <select class="form-control" name="battery_type[]">
+                    <option value="2V">2V</option>
+                    <option value="12V">12V</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>No. of Cells/Bank:</label>
+                <input type="number" class="form-control" name="no_of_cells_bank[]">
+            </div>
+            <div class="form-group">
+                <label>Date of Installation:</label>
+                <input type="date" class="form-control" name="date_of_installation_battery[]">
+            </div>
+            <div class="form-group">
+                <label>Load on Battery Bank (A):</label>
+                <input type="number" step="any" class="form-control" name="load_on_battery_bank[]">
+            </div>
+            <div class="form-group">
+                <label>Practical Backup Time (Hrs):</label>
+                <input type="number" step="any" class="form-control" name="practical_backup_time[]">
+            </div>
+            <div class="form-group">
+                <label>Battery Installed New or Used:</label>
+                <select class="form-control" name="battery_installed_new_or_used[]">
+                    <option value="New">New</option>
+                    <option value="Used">Used</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Battery Moved From (If Used):</label>
+                <input type="text" class="form-control" name="battery_moved_from[]">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-2 remove-battery">Remove Battery</button>
+        </div>
+    {% endif %}
+</div>
+<button type="button" class="btn btn-primary mt-2" id="add_battery">Add More Battery</button>

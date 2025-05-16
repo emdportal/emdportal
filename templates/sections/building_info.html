@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label for="building_status">Building Status:</label>
+    <input type="text" class="form-control" id="building_status" name="building_status" value="{{ general.building_info.building_status if general and general.building_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="wall_doors_condition">Wall, Doors Condition:</label>
+    <input type="text" class="form-control" id="wall_doors_condition" name="wall_doors_condition" value="{{ general.building_info.wall_doors_condition if general and general.building_info else '' }}">
+</div>

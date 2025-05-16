@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h2 class="mb-0">{{ 'Edit Exchange' if general else 'Add New Exchange' }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('edit', sn=general.sn) if general else url_for('add') }}" class="needs-validation" novalidate>
+                <ul class="nav nav-tabs mb-3" id="exchangeTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="power-tab" data-bs-toggle="tab" data-bs-target="#power" type="button" role="tab" aria-controls="power" aria-selected="false">Power Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="battery-tab" data-bs-toggle="tab" data-bs-target="#battery" type="button" role="tab" aria-controls="battery" aria-selected="false">Battery Bank Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="ac-tab" data-bs-toggle="tab" data-bs-target="#ac" type="button" role="tab" aria-controls="ac" aria-selected="false">AC Units Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="solar-tab" data-bs-toggle="tab" data-bs-target="#solar" type="button" role="tab" aria-controls="solar" aria-selected="false">Solar Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="earthing-tab" data-bs-toggle="tab" data-bs-target="#earthing" type="button" role="tab" aria-controls="earthing" aria-selected="false">Earthing</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="fire-tab" data-bs-toggle="tab" data-bs-target="#fire" type="button" role="tab" aria-controls="fire" aria-selected="false">Fire Extinguishers</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pmr-tab" data-bs-toggle="tab" data-bs-target="#pmr" type="button" role="tab" aria-controls="pmr" aria-selected="false">PMR Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="alarm-tab" data-bs-toggle="tab" data-bs-target="#alarm" type="button" role="tab" aria-controls="alarm" aria-selected="false">Alarm Extension</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="colocation-tab" data-bs-toggle="tab" data-bs-target="#colocation" type="button" role="tab" aria-controls="colocation" aria-selected="false">Colocation Information</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="building-tab" data-bs-toggle="tab" data-bs-target="#building" type="button" role="tab" aria-controls="building" aria-selected="false">Building Information</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content p-3" id="exchangeTabContent">
+                    <!-- General Information Tab -->
+                    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                        {% include 'sections/general_info.html' %}
+                    </div>
+
+                    <!-- Power Information Tab -->
+                    <div class="tab-pane fade" id="power" role="tabpanel" aria-labelledby="power-tab">
+                        {% include 'sections/power_info.html' %}
+                    </div>
+
+                    <!-- Battery Bank Information Tab -->
+                    <div class="tab-pane fade" id="battery" role="tabpanel" aria-labelledby="battery-tab">
+                        {% include 'sections/battery_info.html' %}
+                    </div>
+
+                    <!-- AC Units Information Tab -->
+                    <div class="tab-pane fade" id="ac" role="tabpanel" aria-labelledby="ac-tab">
+                        {% include 'sections/ac_info.html' %}
+                    </div>
+
+                    <!-- Solar Information Tab -->
+                    <div class="tab-pane fade" id="solar" role="tabpanel" aria-labelledby="solar-tab">
+                        {% include 'sections/solar_info.html' %}
+                    </div>
+
+                    <!-- Earthing Tab -->
+                    <div class="tab-pane fade" id="earthing" role="tabpanel" aria-labelledby="earthing-tab">
+                        {% include 'sections/earthing_info.html' %}
+                    </div>
+
+                    <!-- Fire Extinguishers Tab -->
+                    <div class="tab-pane fade" id="fire" role="tabpanel" aria-labelledby="fire-tab">
+                        {% include 'sections/fire_extinguishers_info.html' %}
+                    </div>
+
+                    <!-- PMR Information Tab -->
+                    <div class="tab-pane fade" id="pmr" role="tabpanel" aria-labelledby="pmr-tab">
+                        {% include 'sections/pmr_info.html' %}
+                    </div>
+
+                    <!-- Alarm Extension Tab -->
+                    <div class="tab-pane fade" id="alarm" role="tabpanel" aria-labelledby="alarm-tab">
+                        {% include 'sections/alarm_info.html' %}
+                    </div>
+
+                    <!-- Colocation Information Tab -->
+                    <div class="tab-pane fade" id="colocation" role="tabpanel" aria-labelledby="colocation-tab">
+                        {% include 'sections/colocation_info.html' %}
+                    </div>
+
+                    <!-- Building Information Tab -->
+                    <div class="tab-pane fade" id="building" role="tabpanel" aria-labelledby="building-tab">
+                        {% include 'sections/building_info.html' %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">{{ 'Update' if general else 'Submit' }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include 'sections/form_scripts.html' %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prevent hash from interfering with form submission
+        const tabs = document.querySelectorAll('.nav-tabs .nav-link');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('data-bs-target'));
+                const tabInstance = new bootstrap.Tab(this);
+                tabInstance.show();
+                // Remove hash from URL
+                history.pushState(null, null, window.location.pathname);
+            });
+        });
+
+        // Restore active tab if previously selected
+        const activeTab = localStorage.getItem('activeExchangeTab');
+        if (activeTab) {
+            const tab = document.querySelector(`[data-bs-target="${activeTab}"]`);
+            if (tab) {
+                const tabInstance = new bootstrap.Tab(tab);
+                tabInstance.show();
+            }
+        }
+
+        // Save active tab on switch
+        document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function(e) {
+                localStorage.setItem('activeExchangeTab', e.target.getAttribute('data-bs-target'));
+            });
+        });
+    });
+</script>
+{% endblock %}

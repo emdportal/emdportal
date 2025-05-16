@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label for="pmr_performed">PMR Performed (Y/N):</label>
+    <input type="checkbox" id="pmr_performed" name="pmr_performed" value="Yes" {{ 'checked' if general and general.pmr_info and general.pmr_info.pmr_performed else '' }}>
+</div>
+<div class="form-group">
+    <label for="last_performed_date">Last Performed Date:</label>
+    <input type="date" class="form-control" id="last_performed_date" name="last_performed_date" value="{{ general.pmr_info.last_performed_date if general and general.pmr_info else '' }}">
+</div>

@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+{% block title %}View Added Exchanges - Exchange Portal{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <h4 class="mb-0">View Added Exchanges</h4>
+    </div>
+    <div class="card-body">
+        <div class="accordion" id="exchangeAccordion" style="max-height: 70vh; overflow-y: auto;">
+            {% for exchange in exchanges %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ exchange.sn }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExchange{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseExchange{{ exchange.sn }}">
+                        SN: {{ exchange.sn }} - {{ exchange.exchange_name }}
+                    </button>
+                </h2>
+                <div id="collapseExchange{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="heading{{ exchange.sn }}" data-bs-parent="#exchangeAccordion">
+                    <div class="accordion-body">
+                        <div class="accordion" id="sectionsAccordion{{ exchange.sn }}">
+                            <!-- General Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingGeneral{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGeneral{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseGeneral{{ exchange.sn }}">
+                                        General Information
+                                    </button>
+                                </h2>
+                                <div id="collapseGeneral{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingGeneral{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Region:</strong> {{ exchange.region or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Domain:</strong> {{ exchange.domain or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Exchange Name:</strong> {{ exchange.exchange_name or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Exchange LIC:</strong> {{ exchange.exchange_lic or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>FLC:</strong> {{ exchange.flc or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Site Category:</strong> {{ exchange.site_category or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>NEs Installed:</strong> {{ exchange.nes_installed or 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Latitude:</strong> {{ exchange.latitude if exchange.latitude is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Longitude:</strong> {{ exchange.longitude if exchange.longitude is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Tower Available:</strong> {{ exchange.tower_available or 'No' }}</li>
+                                            <li class="list-group-item"><strong>Tower Type/Height:</strong> 
+                                                {% if exchange.towers %}
+                                                    {{ exchange.towers | map(attribute='tower_type_height') | join(', ') }}
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Power Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPower{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePower{{ exchange.sn }}" aria-expanded="false" aria-controls="collapsePower{{ exchange.sn }}">
+                                        Power Information
+                                    </button>
+                                </h2>
+                                <div id="collapsePower{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingPower{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Wapda Ref Number:</strong> {{ exchange.power_info.wapda_ref_number if exchange.power_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Transformer Capacity:</strong> {{ exchange.power_info.transformer_capacity if exchange.power_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Transformer Earthing:</strong> {{ exchange.power_info.transformer_earthing if exchange.power_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Make of Rectifier:</strong> {{ exchange.power_info.make_of_rectifier if exchange.power_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Working Status:</strong> {{ 'Yes' if exchange.power_info and exchange.power_info.working_status else 'No' }}</li>
+                                            <li class="list-group-item"><strong>Rectifier Capacity:</strong> {{ exchange.power_info.rectifier_capacity if exchange.power_info and exchange.power_info.rectifier_capacity is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>No. of Modules:</strong> {{ exchange.power_info.no_of_modules if exchange.power_info and exchange.power_info.no_of_modules is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Capacity of Each Module:</strong> {{ exchange.power_info.capacity_of_each_module if exchange.power_info and exchange.power_info.capacity_of_each_module is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Working Modules:</strong> {{ exchange.power_info.working_modules if exchange.power_info and exchange.power_info.working_modules is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Faulty Modules:</strong> {{ exchange.power_info.faulty_modules if exchange.power_info and exchange.power_info.faulty_modules is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Space for New Modules:</strong> {{ exchange.power_info.space_for_new_modules if exchange.power_info and exchange.power_info.space_for_new_modules is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Name of NEs Connected:</strong> {{ exchange.power_info.name_of_nes_connected if exchange.power_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Load of Individual NE:</strong> {{ exchange.power_info.load_of_individual_ne if exchange.power_info and exchange.power_info.load_of_individual_ne is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Grounding of Rectifier:</strong> {{ 'Yes' if exchange.power_info and exchange.power_info.grounding_of_rectifier else 'No' }}</li>
+                                            <li class="list-group-item"><strong>SPD in Rectifier:</strong> {{ 'Yes' if exchange.power_info and exchange.power_info.spd_in_rectifier else 'No' }}</li>
+                                            <li class="list-group-item"><strong>SPD Model:</strong> {{ exchange.power_info.spd_model if exchange.power_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Total Installed SPDs:</strong> {{ exchange.power_info.total_installed_spds if exchange.power_info and exchange.power_info.total_installed_spds is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>No of Faulty SPDs:</strong> {{ exchange.power_info.no_of_faulty_spds if exchange.power_info and exchange.power_info.no_of_faulty_spds is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>DGs:</strong>
+                                                {% if exchange.dgs %}
+                                                    <ul>
+                                                        {% for dg in exchange.dgs %}
+                                                            <li>Installed DG: {{ dg.installed_dg or 'N/A' }}, Engine Make: {{ dg.engine_make or 'N/A' }}, Year: {{ dg.installation_year if dg.installation_year is not none else 'N/A' }}, Status: {{ dg.dg_status or 'N/A' }}</li>
+                                                            <li>Starting Battery: {{ dg.dg_starting_battery or 'N/A' }}, Smart Switch: {{ 'Yes' if dg.smart_switch_installed else 'No' }}, ATS: {{ 'Yes' if dg.ats_installed else 'No' }}, ATS Capacity: {{ dg.ats_capacity or 'N/A' }}</li>
+                                                            <li>Faulty ATS Parts: {{ dg.name_of_faulty_ats_parts or 'N/A' }} ({{ dg.no_of_faulty_ats_parts if dg.no_of_faulty_ats_parts is not none else 'N/A' }})</li>
+                                                            <li>Load on DG: P1: {{ dg.load_on_dg_p1 if dg.load_on_dg_p1 is not none else 'N/A' }}, P2: {{ dg.load_on_dg_p2 if dg.load_on_dg_p2 is not none else 'N/A' }}, P3: {{ dg.load_on_dg_p3 if dg.load_on_dg_p3 is not none else 'N/A' }}</li>
+                                                            <li>Site Load: Total: {{ dg.site_load_total if dg.site_load_total is not none else 'N/A' }}, P1: {{ dg.site_load_p1 if dg.site_load_p1 is not none else 'N/A' }}, P2: {{ dg.site_load_p2 if dg.site_load_p2 is not none else 'N/A' }}, P3: {{ dg.site_load_p3 if dg.site_load_p3 is not none else 'N/A' }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Battery Bank Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingBattery{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBattery{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseBattery{{ exchange.sn }}">
+                                        Battery Bank Information
+                                    </button>
+                                </h2>
+                                <div id="collapseBattery{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingBattery{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Battery Banks:</strong>
+                                                {% if exchange.battery_banks %}
+                                                    <ul>
+                                                        {% for battery in exchange.battery_banks %}
+                                                            <li>Make: {{ battery.make_of_battery or 'N/A' }}, Capacity: {{ battery.battery_capacity if battery.battery_capacity is not none else 'N/A' }}, Type: {{ battery.battery_type or 'N/A' }}</li>
+                                                            <li>No. of Cells: {{ battery.no_of_cells_bank if battery.no_of_cells_bank is not none else 'N/A' }}, Installed: {{ battery.date_of_installation or 'N/A' }}</li>
+                                                            <li>Load: {{ battery.load_on_battery_bank if battery.load_on_battery_bank is not none else 'N/A' }}, Backup Time: {{ battery.practical_backup_time if battery.practical_backup_time is not none else 'N/A' }}</li>
+                                                            <li>Condition: {{ battery.battery_installed_new_or_used or 'N/A' }}, Moved From: {{ battery.battery_moved_from or 'N/A' }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- AC Units Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingAC{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAC{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseAC{{ exchange.sn }}">
+                                        AC Units Information
+                                    </button>
+                                </h2>
+                                <div id="collapseAC{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingAC{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>AC Units:</strong>
+                                                {% if exchange.ac_units %}
+                                                    <ul>
+                                                        {% for ac in exchange.ac_units %}
+                                                            <li>Location: {{ ac.location_of_ac_unit or 'N/A' }}, Make: {{ ac.ac_make or 'N/A' }}, Capacity: {{ ac.capacity_tons if ac.capacity_tons is not none else 'N/A' }}</li>
+                                                            <li>Type: {{ ac.type_of_ac or 'N/A' }}, Mount: {{ ac.mount_type or 'N/A' }}, Installed: {{ ac.date_of_installation or 'N/A' }}</li>
+                                                            <li>Working: {{ 'Yes' if ac.working_status else 'No' }}, Sequence Controller: {{ 'Yes' if ac.sequence_controller_installed else 'No' }}</li>
+                                                            <li>Load: {{ ac.ac_load if ac.ac_load is not none else 'N/A' }}, Total Load: {{ ac.total_ac_load if ac.total_ac_load is not none else 'N/A' }}</li>
+                                                            <li>Fault: {{ ac.fault_nature_of_ac_unit or 'N/A' }}, Repair Estimate: {{ ac.estimate_to_repair_ac if ac.estimate_to_repair_ac is not none else 'N/A' }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Solar Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingSolar{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolar{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseSolar{{ exchange.sn }}">
+                                        Installed Solar Information
+                                    </button>
+                                </h2>
+                                <div id="collapseSolar{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingSolar{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Total Solar Size:</strong> {{ exchange.solar_info.total_solar_size if exchange.solar_info and exchange.solar_info.total_solar_size is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>PV Solar Panel Capacity:</strong> {{ exchange.solar_info.pv_solar_panel_capacity if exchange.solar_info and exchange.solar_info.pv_solar_panel_capacity is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>No. of PV Panels Installed:</strong> {{ exchange.solar_info.no_of_pv_panels_installed if exchange.solar_info and exchange.solar_info.no_of_pv_panels_installed is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Make of PV Panels:</strong> {{ exchange.solar_info.make_of_pv_panels if exchange.solar_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Charge Controller Make:</strong> {{ exchange.solar_info.charge_controller_make if exchange.solar_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>No. of Charge Controllers:</strong> {{ exchange.solar_info.no_of_charge_controllers if exchange.solar_info and exchange.solar_info.no_of_charge_controllers is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Charge Controller Capacity:</strong> {{ exchange.solar_info.charge_controller_capacity if exchange.solar_info and exchange.solar_info.charge_controller_capacity is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Inverter Make:</strong> {{ exchange.solar_info.inverter_make if exchange.solar_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Inverter Capacity:</strong> {{ exchange.solar_info.inverter_capacity if exchange.solar_info and exchange.solar_info.inverter_capacity is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>No. of Inverters:</strong> {{ exchange.solar_info.no_of_inverters if exchange.solar_info and exchange.solar_info.no_of_inverters is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>On Grid/Hybrid:</strong> {{ exchange.solar_info.on_grid_hybrid if exchange.solar_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Roof Top/Ground:</strong> {{ exchange.solar_info.roof_top_ground if exchange.solar_info else 'N/A' }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Earthing -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingEarthing{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEarthing{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseEarthing{{ exchange.sn }}">
+                                        Earthing
+                                    </button>
+                                </h2>
+                                <div id="collapseEarthing{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingEarthing{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Earthing Value:</strong> {{ exchange.earthing.earthing_value if exchange.earthing and exchange.earthing.earthing_value is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>No. of Pits:</strong> {{ exchange.earthing.no_of_pits if exchange.earthing and exchange.earthing.no_of_pits is not none else 'N/A' }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fire Extinguishers -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFire{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFire{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseFire{{ exchange.sn }}">
+                                        Fire Extinguishers
+                                    </button>
+                                </h2>
+                                <div id="collapseFire{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingFire{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Fire Extinguishers:</strong>
+                                                {% if exchange.fire_extinguishers %}
+                                                    <ul>
+                                                        {% for fe in exchange.fire_extinguishers %}
+                                                            <li>Installed: {{ 'Yes' if fe.fe_installed else 'No' }}, No: {{ fe.no_of_fes if fe.no_of_fes is not none else 'N/A' }}</li>
+                                                            <li>Gas: {{ fe.type_of_gas or 'N/A' }}, Expiry: {{ fe.date_of_expiry or 'N/A' }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- PMR Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPMR{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePMR{{ exchange.sn }}" aria-expanded="false" aria-controls="collapsePMR{{ exchange.sn }}">
+                                        PMR Information
+                                    </button>
+                                </h2>
+                                <div id="collapsePMR{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingPMR{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>PMR Performed:</strong> {{ 'Yes' if exchange.pmr_info and exchange.pmr_info.pmr_performed else 'No' }}</li>
+                                            <li class="list-group-item"><strong>Last Performed Date:</strong> {{ exchange.pmr_info.last_performed_date if exchange.pmr_info else 'N/A' }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Alarm Extension -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingAlarm{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAlarm{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseAlarm{{ exchange.sn }}">
+                                        Alarm Extension
+                                    </button>
+                                </h2>
+                                <div id="collapseAlarm{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingAlarm{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>AC Main Failure:</strong> {{ 'Yes' if exchange.alarm_extension and exchange.alarm_extension.ac_main_failure else 'No' }}</li>
+                                            <li class="list-group-item"><strong>DC Low Voltages:</strong> {{ 'Yes' if exchange.alarm_extension and exchange.alarm_extension.dc_low_voltages else 'No' }}</li>
+                                            <li class="list-group-item"><strong>Rectifier Failure:</strong> {{ 'Yes' if exchange.alarm_extension and exchange.alarm_extension.rectifier_failure else 'No' }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Colocation Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingColocation{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseColocation{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseColocation{{ exchange.sn }}">
+                                        Colocation Information
+                                    </button>
+                                </h2>
+                                <div id="collapseColocation{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingColocation{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Colocation:</strong> {{ 'Yes' if exchange.colocation_info and exchange.colocation_info.colocation else 'No' }}</li>
+                                            <li class="list-group-item"><strong>Name of Colocation Vendors:</strong> {{ exchange.colocation_info.name_of_colocation_vendors if exchange.colocation_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Load of Each Vendor:</strong> {{ exchange.colocation_info.load_of_each_vendor if exchange.colocation_info and exchange.colocation_info.load_of_each_vendor is not none else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Total Load:</strong> {{ exchange.colocation_info.total_load if exchange.colocation_info and exchange.colocation_info.total_load is not none else 'N/A' }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Building Information -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingBuilding{{ exchange.sn }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBuilding{{ exchange.sn }}" aria-expanded="false" aria-controls="collapseBuilding{{ exchange.sn }}">
+                                        Building Information
+                                    </button>
+                                </h2>
+                                <div id="collapseBuilding{{ exchange.sn }}" class="accordion-collapse collapse" aria-labelledby="headingBuilding{{ exchange.sn }}" data-bs-parent="#sectionsAccordion{{ exchange.sn }}">
+                                    <div class="accordion-body">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"><strong>Building Status:</strong> {{ exchange.building_info.building_status if exchange.building_info else 'N/A' }}</li>
+                                            <li class="list-group-item"><strong>Wall, Doors Condition:</strong> {{ exchange.building_info.wall_doors_condition if exchange.building_info else 'N/A' }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<style>
+    .accordion-item {
+        margin-bottom: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+    .accordion-button {
+        background-color: #f8f9fa;
+        color: #1e293b;
+        font-weight: 500;
+    }
+    .accordion-button:not(.collapsed) {
+        background-color: #e9ecef;
+        color: #1e293b;
+    }
+    .list-group-item {
+        border: none;
+        padding: 8px 0;
+    }
+    .list-group-item strong {
+        color: #1e293b;
+    }
+</style>
+{% endblock %}

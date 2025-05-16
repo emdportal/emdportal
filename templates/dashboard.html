@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Exchange Portal{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h4>Dashboard</h4>
+    </div>
+    <div class="card-body">
+        <canvas id="regionChart" width="400" height="200"></canvas>
+        <canvas id="loadChart" width="400" height="200"></canvas>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const regionCtx = document.getElementById('regionChart').getContext('2d');
+    new Chart(regionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ region_labels|tojson }},
+            datasets: [{
+                label: 'Number of Exchanges',
+                data: {{ region_counts|tojson }},
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+    });
+    const loadCtx = document.getElementById('loadChart').getContext('2d');
+    new Chart(loadCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Total Load'],
+            datasets: [{
+                label: 'Power Load (KW)',
+                data: {{ total_loads|tojson }},
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+    });
+</script>
+{% endblock %}

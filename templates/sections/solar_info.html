@@ -1,0 +1,48 @@
+<div class="form-group">
+    <label for="total_solar_size">Total Solar Size:</label>
+    <input type="number" step="any" class="form-control" id="total_solar_size" name="total_solar_size" value="{{ general.solar_info.total_solar_size if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="pv_solar_panel_capacity">PV Solar Panel Capacity:</label>
+    <input type="number" step="any" class="form-control" id="pv_solar_panel_capacity" name="pv_solar_panel_capacity" value="{{ general.solar_info.pv_solar_panel_capacity if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="no_of_pv_panels_installed">No. of PV Panels Installed:</label>
+    <input type="number" class="form-control" id="no_of_pv_panels_installed" name="no_of_pv_panels_installed" value="{{ general.solar_info.no_of_pv_panels_installed if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="make_of_pv_panels">Make of PV Panels:</label>
+    <input type="text" class="form-control" id="make_of_pv_panels" name="make_of_pv_panels" value="{{ general.solar_info.make_of_pv_panels if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="charge_controller_make">Charge Controller Make:</label>
+    <input type="text" class="form-control" id="charge_controller_make" name="charge_controller_make" value="{{ general.solar_info.charge_controller_make if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="no_of_charge_controllers">No. of Charge Controllers:</label>
+    <input type="number" class="form-control" id="no_of_charge_controllers" name="no_of_charge_controllers" value="{{ general.solar_info.no_of_charge_controllers if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="charge_controller_capacity">Charge Controller Capacity:</label>
+    <input type="number" step="any" class="form-control" id="charge_controller_capacity" name="charge_controller_capacity" value="{{ general.solar_info.charge_controller_capacity if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="inverter_make">Inverter Make:</label>
+    <input type="text" class="form-control" id="inverter_make" name="inverter_make" value="{{ general.solar_info.inverter_make if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="inverter_capacity">Inverter Capacity:</label>
+    <input type="number" step="any" class="form-control" id="inverter_capacity" name="inverter_capacity" value="{{ general.solar_info.inverter_capacity if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="no_of_inverters">No. of Inverters:</label>
+    <input type="number" class="form-control" id="no_of_inverters" name="no_of_inverters" value="{{ general.solar_info.no_of_inverters if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="on_grid_hybrid">On Grid/Hybrid:</label>
+    <input type="text" class="form-control" id="on_grid_hybrid" name="on_grid_hybrid" value="{{ general.solar_info.on_grid_hybrid if general and general.solar_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="roof_top_ground">Roof Top/Ground:</label>
+    <input type="text" class="form-control" id="roof_top_ground" name="roof_top_ground" value="{{ general.solar_info.roof_top_ground if general and general.solar_info else '' }}">
+</div>

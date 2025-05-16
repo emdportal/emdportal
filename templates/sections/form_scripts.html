@@ -1,0 +1,273 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function toggleTowerFields() {
+        const towerAvailable = $('#tower_available').val();
+        const towerFields = $('#tower_fields');
+        if (towerAvailable === 'Yes') {
+            towerFields.show();
+        } else {
+            towerFields.hide();
+        }
+    }
+
+    $('#add_tower').click(function() {
+        const towerContainer = $('#tower_container');
+        const towerCount = towerContainer.children('.tower_entry').length + 1;
+        const newTower = `
+            <div class="tower_entry form-group">
+                <label>Type and Height of Tower ${towerCount}:</label>
+                <input type="text" class="form-control" name="tower_type_height[]">
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-tower">Remove</button>
+            </div>
+        `;
+        towerContainer.append(newTower);
+    });
+
+    $('#add_dg').click(function() {
+        const dgContainer = $('#dg_container');
+        const dgCount = dgContainer.children('.dg_entry').length + 1;
+        const newDG = `
+            <div class="dg_entry">
+                <h4>DG ${dgCount}</h4>
+                <div class="form-group">
+                    <label>Installed DG:</label>
+                    <input type="text" class="form-control" name="installed_dg[]">
+                </div>
+                <div class="form-group">
+                    <label>Engine Make:</label>
+                    <input type="text" class="form-control" name="engine_make[]">
+                </div>
+                <div class="form-group">
+                    <label>Installation Year:</label>
+                    <input type="number" class="form-control" name="installation_year[]">
+                </div>
+                <div class="form-group">
+                    <label>DG Status:</label>
+                    <select class="form-control" name="dg_status[]">
+                        <option value="Working">Working</option>
+                        <option value="Faulty">Faulty</option>
+                        <option value="Spare">Spare</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>DG Starting Battery:</label>
+                    <input type="text" class="form-control" name="dg_starting_battery[]">
+                </div>
+                <div class="form-group">
+                    <label>Smart Switch Installed:</label>
+                    <input type="checkbox" name="smart_switch_installed_${dgCount - 1}" value="Yes">
+                </div>
+                <div class="form-group">
+                    <label>ATS Installed:</label>
+                    <input type="checkbox" name="ats_installed_${dgCount - 1}" value="Yes">
+                </div>
+                <div class="form-group">
+                    <label>ATS Capacity:</label>
+                    <input type="text" class="form-control" name="ats_capacity[]">
+                </div>
+                <div class="form-group">
+                    <label>Name of Faulty ATS Parts:</label>
+                    <input type="text" class="form-control" name="name_of_faulty_ats_parts[]">
+                </div>
+                <div class="form-group">
+                    <label>No. of Faulty ATS Parts:</label>
+                    <input type="number" class="form-control" name="no_of_faulty_ats_parts[]">
+                </div>
+                <div class="form-group">
+                    <label>Load on DG P1:</label>
+                    <input type="number" step="any" class="form-control" name="load_on_dg_p1[]">
+                </div>
+                <div class="form-group">
+                    <label>Load on DG P2:</label>
+                    <input type="number" step="any" class="form-control" name="load_on_dg_p2[]">
+                </div>
+                <div class="form-group">
+                    <label>Load on DG P3:</label>
+                    <input type="number" step="any" class="form-control" name="load_on_dg_p3[]">
+                </div>
+                <div class="form-group">
+                    <label>Site Load Total:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_total[]">
+                </div>
+                <div class="form-group">
+                    <label>Site Load P1:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_p1[]">
+                </div>
+                <div class="form-group">
+                    <label>Site Load P2:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_p2[]">
+                </div>
+                <div class="form-group">
+                    <label>Site Load P3:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_p3[]">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-dg">Remove DG</button>
+            </div>
+        `;
+        dgContainer.append(newDG);
+    });
+
+    $('#add_battery').click(function() {
+        const batteryContainer = $('#battery_container');
+        const batteryCount = batteryContainer.children('.battery_entry').length + 1;
+        const newBattery = `
+            <div class="battery_entry">
+                <h4>Battery Bank ${batteryCount}</h4>
+                <div class="form-group">
+                    <label>Make of Battery:</label>
+                    <input type="text" class="form-control" name="make_of_battery[]">
+                </div>
+                <div class="form-group">
+                    <label>Battery Capacity (AH):</label>
+                    <input type="number" step="any" class="form-control" name="battery_capacity[]">
+                </div>
+                <div class="form-group">
+                    <label>Battery Type (2V/12V):</label>
+                    <select class="form-control" name="battery_type[]">
+                        <option value="2V">2V</option>
+                        <option value="12V">12V</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>No. of Cells/Bank:</label>
+                    <input type="number" class="form-control" name="no_of_cells_bank[]">
+                </div>
+                <div class="form-group">
+                    <label>Date of Installation:</label>
+                    <input type="date" class="form-control" name="date_of_installation_battery[]">
+                </div>
+                <div class="form-group">
+                    <label>Load on Battery Bank (A):</label>
+                    <input type="number" step="any" class="form-control" name="load_on_battery_bank[]">
+                </div>
+                <div class="form-group">
+                    <label>Practical Backup Time (Hrs):</label>
+                    <input type="number" step="any" class="form-control" name="practical_backup_time[]">
+                </div>
+                <div class="form-group">
+                    <label>Battery Installed New or Used:</label>
+                    <select class="form-control" name="battery_installed_new_or_used[]">
+                        <option value="New">New</option>
+                        <option value="Used">Used</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Battery Moved From (If Used):</label>
+                    <input type="text" class="form-control" name="battery_moved_from[]">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-battery">Remove Battery</button>
+            </div>
+        `;
+        batteryContainer.append(newBattery);
+    });
+
+    $('#add_ac').click(function() {
+        const acContainer = $('#ac_container');
+        const acCount = acContainer.children('.ac_entry').length + 1;
+        const newAC = `
+            <div class="ac_entry">
+                <h4>AC Unit ${acCount}</h4>
+                <div class="form-group">
+                    <label>Location of AC Unit:</label>
+                    <input type="text" class="form-control" name="location_of_ac_unit[]">
+                </div>
+                <div class="form-group">
+                    <label>Working Status (Y/N):</label>
+                    <input type="checkbox" name="working_status_ac_${acCount - 1}" value="Yes">
+                </div>
+                <div class="form-group">
+                    <label>AC Make:</label>
+                    <input type="text" class="form-control" name="ac_make[]">
+                </div>
+                <div class="form-group">
+                    <label>Capacity (Tons):</label>
+                    <input type="number" step="any" class="form-control" name="capacity_tons[]">
+                </div>
+                <div class="form-group">
+                    <label>Type of AC:</label>
+                    <input type="text" class="form-control" name="type_of_ac[]">
+                </div>
+                <div class="form-group">
+                    <label>Mount Type:</label>
+                    <input type="text" class="form-control" name="mount_type[]">
+                </div>
+                <div class="form-group">
+                    <label>Date of Installation:</label>
+                    <input type="date" class="form-control" name="date_of_installation_ac[]">
+                </div>
+                <div class="form-group">
+                    <label>Sequence Controller Installed:</label>
+                    <input type="checkbox" name="sequence_controller_installed_${acCount - 1}" value="Yes">
+                </div>
+                <div class="form-group">
+                    <label>AC Load:</label>
+                    <input type="number" step="any" class="form-control" name="ac_load[]">
+                </div>
+                <div class="form-group">
+                    <label>Total AC Load:</label>
+                    <input type="number" step="any" class="form-control" name="total_ac_load[]">
+                </div>
+                <div class="form-group">
+                    <label>Fault Nature of AC Unit:</label>
+                    <input type="text" class="form-control" name="fault_nature_of_ac_unit[]">
+                </div>
+                <div class="form-group">
+                    <label>Estimate to Repair AC:</label>
+                    <input type="number" step="any" class="form-control" name="estimate_to_repair_ac[]">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-ac">Remove AC</button>
+            </div>
+        `;
+        acContainer.append(newAC);
+    });
+
+    $('#add_fe').click(function() {
+        const feContainer = $('#fe_container');
+        const feCount = feContainer.children('.fe_entry').length + 1;
+        const newFE = `
+            <div class="fe_entry">
+                <h4>Fire Extinguisher ${feCount}</h4>
+                <div class="form-group">
+                    <label>FE Installed (Y/N):</label>
+                    <input type="checkbox" name="fe_installed_${feCount - 1}" value="Yes">
+                </div>
+                <div class="form-group">
+                    <label>No. of FEs:</label>
+                    <input type="number" class="form-control" name="no_of_fes[]">
+                </div>
+                <div class="form-group">
+                    <label>Type of Gas:</label>
+                    <input type="text" class="form-control" name="type_of_gas[]">
+                </div>
+                <div class="form-group">
+                    <label>Date of Expiry:</label>
+                    <input type="date" class="form-control" name="date_of_expiry[]">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-fe">Remove FE</button>
+            </div>
+        `;
+        feContainer.append(newFE);
+    });
+
+    // Remove functionality for all dynamic sections
+    $(document).on('click', '.remove-tower', function() {
+        $(this).parent('.tower_entry').remove();
+    });
+    $(document).on('click', '.remove-dg', function() {
+        $(this).parent('.dg_entry').remove();
+    });
+    $(document).on('click', '.remove-battery', function() {
+        $(this).parent('.battery_entry').remove();
+    });
+    $(document).on('click', '.remove-ac', function() {
+        $(this).parent('.ac_entry').remove();
+    });
+    $(document).on('click', '.remove-fe', function() {
+        $(this).parent('.fe_entry').remove();
+    });
+
+    // Initialize toggle on page load
+    $(document).ready(function() {
+        toggleTowerFields();
+    });
+</script>

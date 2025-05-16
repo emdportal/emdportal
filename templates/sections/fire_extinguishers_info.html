@@ -1,0 +1,48 @@
+<div id="fe_container">
+    {% if general and general.fire_extinguishers %}
+        {% for fe in general.fire_extinguishers %}
+            <div class="fe_entry">
+                <h4>Fire Extinguisher {{ loop.index }}</h4>
+                <div class="form-group">
+                    <label>FE Installed (Y/N):</label>
+                    <input type="checkbox" name="fe_installed_{{ loop.index0 }}" value="Yes" {{ 'checked' if fe.fe_installed else '' }}>
+                </div>
+                <div class="form-group">
+                    <label>No. of FEs:</label>
+                    <input type="number" class="form-control" name="no_of_fes[]" value="{{ fe.no_of_fes if fe.no_of_fes else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Type of Gas:</label>
+                    <input type="text" class="form-control" name="type_of_gas[]" value="{{ fe.type_of_gas if fe.type_of_gas else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Date of Expiry:</label>
+                    <input type="date" class="form-control" name="date_of_expiry[]" value="{{ fe.date_of_expiry if fe.date_of_expiry else '' }}">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-fe">Remove FE</button>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="fe_entry">
+            <h4>Fire Extinguisher 1</h4>
+            <div class="form-group">
+                <label>FE Installed (Y/N):</label>
+                <input type="checkbox" name="fe_installed_0" value="Yes">
+            </div>
+            <div class="form-group">
+                <label>No. of FEs:</label>
+                <input type="number" class="form-control" name="no_of_fes[]">
+            </div>
+            <div class="form-group">
+                <label>Type of Gas:</label>
+                <input type="text" class="form-control" name="type_of_gas[]">
+            </div>
+            <div class="form-group">
+                <label>Date of Expiry:</label>
+                <input type="date" class="form-control" name="date_of_expiry[]">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-2 remove-fe">Remove FE</button>
+        </div>
+    {% endif %}
+</div>
+<button type="button" class="btn btn-primary mt-2" id="add_fe">Add More FE</button>

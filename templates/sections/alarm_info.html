@@ -1,0 +1,12 @@
+<div class="form-group">
+    <label for="ac_main_failure">AC Main Failure (Y/N):</label>
+    <input type="checkbox" id="ac_main_failure" name="ac_main_failure" value="Yes" {{ 'checked' if general and general.alarm_extension and general.alarm_extension.ac_main_failure else '' }}>
+</div>
+<div class="form-group">
+    <label for="dc_low_voltages">DC Low Voltages (Y/N):</label>
+    <input type="checkbox" id="dc_low_voltages" name="dc_low_voltages" value="Yes" {{ 'checked' if general and general.alarm_extension and general.alarm_extension.dc_low_voltages else '' }}>
+</div>
+<div class="form-group">
+    <label for="rectifier_failure">Rectifier Failure (Y/N):</label>
+    <input type="checkbox" id="rectifier_failure" name="rectifier_failure" value="Yes" {{ 'checked' if general and general.alarm_extension and general.alarm_extension.rectifier_failure else '' }}>
+</div>

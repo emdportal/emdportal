@@ -1,0 +1,234 @@
+<div class="form-group">
+    <label for="wapda_ref_number">Wapda Ref Number:</label>
+    <input type="text" class="form-control" id="wapda_ref_number" name="wapda_ref_number" value="{{ general.power_info.wapda_ref_number if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="transformer_capacity">Transformer Capacity:</label>
+    <input type="text" class="form-control" id="transformer_capacity" name="transformer_capacity" value="{{ general.power_info.transformer_capacity if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="transformer_earthing">Transformer Earthing:</label>
+    <input type="text" class="form-control" id="transformer_earthing" name="transformer_earthing" value="{{ general.power_info.transformer_earthing if general and general.power_info else '' }}">
+</div>
+<div id="dg_container">
+    {% if general and general.dgs %}
+        {% for dg in general.dgs %}
+            <div class="dg_entry">
+                <h4>DG {{ loop.index }}</h4>
+                <div class="form-group">
+                    <label>Installed DG:</label>
+                    <input type="text" class="form-control" name="installed_dg[]" value="{{ dg.installed_dg }}">
+                </div>
+                <div class="form-group">
+                    <label>Engine Make:</label>
+                    <input type="text" class="form-control" name="engine_make[]" value="{{ dg.engine_make }}">
+                </div>
+                <div class="form-group">
+                    <label>Installation Year:</label>
+                    <input type="number" class="form-control" name="installation_year[]" value="{{ dg.installation_year if dg.installation_year else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>DG Status:</label>
+                    <select class="form-control" name="dg_status[]">
+                        <option value="Working" {{ 'selected' if dg.dg_status == 'Working' else '' }}>Working</option>
+                        <option value="Faulty" {{ 'selected' if dg.dg_status == 'Faulty' else '' }}>Faulty</option>
+                        <option value="Spare" {{ 'selected' if dg.dg_status == 'Spare' else '' }}>Spare</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>DG Starting Battery:</label>
+                    <input type="text" class="form-control" name="dg_starting_battery[]" value="{{ dg.dg_starting_battery if dg.dg_starting_battery else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Smart Switch Installed:</label>
+                    <input type="checkbox" name="smart_switch_installed_{{ loop.index0 }}" value="Yes" {{ 'checked' if dg.smart_switch_installed else '' }}>
+                </div>
+                <div class="form-group">
+                    <label>ATS Installed:</label>
+                    <input type="checkbox" name="ats_installed_{{ loop.index0 }}" value="Yes" {{ 'checked' if dg.ats_installed else '' }}>
+                </div>
+                <div class="form-group">
+                    <label>ATS Capacity:</label>
+                    <input type="text" class="form-control" name="ats_capacity[]" value="{{ dg.ats_capacity if dg.ats_capacity else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Name of Faulty ATS Parts:</label>
+                    <input type="text" class="form-control" name="name_of_faulty_ats_parts[]" value="{{ dg.name_of_faulty_ats_parts if dg.name_of_faulty_ats_parts else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>No. of Faulty ATS Parts:</label>
+                    <input type="number" class="form-control" name="no_of_faulty_ats_parts[]" value="{{ dg.no_of_faulty_ats_parts if dg.no_of_faulty_ats_parts else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Load on DG P1:</label>
+                    <input type="number" step="any" class="form-control" name="load_on_dg_p1[]" value="{{ dg.load_on_dg_p1 if dg.load_on_dg_p1 else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Load on DG P2:</label>
+                    <input type="number" step="any" class="form-control" name="load_on_dg_p2[]" value="{{ dg.load_on_dg_p2 if dg.load_on_dg_p2 else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Load on DG P3:</label>
+                    <input type="number" step="any" class="form-control" name="load_on_dg_p3[]" value="{{ dg.load_on_dg_p3 if dg.load_on_dg_p3 else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Site Load Total:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_total[]" value="{{ dg.site_load_total if dg.site_load_total else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Site Load P1:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_p1[]" value="{{ dg.site_load_p1 if dg.site_load_p1 else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Site Load P2:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_p2[]" value="{{ dg.site_load_p2 if dg.site_load_p2 else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Site Load P3:</label>
+                    <input type="number" step="any" class="form-control" name="site_load_p3[]" value="{{ dg.site_load_p3 if dg.site_load_p3 else '' }}">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm mt-2 remove-dg">Remove DG</button>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="dg_entry">
+            <h4>DG 1</h4>
+            <div class="form-group">
+                <label>Installed DG:</label>
+                <input type="text" class="form-control" name="installed_dg[]">
+            </div>
+            <div class="form-group">
+                <label>Engine Make:</label>
+                <input type="text" class="form-control" name="engine_make[]">
+            </div>
+            <div class="form-group">
+                <label>Installation Year:</label>
+                <input type="number" class="form-control" name="installation_year[]">
+            </div>
+            <div class="form-group">
+                <label>DG Status:</label>
+                <select class="form-control" name="dg_status[]">
+                    <option value="Working">Working</option>
+                    <option value="Faulty">Faulty</option>
+                    <option value="Spare">Spare</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>DG Starting Battery:</label>
+                <input type="text" class="form-control" name="dg_starting_battery[]">
+            </div>
+            <div class="form-group">
+                <label>Smart Switch Installed:</label>
+                <input type="checkbox" name="smart_switch_installed_0" value="Yes">
+            </div>
+            <div class="form-group">
+                <label>ATS Installed:</label>
+                <input type="checkbox" name="ats_installed_0" value="Yes">
+            </div>
+            <div class="form-group">
+                <label>ATS Capacity:</label>
+                <input type="text" class="form-control" name="ats_capacity[]">
+            </div>
+            <div class="form-group">
+                <label>Name of Faulty ATS Parts:</label>
+                <input type="text" class="form-control" name="name_of_faulty_ats_parts[]">
+            </div>
+            <div class="form-group">
+                <label>No. of Faulty ATS Parts:</label>
+                <input type="number" class="form-control" name="no_of_faulty_ats_parts[]">
+            </div>
+            <div class="form-group">
+                <label>Load on DG P1:</label>
+                <input type="number" step="any" class="form-control" name="load_on_dg_p1[]">
+            </div>
+            <div class="form-group">
+                <label>Load on DG P2:</label>
+                <input type="number" step="any" class="form-control" name="load_on_dg_p2[]">
+            </div>
+            <div class="form-group">
+                <label>Load on DG P3:</label>
+                <input type="number" step="any" class="form-control" name="load_on_dg_p3[]">
+            </div>
+            <div class="form-group">
+                <label>Site Load Total:</label>
+                <input type="number" step="any" class="form-control" name="site_load_total[]">
+            </div>
+            <div class="form-group">
+                <label>Site Load P1:</label>
+                <input type="number" step="any" class="form-control" name="site_load_p1[]">
+            </div>
+            <div class="form-group">
+                <label>Site Load P2:</label>
+                <input type="number" step="any" class="form-control" name="site_load_p2[]">
+            </div>
+            <div class="form-group">
+                <label>Site Load P3:</label>
+                <input type="number" step="any" class="form-control" name="site_load_p3[]">
+            </div>
+            <button type="button" class="btn btn-danger btn-sm mt-2 remove-dg">Remove DG</button>
+        </div>
+    {% endif %}
+</div>
+<button type="button" class="btn btn-primary mt-2" id="add_dg">Add More DG</button>
+
+<!-- Rectifier Information -->
+<div class="form-group">
+    <label for="make_of_rectifier">Make of Rectifier:</label>
+    <input type="text" class="form-control" id="make_of_rectifier" name="make_of_rectifier" value="{{ general.power_info.make_of_rectifier if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="working_status_power">Working Status (Y/N):</label>
+    <input type="checkbox" id="working_status_power" name="working_status_power" value="Yes" {{ 'checked' if general and general.power_info and general.power_info.working_status else '' }}>
+</div>
+<div class="form-group">
+    <label for="rectifier_capacity">Rectifier Capacity (A):</label>
+    <input type="number" step="any" class="form-control" id="rectifier_capacity" name="rectifier_capacity" value="{{ general.power_info.rectifier_capacity if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="no_of_modules">No. of Modules:</label>
+    <input type="number" class="form-control" id="no_of_modules" name="no_of_modules" value="{{ general.power_info.no_of_modules if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="capacity_of_each_module">Capacity of Each Module (A):</label>
+    <input type="number" step="any" class="form-control" id="capacity_of_each_module" name="capacity_of_each_module" value="{{ general.power_info.capacity_of_each_module if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="working_modules">Working Modules (No.):</label>
+    <input type="number" class="form-control" id="working_modules" name="working_modules" value="{{ general.power_info.working_modules if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="faulty_modules">Faulty Modules (No.):</label>
+    <input type="number" class="form-control" id="faulty_modules" name="faulty_modules" value="{{ general.power_info.faulty_modules if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="space_for_new_modules">Space for New Modules (No.):</label>
+    <input type="number" class="form-control" id="space_for_new_modules" name="space_for_new_modules" value="{{ general.power_info.space_for_new_modules if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="name_of_nes_connected">Name of NEs Connected with Rectifier:</label>
+    <textarea class="form-control" id="name_of_nes_connected" name="name_of_nes_connected">{{ general.power_info.name_of_nes_connected if general and general.power_info else '' }}</textarea>
+</div>
+<div class="form-group">
+    <label for="load_of_individual_ne">Load of Individual NE (A):</label>
+    <input type="number" step="any" class="form-control" id="load_of_individual_ne" name="load_of_individual_ne" value="{{ general.power_info.load_of_individual_ne if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="grounding_of_rectifier">Grounding of Rectifier (Y/N):</label>
+    <input type="checkbox" id="grounding_of_rectifier" name="grounding_of_rectifier" value="Yes" {{ 'checked' if general and general.power_info and general.power_info.grounding_of_rectifier else '' }}>
+</div>
+<div class="form-group">
+    <label for="spd_in_rectifier">SPD in Rectifier (Y/N):</label>
+    <input type="checkbox" id="spd_in_rectifier" name="spd_in_rectifier" value="Yes" {{ 'checked' if general and general.power_info and general.power_info.spd_in_rectifier else '' }}>
+</div>
+<div class="form-group">
+    <label for="spd_model">SPD Model (V and A Rating):</label>
+    <input type="text" class="form-control" id="spd_model" name="spd_model" value="{{ general.power_info.spd_model if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="total_installed_spds">Total Installed SPDs:</label>
+    <input type="number" class="form-control" id="total_installed_spds" name="total_installed_spds" value="{{ general.power_info.total_installed_spds if general and general.power_info else '' }}">
+</div>
+<div class="form-group">
+    <label for="no_of_faulty_spds">No. of Faulty SPDs:</label>
+    <input type="number" class="form-control" id="no_of_faulty_spds" name="no_of_faulty_spds" value="{{ general.power_info.no_of_faulty_spds if general and general.power_info else '' }}">
+</div>

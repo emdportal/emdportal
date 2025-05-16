@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label for="earthing_value">Earthing Value:</label>
+    <input type="number" step="any" class="form-control" id="earthing_value" name="earthing_value" value="{{ general.earthing.earthing_value if general and general.earthing else '' }}">
+</div>
+<div class="form-group">
+    <label for="no_of_pits">No. of Pits:</label>
+    <input type="number" class="form-control" id="no_of_pits" name="no_of_pits" value="{{ general.earthing.no_of_pits if general and general.earthing else '' }}">
+</div>
