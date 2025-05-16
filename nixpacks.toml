@@ -1,15 +1,15 @@
 # Use Python 3.9 and pip/setuptools from Nix
 [phases.setup]
-  nixPkgs = ["python39", "python39Packages.pip", "python39Packages.setuptools", "postgresql"]  # Install Python 3.9 with pip and setuptools
-  nixLibs = ["postgresql"]  # Ensure PostgreSQL libraries are available for psycopg2-binary
+  nixPkgs = ["python39", "python39Packages.pip", "python39Packages.setuptools", "postgresql"]
+  nixLibs = ["postgresql"]
 
 # Create a virtual environment and install dependencies
 [phases.install]
   cmds = [
-    "python3.9 -m venv /opt/venv",  # Create a virtual environment
-    "/opt/venv/bin/pip install --upgrade pip setuptools",  # Upgrade pip and setuptools
-    "/opt/venv/bin/pip install numpy==1.26.4 pandas==2.2.2",  # Explicitly install numpy and pandas
-    "/opt/venv/bin/pip install -r requirements.txt"  # Install remaining dependencies
+    "python3.9 -m venv /opt/venv",
+    "/opt/venv/bin/pip install --upgrade pip setuptools",
+    "/opt/venv/bin/pip install numpy==1.26.4 pandas==2.2.2 scipy==1.13.1",  # Add scipy
+    "/opt/venv/bin/pip install -r requirements.txt"
   ]
 
 # Activate the virtual environment and start the app with gunicorn
