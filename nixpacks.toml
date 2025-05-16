@@ -1,0 +1,12 @@
+# Use Python 3.9 as the base environment
+[phases.setup]
+  nixPkgs = ["python39", "postgresql"]  # Install Python 3.9 and PostgreSQL client (not dev)
+  nixLibs = ["postgresql"]  # Ensure PostgreSQL libraries are available for psycopg2-binary
+
+# Install Python dependencies from requirements.txt
+[phases.install]
+  cmds = ["pip install -r requirements.txt"]
+
+# Start the app with gunicorn
+[start]
+  cmd = "gunicorn -b 0.0.0.0:$PORT app:app"
