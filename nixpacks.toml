@@ -7,8 +7,9 @@
 [phases.install]
   cmds = [
     "python3.9 -m venv /opt/venv",  # Create a virtual environment
-    "/opt/venv/bin/pip install --upgrade pip setuptools",  # Upgrade pip and setuptools in the virtual environment
-    "/opt/venv/bin/pip install -r requirements.txt"  # Install dependencies
+    "/opt/venv/bin/pip install --upgrade pip setuptools",  # Upgrade pip and setuptools
+    "/opt/venv/bin/pip install numpy==1.26.4 pandas==2.2.2",  # Explicitly install numpy and pandas
+    "/opt/venv/bin/pip install -r requirements.txt"  # Install remaining dependencies
   ]
 
 # Activate the virtual environment and start the app with gunicorn
