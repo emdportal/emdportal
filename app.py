@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, make_response
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, make_response, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import pandas as pd
 import io
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from functools import wraps
@@ -18,6 +19,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Secure SECRET_KEY via environment variable, generate a secure default if not set
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
+# Set session lifetime to 24 hours
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -210,8 +213,13 @@ def login():
         username = request.form['username']
         password = request.form['password']
         try:
-            # Authenticate with Supabase using username as email with @ptclgroup.com
-            email = f"{username}@ptclgroup.com"
+            # Look up email from username in users table
+            user_data = supabase.table('users').select('email').eq('username', username).execute()
+            if not user_data.data:
+                flash('Invalid username')
+                return redirect(url_for('login'))
+            email = user_data.data[0]['email']
+            # Authenticate with Supabase
             response = supabase.auth.sign_in_with_password({"email": email, "password": password})
             if response.user:
                 access_token = response.session.access_token
@@ -223,7 +231,6 @@ def login():
                 else:
                     flash('User info not found in database')
                     return redirect(url_for('login'))
-                # Set secure cookie with access token
                 resp = make_response(redirect(url_for('index')))
                 resp.set_cookie('auth_token', access_token, httponly=True, secure=True, samesite='Lax')
                 return resp
