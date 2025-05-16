@@ -4,5 +4,5 @@ Flask-Migrate
 pandas
 gunicorn
 psycopg2-binary
-supabase-py
+supabase
 python-dotenv
