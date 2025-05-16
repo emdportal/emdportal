@@ -210,15 +210,15 @@ def login():
         username = request.form['username']
         password = request.form['password']
         try:
-            # Authenticate with Supabase using username as email
-            response = supabase.auth.sign_in_with_password({"email": f"{username}@example.com", "password": password})
+            # Authenticate with Supabase using username as email with @ptclgroup.com
+            email = f"{username}@ptclgroup.com"
+            response = supabase.auth.sign_in_with_password({"email": email, "password": password})
             if response.user:
                 access_token = response.session.access_token
                 # Fetch additional user info (e.g., region) from users_info table
                 user_info = supabase.table('users_info').select('region').eq('user_id', response.user.id).execute()
                 if user_info.data:
                     region = user_info.data[0]['region']
-                    # Store region in session or pass to template as needed
                     session['region'] = region
                 else:
                     flash('User info not found in database')
@@ -228,7 +228,8 @@ def login():
                 resp.set_cookie('auth_token', access_token, httponly=True, secure=True, samesite='Lax')
                 return resp
             else:
-                flash('Invalid username or password')
+                error = response.error.message if hasattr(response, 'error') and response.error else 'Unknown error'
+                flash(f'Login failed: {error}')
         except Exception as e:
             flash('Login failed: ' + str(e))
     return render_template('login.html')
