@@ -2,3 +2,5 @@
 exchanges.db
 __pycache__/
 *.pyc
+numpy/
+*.whl
