@@ -1,163 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exchange Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-        .sidebar a {
-            color: white;
-            padding: 10px 20px;
-            display: block;
-            text-decoration: none;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .chart-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 20px 0;
-        }
-        .table-container {
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h3 class="text-white text-center">Exchange Dashboard</h3>
-        <a href="{{ url_for('index') }}">Dashboard</a>
-        <a href="{{ url_for('add') }}">Add Exchange</a>
-        <a href="{{ url_for('view_exchanges') }}">View Exchanges</a>
-        <a href="{{ url_for('export') }}">Export Data</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
+{% extends "base.html" %}
+{% block content %}
+<h1>Exchange Dashboard</h1>
+
+<div class="row">
+    <div class="col-md-6 chart-container">
+        <h3>Exchanges by Region</h3>
+        <canvas id="regionChart"></canvas>
     </div>
-
-    <div class="content">
-        <h1>Exchange Dashboard</h1>
-        <p>Welcome, {% if session.get('region') %}{{ session['region'] }}{% else %}User{% endif %}!</p>
-
-        <div class="row">
-            <div class="col-md-6 chart-container">
-                <h3>Exchanges by Region</h3>
-                <canvas id="regionChart"></canvas>
-            </div>
-            <div class="col-md-6 chart-container">
-                <h3>Exchanges by Year</h3>
-                <canvas id="yearChart"></canvas>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <h3>All Exchanges</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>SN</th>
-                        <th>Region</th>
-                        <th>Domain</th>
-                        <th>Exchange Name</th>
-                        <th>Exchange LIC</th>
-                        <th>FLC</th>
-                        <th>Site Category</th>
-                        <th>NEs Installed</th>
-                        <th>WAPDA Ref Number</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for exchange in exchanges %}
-                    <tr>
-                        <td>{{ exchange.sn }}</td>
-                        <td>{{ exchange.region }}</td>
-                        <td>{{ exchange.domain }}</td>
-                        <td>{{ exchange.exchange_name }}</td>
-                        <td>{{ exchange.exchange_lic }}</td>
-                        <td>{{ exchange.flc }}</td>
-                        <td>{{ exchange.site_category }}</td>
-                        <td>{{ exchange.nes_installed }}</td>
-                        <td>{{ exchange.power_info.wapda_ref_number if exchange.power_info else 'N/A' }}</td>
-                        <td>
-                            <a href="{{ url_for('edit', sn=exchange.sn) }}" class="btn btn-primary btn-sm">Edit</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="col-md-6 chart-container">
+        <h3>Exchanges by Year</h3>
+        <canvas id="yearChart"></canvas>
     </div>
+</div>
 
-    <script>
-        const regionCtx = document.getElementById('regionChart').getContext('2d');
-        const regionChart = new Chart(regionCtx, {
-            type: 'pie',
-            data: {
-                labels: {{ region_labels | tojson }},
-                datasets: [{
-                    label: 'Exchanges by Region',
-                    data: {{ region_counts | tojson }},
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
+<div class="table-container">
+    <h3>All Exchanges</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>SN</th>
+                <th>Region</th>
+                <th>Domain</th>
+                <th>Exchange Name</th>
+                <th>Exchange LIC</th>
+                <th>FLC</th>
+                <th>Site Category</th>
+                <th>NEs Installed</th>
+                <th>WAPDA Ref Number</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exchange in exchanges %}
+            <tr>
+                <td>{{ exchange.sn }}</td>
+                <td>{{ exchange.region }}</td>
+                <td>{{ exchange.domain }}</td>
+                <td>{{ exchange.exchange_name }}</td>
+                <td>{{ exchange.exchange_lic }}</td>
+                <td>{{ exchange.flc }}</td>
+                <td>{{ exchange.site_category }}</td>
+                <td>{{ exchange.nes_installed }}</td>
+                <td>{{ exchange.power_info.wapda_ref_number if exchange.power_info else 'N/A' }}</td>
+                <td>
+                    <a href="{{ url_for('edit', sn=exchange.sn) }}" class="btn btn-primary btn-sm">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-        const yearCtx = document.getElementById('yearChart').getContext('2d');
-        const yearChart = new Chart(yearCtx, {
-            type: 'bar',
-            data: {
-                labels: ['2023', '2024'],
-                datasets: [{
-                    label: 'Exchanges by Year',
-                    data: {{ year_counts | tojson }},
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+<style>
+    .chart-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px 0;
+    }
+    .table-container {
+        margin-top: 20px;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const regionCtx = document.getElementById('regionChart').getContext('2d');
+    const regionChart = new Chart(regionCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ region_labels | tojson }},
+            datasets: [{
+                label: 'Exchanges by Region',
+                data: {{ region_counts | tojson }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    const yearCtx = document.getElementById('yearChart').getContext('2d');
+    const yearChart = new Chart(yearCtx, {
+        type: 'bar',
+        data: {
+            labels: ['2023', '2024'],
+            datasets: [{
+                label: 'Exchanges by Year',
+                data: {{ year_counts | tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+        }
+    });
+</script>
+{% endblock %}

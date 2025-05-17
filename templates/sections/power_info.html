@@ -70,4 +70,3 @@
     <label for="no_of_faulty_spds" class="form-label">No. of Faulty SPDs</label>
     <input type="number" class="form-control" id="no_of_faulty_spds" name="no_of_faulty_spds" value="{{ general.power_info.no_of_faulty_spds if general and general.power_info else '' }}">
 </div>
-<p>User Region: {% if session.get('region') %}{{ session['region'] }}{% else %}Unknown{% endif %}</p>

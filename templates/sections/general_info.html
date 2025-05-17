@@ -4,11 +4,25 @@
 </div>
 <div class="mb-3">
     <label for="region" class="form-label">Region</label>
-    <input type="text" class="form-control" id="region" name="region" value="{{ general.region if general else '' }}" required>
+    <input type="text" class="form-control" id="region" name="region" value="{{ session.get('region') if not general else general.region }}" {% if session.get('region') != 'All' %}readonly{% endif %} required>
 </div>
 <div class="mb-3">
     <label for="domain" class="form-label">Domain</label>
-    <input type="text" class="form-control" id="domain" name="domain" value="{{ general.domain if general else '' }}">
+    <select class="form-control" id="domain" name="domain" required>
+        <option value="" disabled {% if not general %}selected{% endif %}>Select Domain</option>
+        <option value="Attock" {% if general and general.domain == 'Attock' %}selected{% endif %}>Attock</option>
+        <option value="Pindi Gheb" {% if general and general.domain == 'Pindi Gheb' %}selected{% endif %}>Pindi Gheb</option>
+        <option value="Taxila" {% if general and general.domain == 'Taxila' %}selected{% endif %}>Taxila</option>
+        <option value="Rawat" {% if general and general.domain == 'Rawat' %}selected{% endif %}>Rawat</option>
+        <option value="Murree" {% if general and general.domain == 'Murree' %}selected{% endif %}>Murree</option>
+        <option value="Gujar Khan" {% if general and general.domain == 'Gujar Khan' %}selected{% endif %}>Gujar Khan</option>
+        <option value="Jhelum" {% if general and general.domain == 'Jhelum' %}selected{% endif %}>Jhelum</option>
+        <option value="Jhelum-MSAG" {% if general and general.domain == 'Jhelum-MSAG' %}selected{% endif %}>Jhelum-MSAG</option>
+        <option value="Chakwal" {% if general and general.domain == 'Chakwal' %}selected{% endif %}>Chakwal</option>
+        <option value="Talagang" {% if general and general.domain == 'Talagang' %}selected{% endif %}>Talagang</option>
+        <option value="WLL Chakwal" {% if general and general.domain == 'WLL Chakwal' %}selected{% endif %}>WLL Chakwal</option>
+        <option value="WLL Rawalpindi" {% if general and general.domain == 'WLL Rawalpindi' %}selected{% endif %}>WLL Rawalpindi</option>
+    </select>
 </div>
 <div class="mb-3">
     <label for="exchange_name" class="form-label">Exchange Name</label>
@@ -66,4 +80,3 @@
     </div>
     <button type="button" class="btn btn-secondary mt-2" onclick="addTowerField()">Add Tower</button>
 </div>
-<p>User Region: {% if session.get('region') %}{{ session['region'] }}{% else %}Unknown{% endif %}</p>
