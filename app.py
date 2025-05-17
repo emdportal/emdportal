@@ -53,6 +53,7 @@ class GeneralInformation(db.Model):
     ac_units = db.relationship('ACUnit', backref='general_info', lazy=True, cascade="all, delete-orphan")
     solar_info = db.relationship('SolarInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
     colocation_info = db.relationship('ColocationInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
+    building_info = db.relationship('BuildingInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
 
 class Tower(db.Model):
     __tablename__ = 'tower'
@@ -66,16 +67,21 @@ class PowerInformation(db.Model):
     wapda_ref_number = db.Column(db.String(50))
     transformer_capacity = db.Column(db.String(50))
     transformer_earthing = db.Column(db.String(50))
-    make_of_rectifier = db.Column(db.String(50))
     working_status = db.Column(db.Boolean)
+    load_of_individual_ne = db.Column(db.Float)
+    name_of_nes_connected = db.Column(db.Text)
+    rectifiers = db.relationship('Rectifier', backref='power_info', lazy=True, cascade="all, delete-orphan")
+
+class Rectifier(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    power_id = db.Column(db.Integer, db.ForeignKey('power_information.id', ondelete='CASCADE'))
+    make_of_rectifier = db.Column(db.String(50))
     rectifier_capacity = db.Column(db.Float)
     no_of_modules = db.Column(db.Integer)
     capacity_of_each_module = db.Column(db.Float)
     working_modules = db.Column(db.Integer)
     faulty_modules = db.Column(db.Integer)
     space_for_new_modules = db.Column(db.Integer)
-    name_of_nes_connected = db.Column(db.Text)
-    load_of_individual_ne = db.Column(db.Float)
     grounding_of_rectifier = db.Column(db.Boolean)
     spd_in_rectifier = db.Column(db.Boolean)
     spd_model = db.Column(db.String(50))
@@ -149,6 +155,15 @@ class ColocationInformation(db.Model):
     name_of_colocation_vendors = db.Column(db.Text)
     load_of_each_vendor = db.Column(db.Float)
     total_load = db.Column(db.Float)
+
+class BuildingInformation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
+    building_type = db.Column(db.String(50))
+    construction_year = db.Column(db.Integer)
+    total_area_sqft = db.Column(db.Float)
+    number_of_floors = db.Column(db.Integer)
+    condition = db.Column(db.String(50))
 
 # Custom login required decorator
 def login_required(f):
@@ -285,22 +300,31 @@ def add():
                 wapda_ref_number=request.form['wapda_ref_number'],
                 transformer_capacity=request.form['transformer_capacity'],
                 transformer_earthing=request.form['transformer_earthing'],
-                make_of_rectifier=request.form['make_of_rectifier'],
                 working_status='working_status_power' in request.form,
-                rectifier_capacity=float(request.form['rectifier_capacity']) if request.form['rectifier_capacity'] else None,
-                no_of_modules=int(request.form['no_of_modules']) if request.form['no_of_modules'] else None,
-                capacity_of_each_module=float(request.form['capacity_of_each_module']) if request.form['capacity_of_each_module'] else None,
-                working_modules=int(request.form['working_modules']) if request.form['working_modules'] else None,
-                faulty_modules=int(request.form['faulty_modules']) if request.form['faulty_modules'] else None,
-                space_for_new_modules=int(request.form['space_for_new_modules']) if request.form['space_for_new_modules'] else None,
-                name_of_nes_connected=request.form['name_of_nes_connected'],
                 load_of_individual_ne=float(request.form['load_of_individual_ne']) if request.form['load_of_individual_ne'] else None,
-                grounding_of_rectifier='grounding_of_rectifier' in request.form,
-                spd_in_rectifier='spd_in_rectifier' in request.form,
-                spd_model=request.form['spd_model'],
-                total_installed_spds=int(request.form['total_installed_spds']) if request.form['total_installed_spds'] else None,
-                no_of_faulty_spds=int(request.form['no_of_faulty_spds']) if request.form['no_of_faulty_spds'] else None
+                name_of_nes_connected=request.form['name_of_nes_connected']
             )
+
+            # Handle multiple rectifiers
+            makes_of_rectifier = request.form.getlist('make_of_rectifier[]')
+            for i in range(len(makes_of_rectifier)):
+                if makes_of_rectifier[i]:
+                    rectifier = Rectifier(
+                        make_of_rectifier=makes_of_rectifier[i],
+                        rectifier_capacity=float(request.form.getlist('rectifier_capacity[]')[i]) if request.form.getlist('rectifier_capacity[]')[i] else None,
+                        no_of_modules=int(request.form.getlist('no_of_modules[]')[i]) if request.form.getlist('no_of_modules[]')[i] else None,
+                        capacity_of_each_module=float(request.form.getlist('capacity_of_each_module[]')[i]) if request.form.getlist('capacity_of_each_module[]')[i] else None,
+                        working_modules=int(request.form.getlist('working_modules[]')[i]) if request.form.getlist('working_modules[]')[i] else None,
+                        faulty_modules=int(request.form.getlist('faulty_modules[]')[i]) if request.form.getlist('faulty_modules[]')[i] else None,
+                        space_for_new_modules=int(request.form.getlist('space_for_new_modules[]')[i]) if request.form.getlist('space_for_new_modules[]')[i] else None,
+                        grounding_of_rectifier='grounding_of_rectifier[]' in request.form and request.form.getlist('grounding_of_rectifier[]')[i] == 'on',
+                        spd_in_rectifier='spd_in_rectifier[]' in request.form and request.form.getlist('spd_in_rectifier[]')[i] == 'on',
+                        spd_model=request.form.getlist('spd_model[]')[i],
+                        total_installed_spds=int(request.form.getlist('total_installed_spds[]')[i]) if request.form.getlist('total_installed_spds[]')[i] else None,
+                        no_of_faulty_spds=int(request.form.getlist('no_of_faulty_spds[]')[i]) if request.form.getlist('no_of_faulty_spds[]')[i] else None
+                    )
+                    power_info.rectifiers.append(rectifier)
+
             general.power_info = power_info
 
             installed_dgs = request.form.getlist('installed_dg[]')
@@ -379,6 +403,15 @@ def add():
             )
             general.colocation_info = colocation_info
 
+            building_info = BuildingInformation(
+                building_type=request.form['building_type'],
+                construction_year=int(request.form['construction_year']) if request.form['construction_year'] else None,
+                total_area_sqft=float(request.form['total_area_sqft']) if request.form['total_area_sqft'] else None,
+                number_of_floors=int(request.form['number_of_floors']) if request.form['number_of_floors'] else None,
+                condition=request.form['condition']
+            )
+            general.building_info = building_info
+
             db.session.add(general)
             db.session.commit()
             flash('Exchange added successfully!')
@@ -427,21 +460,29 @@ def edit(sn):
             general.power_info.wapda_ref_number = request.form['wapda_ref_number']
             general.power_info.transformer_capacity = request.form['transformer_capacity']
             general.power_info.transformer_earthing = request.form['transformer_earthing']
-            general.power_info.make_of_rectifier = request.form['make_of_rectifier']
             general.power_info.working_status = 'working_status_power' in request.form
-            general.power_info.rectifier_capacity = float(request.form['rectifier_capacity']) if request.form['rectifier_capacity'] else None
-            general.power_info.no_of_modules = int(request.form['no_of_modules']) if request.form['no_of_modules'] else None
-            general.power_info.capacity_of_each_module = float(request.form['capacity_of_each_module']) if request.form['capacity_of_each_module'] else None
-            general.power_info.working_modules = int(request.form['working_modules']) if request.form['working_modules'] else None
-            general.power_info.faulty_modules = int(request.form['faulty_modules']) if request.form['faulty_modules'] else None
-            general.power_info.space_for_new_modules = int(request.form['space_for_new_modules']) if request.form['space_for_new_modules'] else None
-            general.power_info.name_of_nes_connected = request.form['name_of_nes_connected']
             general.power_info.load_of_individual_ne = float(request.form['load_of_individual_ne']) if request.form['load_of_individual_ne'] else None
-            general.power_info.grounding_of_rectifier = 'grounding_of_rectifier' in request.form
-            general.power_info.spd_in_rectifier = 'spd_in_rectifier' in request.form
-            general.power_info.spd_model = request.form['spd_model']
-            general.power_info.total_installed_spds = int(request.form['total_installed_spds']) if request.form['total_installed_spds'] else None
-            general.power_info.no_of_faulty_spds = int(request.form['no_of_faulty_spds']) if request.form['no_of_faulty_spds'] else None
+            general.power_info.name_of_nes_connected = request.form['name_of_nes_connected']
+
+            general.power_info.rectifiers = []
+            makes_of_rectifier = request.form.getlist('make_of_rectifier[]')
+            for i in range(len(makes_of_rectifier)):
+                if makes_of_rectifier[i]:
+                    rectifier = Rectifier(
+                        make_of_rectifier=makes_of_rectifier[i],
+                        rectifier_capacity=float(request.form.getlist('rectifier_capacity[]')[i]) if request.form.getlist('rectifier_capacity[]')[i] else None,
+                        no_of_modules=int(request.form.getlist('no_of_modules[]')[i]) if request.form.getlist('no_of_modules[]')[i] else None,
+                        capacity_of_each_module=float(request.form.getlist('capacity_of_each_module[]')[i]) if request.form.getlist('capacity_of_each_module[]')[i] else None,
+                        working_modules=int(request.form.getlist('working_modules[]')[i]) if request.form.getlist('working_modules[]')[i] else None,
+                        faulty_modules=int(request.form.getlist('faulty_modules[]')[i]) if request.form.getlist('faulty_modules[]')[i] else None,
+                        space_for_new_modules=int(request.form.getlist('space_for_new_modules[]')[i]) if request.form.getlist('space_for_new_modules[]')[i] else None,
+                        grounding_of_rectifier='grounding_of_rectifier[]' in request.form and request.form.getlist('grounding_of_rectifier[]')[i] == 'on',
+                        spd_in_rectifier='spd_in_rectifier[]' in request.form and request.form.getlist('spd_in_rectifier[]')[i] == 'on',
+                        spd_model=request.form.getlist('spd_model[]')[i],
+                        total_installed_spds=int(request.form.getlist('total_installed_spds[]')[i]) if request.form.getlist('total_installed_spds[]')[i] else None,
+                        no_of_faulty_spds=int(request.form.getlist('no_of_faulty_spds[]')[i]) if request.form.getlist('no_of_faulty_spds[]')[i] else None
+                    )
+                    general.power_info.rectifiers.append(rectifier)
 
             general.dgs = []
             installed_dgs = request.form.getlist('installed_dg[]')
@@ -520,6 +561,14 @@ def edit(sn):
             general.colocation_info.load_of_each_vendor = float(request.form['load_of_each_vendor']) if request.form['load_of_each_vendor'] else None
             general.colocation_info.total_load = float(request.form['total_load']) if request.form['total_load'] else None
 
+            if not general.building_info:
+                general.building_info = BuildingInformation()
+            general.building_info.building_type = request.form['building_type']
+            general.building_info.construction_year = int(request.form['construction_year']) if request.form['construction_year'] else None
+            general.building_info.total_area_sqft = float(request.form['total_area_sqft']) if request.form['total_area_sqft'] else None
+            general.building_info.number_of_floors = int(request.form['number_of_floors']) if request.form['number_of_floors'] else None
+            general.building_info.condition = request.form['condition']
+
             db.session.commit()
             flash('Exchange updated successfully!')
             return redirect(url_for('index'))
@@ -578,21 +627,25 @@ def export():
                     'WAPDA Ref Number': exchange.power_info.wapda_ref_number,
                     'Transformer Capacity': exchange.power_info.transformer_capacity,
                     'Transformer Earthing': exchange.power_info.transformer_earthing,
-                    'Make of Rectifier': exchange.power_info.make_of_rectifier,
                     'Working Status (Power)': exchange.power_info.working_status,
-                    'Rectifier Capacity': exchange.power_info.rectifier_capacity,
-                    'No of Modules': exchange.power_info.no_of_modules,
-                    'Capacity of Each Module': exchange.power_info.capacity_of_each_module,
-                    'Working Modules': exchange.power_info.working_modules,
-                    'Faulty Modules': exchange.power_info.faulty_modules,
-                    'Space for New Modules': exchange.power_info.space_for_new_modules,
                     'Name of NEs Connected': exchange.power_info.name_of_nes_connected,
-                    'Load of Individual NE': exchange.power_info.load_of_individual_ne,
-                    'Grounding of Rectifier': exchange.power_info.grounding_of_rectifier,
-                    'SPD in Rectifier': exchange.power_info.spd_in_rectifier,
-                    'SPD Model': exchange.power_info.spd_model,
-                    'Total Installed SPDs': exchange.power_info.total_installed_spds,
-                    'No of Faulty SPDs': exchange.power_info.no_of_faulty_spds
+                    'Load of Individual NE': exchange.power_info.load_of_individual_ne
+                })
+
+            for i, rectifier in enumerate(exchange.power_info.rectifiers, 1):
+                row.update({
+                    f'Rectifier {i} Make': rectifier.make_of_rectifier,
+                    f'Rectifier {i} Capacity': rectifier.rectifier_capacity,
+                    f'Rectifier {i} No of Modules': rectifier.no_of_modules,
+                    f'Rectifier {i} Capacity of Each Module': rectifier.capacity_of_each_module,
+                    f'Rectifier {i} Working Modules': rectifier.working_modules,
+                    f'Rectifier {i} Faulty Modules': rectifier.faulty_modules,
+                    f'Rectifier {i} Space for New Modules': rectifier.space_for_new_modules,
+                    f'Rectifier {i} Grounding': rectifier.grounding_of_rectifier,
+                    f'Rectifier {i} SPD Installed': rectifier.spd_in_rectifier,
+                    f'Rectifier {i} SPD Model': rectifier.spd_model,
+                    f'Rectifier {i} Total Installed SPDs': rectifier.total_installed_spds,
+                    f'Rectifier {i} No of Faulty SPDs': rectifier.no_of_faulty_spds
                 })
 
             for i, dg in enumerate(exchange.dgs, 1):
@@ -660,6 +713,15 @@ def export():
                     'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors,
                     'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor,
                     'Total Load': exchange.colocation_info.total_load
+                })
+
+            if exchange.building_info:
+                row.update({
+                    'Building Type': exchange.building_info.building_type,
+                    'Construction Year': exchange.building_info.construction_year,
+                    'Total Area (sqft)': exchange.building_info.total_area_sqft,
+                    'Number of Floors': exchange.building_info.number_of_floors,
+                    'Condition': exchange.building_info.condition
                 })
 
             data.append(row)
