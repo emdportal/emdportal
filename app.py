@@ -61,7 +61,7 @@ class Tower(db.Model):
 
 class PowerInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))  # Changed from general_info_sn to general_id
     wapda_ref_number = db.Column(db.String(50))
     transformer_capacity = db.Column(db.String(50))
     transformer_earthing = db.Column(db.String(50))
@@ -142,7 +142,7 @@ class SolarInformation(db.Model):
 
 class ColocationInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))  # Changed from general_info_sn to general_id
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
     colocation = db.Column(db.Boolean, default=False)
     name_of_colocation_vendors = db.Column(db.Text)
     load_of_each_vendor = db.Column(db.Float)
