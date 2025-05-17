@@ -1,16 +1,16 @@
-<div class="form-group">
-    <label for="colocation">Colocation (Y/N):</label>
-    <input type="checkbox" id="colocation" name="colocation" value="Yes" {{ 'checked' if general and general.colocation_info and general.colocation_info.colocation else '' }}>
+<div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="colocation" name="colocation" {% if general and general.colocation_info and general.colocation_info.colocation %}checked{% endif %}>
+    <label class="form-check-label" for="colocation">Colocation</label>
 </div>
-<div class="form-group">
-    <label for="name_of_colocation_vendors">Name of Colocation Vendors:</label>
+<div class="mb-3">
+    <label for="name_of_colocation_vendors" class="form-label">Name of Colocation Vendors</label>
     <textarea class="form-control" id="name_of_colocation_vendors" name="name_of_colocation_vendors">{{ general.colocation_info.name_of_colocation_vendors if general and general.colocation_info else '' }}</textarea>
 </div>
-<div class="form-group">
-    <label for="load_of_each_vendor">Load of Each Vendor:</label>
+<div class="mb-3">
+    <label for="load_of_each_vendor" class="form-label">Load of Each Vendor</label>
     <input type="number" step="any" class="form-control" id="load_of_each_vendor" name="load_of_each_vendor" value="{{ general.colocation_info.load_of_each_vendor if general and general.colocation_info else '' }}">
 </div>
-<div class="form-group">
-    <label for="total_load">Total Load:</label>
+<div class="mb-3">
+    <label for="total_load" class="form-label">Total Load</label>
     <input type="number" step="any" class="form-control" id="total_load" name="total_load" value="{{ general.colocation_info.total_load if general and general.colocation_info else '' }}">
 </div>

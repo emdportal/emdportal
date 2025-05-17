@@ -51,7 +51,7 @@ class GeneralInformation(db.Model):
     dgs = db.relationship('DGInformation', backref='general_info', lazy=True, cascade="all, delete-orphan")
     battery_banks = db.relationship('BatteryBank', backref='general_info', lazy=True, cascade="all, delete-orphan")
     ac_units = db.relationship('ACUnit', backref='general_info', lazy=True, cascade="all, delete-orphan")
-    solar_info = db.relationship('SolarInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
+    solar_info = db.relationship('installed_solar_information', backref='general_info', uselist=False, cascade="all, delete-orphan")
     colocation_info = db.relationship('ColocationInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
 
 class Tower(db.Model):
@@ -61,7 +61,7 @@ class Tower(db.Model):
 
 class PowerInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))  # Changed from general_info_sn to general_id
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
     wapda_ref_number = db.Column(db.String(50))
     transformer_capacity = db.Column(db.String(50))
     transformer_earthing = db.Column(db.String(50))
@@ -131,9 +131,9 @@ class ACUnit(db.Model):
     fault_nature_of_ac_unit = db.Column(db.String(100))
     estimate_to_repair_ac = db.Column(db.Float)
 
-class SolarInformation(db.Model):
+class installed_solar_information(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))  # Changed from general_info_sn to general_id
     total_solar_size = db.Column(db.Float)
     pv_solar_panel_capacity = db.Column(db.Float)
     no_of_pv_panels_installed = db.Column(db.Integer)
@@ -353,7 +353,7 @@ def add():
                     general.ac_units.append(ac)
 
             # Solar Information
-            solar_info = SolarInformation(
+            solar_info = installed_solar_information(
                 total_solar_size=float(request.form['total_solar_size']) if request.form['total_solar_size'] else None,
                 pv_solar_panel_capacity=float(request.form['pv_solar_panel_capacity']) if request.form['pv_solar_panel_capacity'] else None,
                 no_of_pv_panels_installed=int(request.form['no_of_pv_panels_installed']) if request.form['no_of_pv_panels_installed'] else None,
@@ -506,7 +506,7 @@ def edit(sn):
 
             # Update Solar Information
             if not general.solar_info:
-                general.solar_info = SolarInformation()
+                general.solar_info = installed_solar_information()
             general.solar_info.total_solar_size = float(request.form['total_solar_size']) if request.form['total_solar_size'] else None
             general.solar_info.pv_solar_panel_capacity = float(request.form['pv_solar_panel_capacity']) if request.form['pv_solar_panel_capacity'] else None
             general.solar_info.no_of_pv_panels_installed = int(request.form['no_of_pv_panels_installed']) if request.form['no_of_pv_panels_installed'] else None
