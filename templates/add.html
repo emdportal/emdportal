@@ -12,8 +12,9 @@
 {% endif %}
 
 <form method="POST" class="bg-white shadow rounded-lg p-6">
+    <!-- General Information -->
     <h2 class="text-xl font-semibold mb-4 text-gray-700">General Information</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
             <label for="sn" class="block text-gray-700 mb-2">SN</label>
             <input type="number" id="sn" name="sn" value="{{ general.sn if general else '' }}" {% if general %}readonly{% endif %} class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
@@ -63,8 +64,9 @@
         </div>
     </div>
 
-    <h3 class="text-lg font-semibold mt-6 mb-4 text-gray-700">Tower Information</h3>
-    <div id="tower_container" class="mb-4">
+    <!-- Tower Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Tower Information</h2>
+    <div id="tower_container" class="mb-6">
         {% for tower in general.towers if general %}
         <div class="tower_entry flex items-center mb-2">
             <input type="text" name="tower_type_height[]" value="{{ tower.tower_type_height }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
@@ -72,7 +74,321 @@
         </div>
         {% endfor %}
     </div>
-    <button type="button" id="add_tower" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-4">Add Tower</button>
+    <button type="button" id="add_tower" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6">Add Tower</button>
+
+    <!-- Power Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Power Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <label for="wapda_ref_number" class="block text-gray-700 mb-2">WAPDA Ref Number</label>
+            <input type="text" id="wapda_ref_number" name="wapda_ref_number" value="{{ general.power_info.wapda_ref_number if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="transformer_capacity" class="block text-gray-700 mb-2">Transformer Capacity</label>
+            <input type="text" id="transformer_capacity" name="transformer_capacity" value="{{ general.power_info.transformer_capacity if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="transformer_earthing" class="block text-gray-700 mb-2">Transformer Earthing</label>
+            <input type="text" id="transformer_earthing" name="transformer_earthing" value="{{ general.power_info.transformer_earthing if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="make_of_rectifier" class="block text-gray-700 mb-2">Make of Rectifier</label>
+            <input type="text" id="make_of_rectifier" name="make_of_rectifier" value="{{ general.power_info.make_of_rectifier if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex items-center">
+            <input type="checkbox" id="working_status_power" name="working_status_power" {% if general and general.power_info and general.power_info.working_status %}checked{% endif %} class="mr-2">
+            <label for="working_status_power" class="text-gray-700">Working Status</label>
+        </div>
+        <div>
+            <label for="rectifier_capacity" class="block text-gray-700 mb-2">Rectifier Capacity</label>
+            <input type="number" step="any" id="rectifier_capacity" name="rectifier_capacity" value="{{ general.power_info.rectifier_capacity if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="no_of_modules" class="block text-gray-700 mb-2">No of Modules</label>
+            <input type="number" id="no_of_modules" name="no_of_modules" value="{{ general.power_info.no_of_modules if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="capacity_of_each_module" class="block text-gray-700 mb-2">Capacity of Each Module</label>
+            <input type="number" step="any" id="capacity_of_each_module" name="capacity_of_each_module" value="{{ general.power_info.capacity_of_each_module if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="working_modules" class="block text-gray-700 mb-2">Working Modules</label>
+            <input type="number" id="working_modules" name="working_modules" value="{{ general.power_info.working_modules if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="faulty_modules" class="block text-gray-700 mb-2">Faulty Modules</label>
+            <input type="number" id="faulty_modules" name="faulty_modules" value="{{ general.power_info.faulty_modules if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="space_for_new_modules" class="block text-gray-700 mb-2">Space for New Modules</label>
+            <input type="number" id="space_for_new_modules" name="space_for_new_modules" value="{{ general.power_info.space_for_new_modules if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="name_of_nes_connected" class="block text-gray-700 mb-2">Name of NEs Connected</label>
+            <input type="text" id="name_of_nes_connected" name="name_of_nes_connected" value="{{ general.power_info.name_of_nes_connected if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="load_of_individual_ne" class="block text-gray-700 mb-2">Load of Individual NE</label>
+            <input type="number" step="any" id="load_of_individual_ne" name="load_of_individual_ne" value="{{ general.power_info.load_of_individual_ne if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex items-center">
+            <input type="checkbox" id="grounding_of_rectifier" name="grounding_of_rectifier" {% if general and general.power_info and general.power_info.grounding_of_rectifier %}checked{% endif %} class="mr-2">
+            <label for="grounding_of_rectifier" class="text-gray-700">Grounding of Rectifier</label>
+        </div>
+        <div class="flex items-center">
+            <input type="checkbox" id="spd_in_rectifier" name="spd_in_rectifier" {% if general and general.power_info and general.power_info.spd_in_rectifier %}checked{% endif %} class="mr-2">
+            <label for="spd_in_rectifier" class="text-gray-700">SPD in Rectifier</label>
+        </div>
+        <div>
+            <label for="spd_model" class="block text-gray-700 mb-2">SPD Model</label>
+            <input type="text" id="spd_model" name="spd_model" value="{{ general.power_info.spd_model if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="total_installed_spds" class="block text-gray-700 mb-2">Total Installed SPDs</label>
+            <input type="number" id="total_installed_spds" name="total_installed_spds" value="{{ general.power_info.total_installed_spds if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="no_of_faulty_spds" class="block text-gray-700 mb-2">No of Faulty SPDs</label>
+            <input type="number" id="no_of_faulty_spds" name="no_of_faulty_spds" value="{{ general.power_info.no_of_faulty_spds if general and general.power_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+    </div>
+
+    <!-- DG Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">DG Information</h2>
+    <div id="dg_container" class="mb-6">
+        {% for dg in general.dgs if general %}
+        <div class="dg_entry border-b pb-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Installed DG</label>
+                    <input type="text" name="installed_dg[]" value="{{ dg.installed_dg }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Engine Make</label>
+                    <input type="text" name="engine_make[]" value="{{ dg.engine_make }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Installation Year</label>
+                    <input type="number" name="installation_year[]" value="{{ dg.installation_year }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">DG Status</label>
+                    <input type="text" name="dg_status[]" value="{{ dg.dg_status }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">DG Starting Battery</label>
+                    <input type="text" name="dg_starting_battery[]" value="{{ dg.dg_starting_battery }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="smart_switch_installed[]" {% if dg.smart_switch_installed %}checked{% endif %} class="mr-2">
+                    <label class="text-gray-700">Smart Switch Installed</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="ats_installed[]" {% if dg.ats_installed %}checked{% endif %} class="mr-2">
+                    <label class="text-gray-700">ATS Installed</label>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">ATS Capacity</label>
+                    <input type="text" name="ats_capacity[]" value="{{ dg.ats_capacity }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Name of Faulty ATS Parts</label>
+                    <input type="text" name="name_of_faulty_ats_parts[]" value="{{ dg.name_of_faulty_ats_parts }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">No of Faulty ATS Parts</label>
+                    <input type="number" name="no_of_faulty_ats_parts[]" value="{{ dg.no_of_faulty_ats_parts }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Load on DG P1</label>
+                    <input type="number" step="any" name="load_on_dg_p1[]" value="{{ dg.load_on_dg_p1 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Load on DG P2</label>
+                    <input type="number" step="any" name="load_on_dg_p2[]" value="{{ dg.load_on_dg_p2 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Load on DG P3</label>
+                    <input type="number" step="any" name="load_on_dg_p3[]" value="{{ dg.load_on_dg_p3 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Site Load Total</label>
+                    <input type="number" step="any" name="site_load_total[]" value="{{ dg.site_load_total }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Site Load P1</label>
+                    <input type="number" step="any" name="site_load_p1[]" value="{{ dg.site_load_p1 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Site Load P2</label>
+                    <input type="number" step="any" name="site_load_p2[]" value="{{ dg.site_load_p2 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Site Load P3</label>
+                    <input type="number" step="any" name="site_load_p3[]" value="{{ dg.site_load_p3 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-dg">Remove DG</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add_dg" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6">Add DG</button>
+
+    <!-- Battery Bank Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Battery Bank Information</h2>
+    <div id="battery_container" class="mb-6">
+        {% for battery in general.battery_banks if general %}
+        <div class="battery_entry border-b pb-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Make of Battery</label>
+                    <input type="text" name="make_of_battery[]" value="{{ battery.make_of_battery }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Battery Capacity</label>
+                    <input type="number" step="any" name="battery_capacity[]" value="{{ battery.battery_capacity }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Battery Type</label>
+                    <input type="text" name="battery_type[]" value="{{ battery.battery_type }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">No of Cells/Bank</label>
+                    <input type="number" name="no_of_cells_bank[]" value="{{ battery.no_of_cells_bank }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Date of Installation</label>
+                    <input type="text" name="date_of_installation_battery[]" value="{{ battery.date_of_installation }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Load on Battery Bank</label>
+                    <input type="number" step="any" name="load_on_battery_bank[]" value="{{ battery.load_on_battery_bank }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Practical Backup Time</label>
+                    <input type="number" step="any" name="practical_backup_time[]" value="{{ battery.practical_backup_time }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Battery Installed (New/Used)</label>
+                    <input type="text" name="battery_installed_new_or_used[]" value="{{ battery.battery_installed_new_or_used }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Battery Moved From</label>
+                    <input type="text" name="battery_moved_from[]" value="{{ battery.battery_moved_from }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-battery">Remove Battery Bank</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add_battery" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6">Add Battery Bank</button>
+
+    <!-- AC Units Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">AC Units Information</h2>
+    <div id="ac_container" class="mb-6">
+        {% for ac in general.ac_units if general %}
+        <div class="ac_entry border-b pb-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Location of AC Unit</label>
+                    <input type="text" name="location_of_ac_unit[]" value="{{ ac.location_of_ac_unit }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="working_status_ac[]" {% if ac.working_status %}checked{% endif %} class="mr-2">
+                    <label class="text-gray-700">Working Status</label>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">AC Make</label>
+                    <input type="text" name="ac_make[]" value="{{ ac.ac_make }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Capacity (Tons)</label>
+                    <input type="number" step="any" name="capacity_tons[]" value="{{ ac.capacity_tons }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Type of AC</label>
+                    <input type="text" name="type_of_ac[]" value="{{ ac.type_of_ac }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Mount Type</label>
+                    <input type="text" name="mount_type[]" value="{{ ac.mount_type }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Date of Installation</label>
+                    <input type="text" name="date_of_installation_ac[]" value="{{ ac.date_of_installation }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="sequence_controller_installed[]" {% if ac.sequence_controller_installed %}checked{% endif %} class="mr-2">
+                    <label class="text-gray-700">Sequence Controller Installed</label>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">AC Load</label>
+                    <input type="number" step="any" name="ac_load[]" value="{{ ac.ac_load }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Total AC Load</label>
+                    <input type="number" step="any" name="total_ac_load[]" value="{{ ac.total_ac_load }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Fault Nature of AC Unit</label>
+                    <input type="text" name="fault_nature_of_ac_unit[]" value="{{ ac.fault_nature_of_ac_unit }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Estimate to Repair AC</label>
+                    <input type="number" step="any" name="estimate_to_repair_ac[]" value="{{ ac.estimate_to_repair_ac }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-ac">Remove AC Unit</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add_ac" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6">Add AC Unit</button>
+
+    <!-- Solar Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Solar Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <label for="total_solar_size" class="block text-gray-700 mb-2">Total Solar Size</label>
+            <input type="number" step="any" id="total_solar_size" name="total_solar_size" value="{{ general.solar_info.total_solar_size if general and general.solar_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="pv_solar_panel_capacity" class="block text-gray-700 mb-2">PV Solar Panel Capacity</label>
+            <input type="number" step="any" id="pv_solar_panel_capacity" name="pv_solar_panel_capacity" value="{{ general.solar_info.pv_solar_panel_capacity if general and general.solar_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="no_of_pv_panels_installed" class="block text-gray-700 mb-2">No of PV Panels Installed</label>
+            <input type="number" id="no_of_pv_panels_installed" name="no_of_pv_panels_installed" value="{{ general.solar_info.no_of_pv_panels_installed if general and general.solar_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="make_of_pv_panels" class="block text-gray-700 mb-2">Make of PV Panels</label>
+            <input type="text" id="make_of_pv_panels" name="make_of_pv_panels" value="{{ general.solar_info.make_of_pv_panels if general and general.solar_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="charge_controller_make" class="block text-gray-700 mb-2">Charge Controller Make</label>
+            <input type="text" id="charge_controller_make" name="charge_controller_make" value="{{ general.solar_info.charge_controller_make if general and general.solar_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+    </div>
+
+    <!-- Colocation Information -->
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">Colocation Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="flex items-center">
+            <input type="checkbox" id="colocation" name="colocation" {% if general and general.colocation_info and general.colocation_info.colocation %}checked{% endif %} class="mr-2">
+            <label for="colocation" class="text-gray-700">Colocation</label>
+        </div>
+        <div>
+            <label for="name_of_colocation_vendors" class="block text-gray-700 mb-2">Name of Colocation Vendors</label>
+            <input type="text" id="name_of_colocation_vendors" name="name_of_colocation_vendors" value="{{ general.colocation_info.name_of_colocation_vendors if general and general.colocation_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="load_of_each_vendor" class="block text-gray-700 mb-2">Load of Each Vendor</label>
+            <input type="number" step="any" id="load_of_each_vendor" name="load_of_each_vendor" value="{{ general.colocation_info.load_of_each_vendor if general and general.colocation_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="total_load" class="block text-gray-700 mb-2">Total Load</label>
+            <input type="number" step="any" id="total_load" name="total_load" value="{{ general.colocation_info.total_load if general and general.colocation_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+    </div>
 
     <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Save</button>
 </form>
@@ -80,6 +396,7 @@
 
 {% block scripts %}
 <script>
+    // Tower Section
     document.getElementById('add_tower')?.addEventListener('click', function() {
         const container = document.getElementById('tower_container');
         const count = container.getElementsByClassName('tower_entry').length + 1;
@@ -91,12 +408,214 @@
         container.insertAdjacentHTML('beforeend', newField);
     });
 
+    // DG Section
+    document.getElementById('add_dg')?.addEventListener('click', function() {
+        const container = document.getElementById('dg_container');
+        const count = container.getElementsByClassName('dg_entry').length + 1;
+        const newField = `
+            <div class="dg_entry border-b pb-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Installed DG</label>
+                        <input type="text" name="installed_dg[]" placeholder="DG ${count} Installed DG" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Engine Make</label>
+                        <input type="text" name="engine_make[]" placeholder="Engine Make" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Installation Year</label>
+                        <input type="number" name="installation_year[]" placeholder="Installation Year" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">DG Status</label>
+                        <input type="text" name="dg_status[]" placeholder="DG Status" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">DG Starting Battery</label>
+                        <input type="text" name="dg_starting_battery[]" placeholder="DG Starting Battery" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="smart_switch_installed[]" class="mr-2">
+                        <label class="text-gray-700">Smart Switch Installed</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="ats_installed[]" class="mr-2">
+                        <label class="text-gray-700">ATS Installed</label>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">ATS Capacity</label>
+                        <input type="text" name="ats_capacity[]" placeholder="ATS Capacity" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Name of Faulty ATS Parts</label>
+                        <input type="text" name="name_of_faulty_ats_parts[]" placeholder="Name of Faulty ATS Parts" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">No of Faulty ATS Parts</label>
+                        <input type="number" name="no_of_faulty_ats_parts[]" placeholder="No of Faulty ATS Parts" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Load on DG P1</label>
+                        <input type="number" step="any" name="load_on_dg_p1[]" placeholder="Load on DG P1" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Load on DG P2</label>
+                        <input type="number" step="any" name="load_on_dg_p2[]" placeholder="Load on DG P2" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Load on DG P3</label>
+                        <input type="number" step="any" name="load_on_dg_p3[]" placeholder="Load on DG P3" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Site Load Total</label>
+                        <input type="number" step="any" name="site_load_total[]" placeholder="Site Load Total" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Site Load P1</label>
+                        <input type="number" step="any" name="site_load_p1[]" placeholder="Site Load P1" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Site Load P2</label>
+                        <input type="number" step="any" name="site_load_p2[]" placeholder="Site Load P2" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Site Load P3</label>
+                        <input type="number" step="any" name="site_load_p3[]" placeholder="Site Load P3" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-dg">Remove DG</button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', newField);
+    });
+
+    // Battery Bank Section
+    document.getElementById('add_battery')?.addEventListener('click', function() {
+        const container = document.getElementById('battery_container');
+        const count = container.getElementsByClassName('battery_entry').length + 1;
+        const newField = `
+            <div class="battery_entry border-b pb-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Make of Battery</label>
+                        <input type="text" name="make_of_battery[]" placeholder="Battery ${count} Make" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Battery Capacity</label>
+                        <input type="number" step="any" name="battery_capacity[]" placeholder="Battery Capacity" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Battery Type</label>
+                        <input type="text" name="battery_type[]" placeholder="Battery Type" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">No of Cells/Bank</label>
+                        <input type="number" name="no_of_cells_bank[]" placeholder="No of Cells/Bank" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Date of Installation</label>
+                        <input type="text" name="date_of_installation_battery[]" placeholder="Date of Installation" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Load on Battery Bank</label>
+                        <input type="number" step="any" name="load_on_battery_bank[]" placeholder="Load on Battery Bank" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Practical Backup Time</label>
+                        <input type="number" step="any" name="practical_backup_time[]" placeholder="Practical Backup Time" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Battery Installed (New/Used)</label>
+                        <input type="text" name="battery_installed_new_or_used[]" placeholder="Battery Installed (New/Used)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Battery Moved From</label>
+                        <input type="text" name="battery_moved_from[]" placeholder="Battery Moved From" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-battery">Remove Battery Bank</button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', newField);
+    });
+
+    // AC Units Section
+    document.getElementById('add_ac')?.addEventListener('click', function() {
+        const container = document.getElementById('ac_container');
+        const count = container.getElementsByClassName('ac_entry').length + 1;
+        const newField = `
+            <div class="ac_entry border-b pb-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Location of AC Unit</label>
+                        <input type="text" name="location_of_ac_unit[]" placeholder="AC Unit ${count} Location" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="working_status_ac[]" class="mr-2">
+                        <label class="text-gray-700">Working Status</label>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">AC Make</label>
+                        <input type="text" name="ac_make[]" placeholder="AC Make" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Capacity (Tons)</label>
+                        <input type="number" step="any" name="capacity_tons[]" placeholder="Capacity (Tons)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Type of AC</label>
+                        <input type="text" name="type_of_ac[]" placeholder="Type of AC" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Mount Type</label>
+                        <input type="text" name="mount_type[]" placeholder="Mount Type" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Date of Installation</label>
+                        <input type="text" name="date_of_installation_ac[]" placeholder="Date of Installation" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="sequence_controller_installed[]" class="mr-2">
+                        <label class="text-gray-700">Sequence Controller Installed</label>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">AC Load</label>
+                        <input type="number" step="any" name="ac_load[]" placeholder="AC Load" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Total AC Load</label>
+                        <input type="number" step="any" name="total_ac_load[]" placeholder="Total AC Load" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Fault Nature of AC Unit</label>
+                        <input type="text" name="fault_nature_of_ac_unit[]" placeholder="Fault Nature of AC Unit" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Estimate to Repair AC</label>
+                        <input type="number" step="any" name="estimate_to_repair_ac[]" placeholder="Estimate to Repair AC" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-ac">Remove AC Unit</button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', newField);
+    });
+
+    // Remove Handlers
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-tower')) {
             e.target.closest('.tower_entry').remove();
         }
+        if (e.target.classList.contains('remove-dg')) {
+            e.target.closest('.dg_entry').remove();
+        }
+        if (e.target.classList.contains('remove-battery')) {
+            e.target.closest('.battery_entry').remove();
+        }
+        if (e.target.classList.contains('remove-ac')) {
+            e.target.closest('.ac_entry').remove();
+        }
     });
 
+    // Delete Form
     window.deleteForm = function(sn) {
         if (confirm('Are you sure you want to delete this exchange? This action cannot be undone.')) {
             fetch(`/delete/${sn}`, {
