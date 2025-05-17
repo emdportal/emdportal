@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from functools import wraps
 import secrets
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, make_response, session
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, make_response, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -55,14 +55,14 @@ class GeneralInformation(db.Model):
     colocation_info = db.relationship('ColocationInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
 
 class Tower(db.Model):
-    __tablename__ = 'tower'  # Explicitly map to the correct table name
+    __tablename__ = 'tower'
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))  # Changed from general_info_sn to general_id
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     tower_type_height = db.Column(db.String(50))
 
 class PowerInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     wapda_ref_number = db.Column(db.String(50))
     transformer_capacity = db.Column(db.String(50))
     transformer_earthing = db.Column(db.String(50))
@@ -84,7 +84,7 @@ class PowerInformation(db.Model):
 
 class DGInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     installed_dg = db.Column(db.String(50))
     engine_make = db.Column(db.String(50))
     installation_year = db.Column(db.Integer)
@@ -105,7 +105,7 @@ class DGInformation(db.Model):
 
 class BatteryBank(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     make_of_battery = db.Column(db.String(50))
     battery_capacity = db.Column(db.Float)
     battery_type = db.Column(db.String(50))
@@ -118,7 +118,7 @@ class BatteryBank(db.Model):
 
 class ACUnit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     location_of_ac_unit = db.Column(db.String(100))
     working_status = db.Column(db.Boolean)
     ac_make = db.Column(db.String(50))
@@ -135,7 +135,7 @@ class ACUnit(db.Model):
 class SolarInformation(db.Model):
     __tablename__ = 'installed_solar_information'
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     total_solar_size = db.Column(db.Float)
     pv_solar_panel_capacity = db.Column(db.Float)
     no_of_pv_panels_installed = db.Column(db.Integer)
@@ -144,7 +144,7 @@ class SolarInformation(db.Model):
 
 class ColocationInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     colocation = db.Column(db.Boolean, default=False)
     name_of_colocation_vendors = db.Column(db.Text)
     load_of_each_vendor = db.Column(db.Float)
@@ -215,27 +215,40 @@ def index():
             exchanges = GeneralInformation.query.all()
         else:
             exchanges = GeneralInformation.query.filter_by(region=user_region).all()
-        
+
+        # Region-wise counts for bar chart
         regions = db.session.query(GeneralInformation.region, db.func.count(GeneralInformation.sn)).group_by(GeneralInformation.region).all()
         region_labels = [r[0] for r in regions if r[0] is not None]
         region_counts = [r[1] for r in regions if r[0] is not None]
+
+        # Year-wise counts for pie chart (mocked as 2024/2025 split)
         total_exchanges = len(exchanges)
         year_counts = [total_exchanges // 2, total_exchanges - (total_exchanges // 2)]
-        return render_template('index.html', 
-                             exchanges=exchanges, 
-                             region_labels=region_labels, 
-                             region_counts=region_counts, 
-                             year_counts=year_counts, 
-                             username=session.get('username', 'User'))
+        year_labels = ['2024', '2025']
+
+        # Dashboard metrics
+        total_exchanges = len(exchanges)
+        operational_exchanges = sum(1 for e in exchanges if e.power_info and e.power_info.working_status)
+        non_operational_exchanges = total_exchanges - operational_exchanges
+
+        return render_template('index.html',
+                             exchanges=exchanges,
+                             region_labels=region_labels,
+                             region_counts=region_counts,
+                             year_labels=year_labels,
+                             year_counts=year_counts,
+                             total_exchanges=total_exchanges,
+                             operational_exchanges=operational_exchanges,
+                             non_operational_exchanges=non_operational_exchanges)
     except Exception as e:
-        return f"Error: {str(e)}"
+        flash(f"Error: {str(e)}")
+        return redirect(url_for('index'))
 
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
     if request.method == 'POST':
         try:
-            # Validate SN field to prevent empty string
             sn_input = request.form['sn'].strip()
             if not sn_input:
                 flash('SN is required and must be a number.')
@@ -261,7 +274,6 @@ def add():
                 tower_available=request.form['tower_available']
             )
 
-            # Tower Information
             if general.tower_available == 'Yes':
                 tower_types = request.form.getlist('tower_type_height[]')
                 for tower_type in tower_types:
@@ -269,7 +281,6 @@ def add():
                         tower = Tower(tower_type_height=tower_type)
                         general.towers.append(tower)
 
-            # Power Information
             power_info = PowerInformation(
                 wapda_ref_number=request.form['wapda_ref_number'],
                 transformer_capacity=request.form['transformer_capacity'],
@@ -292,7 +303,6 @@ def add():
             )
             general.power_info = power_info
 
-            # DG Information
             installed_dgs = request.form.getlist('installed_dg[]')
             for i in range(len(installed_dgs)):
                 if installed_dgs[i]:
@@ -302,8 +312,8 @@ def add():
                         installation_year=int(request.form.getlist('installation_year[]')[i]) if request.form.getlist('installation_year[]')[i] else None,
                         dg_status=request.form.getlist('dg_status[]')[i],
                         dg_starting_battery=request.form.getlist('dg_starting_battery[]')[i],
-                        smart_switch_installed=f"smart_switch_installed_{i}" in request.form.getlist('smart_switch_installed[]'),
-                        ats_installed=f"ats_installed_{i}" in request.form.getlist('ats_installed[]'),
+                        smart_switch_installed='smart_switch_installed[]' in request.form and request.form.getlist('smart_switch_installed[]')[i] == 'on',
+                        ats_installed='ats_installed[]' in request.form and request.form.getlist('ats_installed[]')[i] == 'on',
                         ats_capacity=request.form.getlist('ats_capacity[]')[i],
                         name_of_faulty_ats_parts=request.form.getlist('name_of_faulty_ats_parts[]')[i],
                         no_of_faulty_ats_parts=int(request.form.getlist('no_of_faulty_ats_parts[]')[i]) if request.form.getlist('no_of_faulty_ats_parts[]')[i] else None,
@@ -317,7 +327,6 @@ def add():
                     )
                     general.dgs.append(dg)
 
-            # Battery Bank Information
             makes_of_battery = request.form.getlist('make_of_battery[]')
             for i in range(len(makes_of_battery)):
                 if makes_of_battery[i]:
@@ -334,19 +343,18 @@ def add():
                     )
                     general.battery_banks.append(battery)
 
-            # AC Unit Information
             locations = request.form.getlist('location_of_ac_unit[]')
             for i in range(len(locations)):
                 if locations[i]:
                     ac = ACUnit(
                         location_of_ac_unit=locations[i],
-                        working_status=f"working_status_ac_{i}" in request.form.getlist('working_status_ac[]'),
+                        working_status='working_status_ac[]' in request.form and request.form.getlist('working_status_ac[]')[i] == 'on',
                         ac_make=request.form.getlist('ac_make[]')[i],
                         capacity_tons=float(request.form.getlist('capacity_tons[]')[i]) if request.form.getlist('capacity_tons[]')[i] else None,
                         type_of_ac=request.form.getlist('type_of_ac[]')[i],
                         mount_type=request.form.getlist('mount_type[]')[i],
                         date_of_installation=request.form.getlist('date_of_installation_ac[]')[i],
-                        sequence_controller_installed=f"sequence_controller_installed_{i}" in request.form.getlist('sequence_controller_installed[]'),
+                        sequence_controller_installed='sequence_controller_installed[]' in request.form and request.form.getlist('sequence_controller_installed[]')[i] == 'on',
                         ac_load=float(request.form.getlist('ac_load[]')[i]) if request.form.getlist('ac_load[]')[i] else None,
                         total_ac_load=float(request.form.getlist('total_ac_load[]')[i]) if request.form.getlist('total_ac_load[]')[i] else None,
                         fault_nature_of_ac_unit=request.form.getlist('fault_nature_of_ac_unit[]')[i],
@@ -354,7 +362,6 @@ def add():
                     )
                     general.ac_units.append(ac)
 
-            # Solar Information
             solar_info = SolarInformation(
                 total_solar_size=float(request.form['total_solar_size']) if request.form['total_solar_size'] else None,
                 pv_solar_panel_capacity=float(request.form['pv_solar_panel_capacity']) if request.form['pv_solar_panel_capacity'] else None,
@@ -364,7 +371,6 @@ def add():
             )
             general.solar_info = solar_info
 
-            # Colocation Information
             colocation_info = ColocationInformation(
                 colocation='colocation' in request.form,
                 name_of_colocation_vendors=request.form['name_of_colocation_vendors'],
@@ -381,7 +387,7 @@ def add():
             db.session.rollback()
             flash(f'Error adding exchange: {str(e)}')
             return redirect(url_for('add'))
-    return render_template('form.html', general=None, username=session.get('username', 'User'))
+    return render_template('add.html', general=None)
 
 @app.route('/edit/<int:sn>', methods=['GET', 'POST'])
 @login_required
@@ -389,14 +395,12 @@ def edit(sn):
     general = GeneralInformation.query.get_or_404(sn)
     user_region = session.get('region')
     
-    # Restrict access based on region
     if user_region != "All" and general.region != user_region:
         flash('You do not have access to edit this exchange.')
         return redirect(url_for('index'))
 
     if request.method == 'POST':
         try:
-            # Update General Information
             general.region = request.form['region']
             general.domain = request.form['domain']
             general.exchange_name = request.form['exchange_name']
@@ -408,7 +412,6 @@ def edit(sn):
             general.longitude = float(request.form['longitude']) if request.form['longitude'] else None
             general.tower_available = request.form['tower_available']
 
-            # Update Towers
             if general.tower_available == 'Yes':
                 general.towers = []
                 tower_types = request.form.getlist('tower_type_height[]')
@@ -419,7 +422,6 @@ def edit(sn):
             else:
                 general.towers = []
 
-            # Update Power Information
             if not general.power_info:
                 general.power_info = PowerInformation()
             general.power_info.wapda_ref_number = request.form['wapda_ref_number']
@@ -441,7 +443,6 @@ def edit(sn):
             general.power_info.total_installed_spds = int(request.form['total_installed_spds']) if request.form['total_installed_spds'] else None
             general.power_info.no_of_faulty_spds = int(request.form['no_of_faulty_spds']) if request.form['no_of_faulty_spds'] else None
 
-            # Update DG Information
             general.dgs = []
             installed_dgs = request.form.getlist('installed_dg[]')
             for i in range(len(installed_dgs)):
@@ -452,8 +453,8 @@ def edit(sn):
                         installation_year=int(request.form.getlist('installation_year[]')[i]) if request.form.getlist('installation_year[]')[i] else None,
                         dg_status=request.form.getlist('dg_status[]')[i],
                         dg_starting_battery=request.form.getlist('dg_starting_battery[]')[i],
-                        smart_switch_installed=f"smart_switch_installed_{i}" in request.form.getlist('smart_switch_installed[]'),
-                        ats_installed=f"ats_installed_{i}" in request.form.getlist('ats_installed[]'),
+                        smart_switch_installed='smart_switch_installed[]' in request.form and request.form.getlist('smart_switch_installed[]')[i] == 'on',
+                        ats_installed='ats_installed[]' in request.form and request.form.getlist('ats_installed[]')[i] == 'on',
                         ats_capacity=request.form.getlist('ats_capacity[]')[i],
                         name_of_faulty_ats_parts=request.form.getlist('name_of_faulty_ats_parts[]')[i],
                         no_of_faulty_ats_parts=int(request.form.getlist('no_of_faulty_ats_parts[]')[i]) if request.form.getlist('no_of_faulty_ats_parts[]')[i] else None,
@@ -467,7 +468,6 @@ def edit(sn):
                     )
                     general.dgs.append(dg)
 
-            # Update Battery Bank Information
             general.battery_banks = []
             makes_of_battery = request.form.getlist('make_of_battery[]')
             for i in range(len(makes_of_battery)):
@@ -485,20 +485,19 @@ def edit(sn):
                     )
                     general.battery_banks.append(battery)
 
-            # Update AC Unit Information
             general.ac_units = []
             locations = request.form.getlist('location_of_ac_unit[]')
             for i in range(len(locations)):
                 if locations[i]:
                     ac = ACUnit(
                         location_of_ac_unit=locations[i],
-                        working_status=f"working_status_ac_{i}" in request.form.getlist('working_status_ac[]'),
+                        working_status='working_status_ac[]' in request.form and request.form.getlist('working_status_ac[]')[i] == 'on',
                         ac_make=request.form.getlist('ac_make[]')[i],
                         capacity_tons=float(request.form.getlist('capacity_tons[]')[i]) if request.form.getlist('capacity_tons[]')[i] else None,
                         type_of_ac=request.form.getlist('type_of_ac[]')[i],
                         mount_type=request.form.getlist('mount_type[]')[i],
                         date_of_installation=request.form.getlist('date_of_installation_ac[]')[i],
-                        sequence_controller_installed=f"sequence_controller_installed_{i}" in request.form.getlist('sequence_controller_installed[]'),
+                        sequence_controller_installed='sequence_controller_installed[]' in request.form and request.form.getlist('sequence_controller_installed[]')[i] == 'on',
                         ac_load=float(request.form.getlist('ac_load[]')[i]) if request.form.getlist('ac_load[]')[i] else None,
                         total_ac_load=float(request.form.getlist('total_ac_load[]')[i]) if request.form.getlist('total_ac_load[]')[i] else None,
                         fault_nature_of_ac_unit=request.form.getlist('fault_nature_of_ac_unit[]')[i],
@@ -506,7 +505,6 @@ def edit(sn):
                     )
                     general.ac_units.append(ac)
 
-            # Update Solar Information
             if not general.solar_info:
                 general.solar_info = SolarInformation()
             general.solar_info.total_solar_size = float(request.form['total_solar_size']) if request.form['total_solar_size'] else None
@@ -515,7 +513,6 @@ def edit(sn):
             general.solar_info.make_of_pv_panels = request.form['make_of_pv_panels']
             general.solar_info.charge_controller_make = request.form['charge_controller_make']
 
-            # Update Colocation Information
             if not general.colocation_info:
                 general.colocation_info = ColocationInformation()
             general.colocation_info.colocation = 'colocation' in request.form
@@ -530,7 +527,22 @@ def edit(sn):
             db.session.rollback()
             flash(f'Error updating exchange: {str(e)}')
             return redirect(url_for('edit', sn=sn))
-    return render_template('form.html', general=general, username=session.get('username', 'User'))
+    return render_template('add.html', general=general)
+
+@app.route('/delete/<int:sn>', methods=['DELETE'])
+@login_required
+def delete(sn):
+    if session.get('region') != 'All':
+        return jsonify({'success': False, 'message': 'Unauthorized access'}), 403
+    
+    general = GeneralInformation.query.get_or_404(sn)
+    try:
+        db.session.delete(general)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Exchange deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error deleting exchange: {str(e)}'}), 500
 
 @app.route('/export')
 @login_required
@@ -558,11 +570,9 @@ def export():
                 'Tower Available': exchange.tower_available
             }
 
-            # Tower Information
             for i, tower in enumerate(exchange.towers, 1):
                 row[f'Tower {i} Type/Height'] = tower.tower_type_height
 
-            # Power Information
             if exchange.power_info:
                 row.update({
                     'WAPDA Ref Number': exchange.power_info.wapda_ref_number,
@@ -585,7 +595,6 @@ def export():
                     'No of Faulty SPDs': exchange.power_info.no_of_faulty_spds
                 })
 
-            # DG Information
             for i, dg in enumerate(exchange.dgs, 1):
                 row.update({
                     f'DG {i} Installed DG': dg.installed_dg,
@@ -607,7 +616,6 @@ def export():
                     f'DG {i} Site Load P3': dg.site_load_p3
                 })
 
-            # Battery Bank Information
             for i, battery in enumerate(exchange.battery_banks, 1):
                 row.update({
                     f'Battery {i} Make of Battery': battery.make_of_battery,
@@ -621,7 +629,6 @@ def export():
                     f'Battery {i} Battery Moved From': battery.battery_moved_from
                 })
 
-            # AC Unit Information
             for i, ac in enumerate(exchange.ac_units, 1):
                 row.update({
                     f'AC Unit {i} Location': ac.location_of_ac_unit,
@@ -638,7 +645,6 @@ def export():
                     f'AC Unit {i} Estimate to Repair AC': ac.estimate_to_repair_ac
                 })
 
-            # Solar Information
             if exchange.solar_info:
                 row.update({
                     'Total Solar Size': exchange.solar_info.total_solar_size,
@@ -648,7 +654,6 @@ def export():
                     'Charge Controller Make': exchange.solar_info.charge_controller_make
                 })
 
-            # Colocation Information
             if exchange.colocation_info:
                 row.update({
                     'Colocation': exchange.colocation_info.colocation,
@@ -682,7 +687,7 @@ def view_exchanges():
         exchanges = GeneralInformation.query.all()
     else:
         exchanges = GeneralInformation.query.filter_by(region=user_region).all()
-    return render_template('view_exchanges.html', exchanges=exchanges, username=session.get('username', 'User'))
+    return render_template('view_exchanges.html', exchanges=exchanges)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if general %}Edit Exchange{% else %}Add Exchange{% endif %}
+{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-gray-800">{% if general %}Edit Exchange (SN: {{ general.sn }}){% else %}Add Exchange{% endif %}</h1>
+
+{% if general and session.get('region') == 'All' %}
+    <button onclick="deleteForm('{{ general.sn }}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mb-4">Delete Exchange</button>
+{% endif %}
+
+<form method="POST" class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">General Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label for="sn" class="block text-gray-700 mb-2">SN</label>
+            <input type="number" id="sn" name="sn" value="{{ general.sn if general else '' }}" {% if general %}readonly{% endif %} class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+        <div>
+            <label for="region" class="block text-gray-700 mb-2">Region</label>
+            <input type="text" id="region" name="region" value="{{ general.region if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="domain" class="block text-gray-700 mb-2">Domain</label>
+            <input type="text" id="domain" name="domain" value="{{ general.domain if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="exchange_name" class="block text-gray-700 mb-2">Exchange Name</label>
+            <input type="text" id="exchange_name" name="exchange_name" value="{{ general.exchange_name if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="exchange_lic" class="block text-gray-700 mb-2">Exchange LIC</label>
+            <input type="text" id="exchange_lic" name="exchange_lic" value="{{ general.exchange_lic if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="flc" class="block text-gray-700 mb-2">FLC</label>
+            <input type="text" id="flc" name="flc" value="{{ general.flc if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="site_category" class="block text-gray-700 mb-2">Site Category</label>
+            <input type="text" id="site_category" name="site_category" value="{{ general.site_category if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="nes_installed" class="block text-gray-700 mb-2">NEs Installed</label>
+            <input type="text" id="nes_installed" name="nes_installed" value="{{ general.nes_installed if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="latitude" class="block text-gray-700 mb-2">Latitude</label>
+            <input type="number" step="any" id="latitude" name="latitude" value="{{ general.latitude if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="longitude" class="block text-gray-700 mb-2">Longitude</label>
+            <input type="number" step="any" id="longitude" name="longitude" value="{{ general.longitude if general else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label for="tower_available" class="block text-gray-700 mb-2">Tower Available</label>
+            <select id="tower_available" name="tower_available" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="Yes" {% if general and general.tower_available == 'Yes' %}selected{% endif %}>Yes</option>
+                <option value="No" {% if general and general.tower_available == 'No' %}selected{% endif %}>No</option>
+            </select>
+        </div>
+    </div>
+
+    <h3 class="text-lg font-semibold mt-6 mb-4 text-gray-700">Tower Information</h3>
+    <div id="tower_container" class="mb-4">
+        {% for tower in general.towers if general %}
+        <div class="tower_entry flex items-center mb-2">
+            <input type="text" name="tower_type_height[]" value="{{ tower.tower_type_height }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-tower">Remove</button>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" id="add_tower" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-4">Add Tower</button>
+
+    <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">Save</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('add_tower')?.addEventListener('click', function() {
+        const container = document.getElementById('tower_container');
+        const count = container.getElementsByClassName('tower_entry').length + 1;
+        const newField = `
+            <div class="tower_entry flex items-center mb-2">
+                <input type="text" name="tower_type_height[]" placeholder="Tower ${count} Type/Height" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-tower">Remove</button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', newField);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-tower')) {
+            e.target.closest('.tower_entry').remove();
+        }
+    });
+
+    window.deleteForm = function(sn) {
+        if (confirm('Are you sure you want to delete this exchange? This action cannot be undone.')) {
+            fetch(`/delete/${sn}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Exchange deleted successfully.');
+                    window.location.href = '/';
+                } else {
+                    alert('Error deleting exchange: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the exchange.');
+            });
+        }
+    };
+</script>
+{% endblock %}

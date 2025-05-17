@@ -1,118 +1,82 @@
 {% extends "base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
 {% block content %}
-<h1>Exchange Dashboard</h1>
+<h1 class="text-3xl font-bold mb-6 text-gray-800">Exchange Deployment Analytics</h1>
 
-<div class="row">
-    <div class="col-md-6 chart-container">
-        <h3>Exchanges by Region</h3>
-        <canvas id="regionChart"></canvas>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Total Exchanges</h2>
+        <p class="text-3xl font-bold text-green-600">{{ total_exchanges }}</p>
     </div>
-    <div class="col-md-6 chart-container">
-        <h3>Exchanges by Year</h3>
-        <canvas id="yearChart"></canvas>
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Operational Exchanges</h2>
+        <p class="text-3xl font-bold text-blue-600">{{ operational_exchanges }}</p>
+    </div>
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Non-Operational Exchanges</h2>
+        <p class="text-3xl font-bold text-red-600">{{ non_operational_exchanges }}</p>
     </div>
 </div>
 
-<div class="table-container">
-    <h3>All Exchanges</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>SN</th>
-                <th>Region</th>
-                <th>Domain</th>
-                <th>Exchange Name</th>
-                <th>Exchange LIC</th>
-                <th>FLC</th>
-                <th>Site Category</th>
-                <th>NEs Installed</th>
-                <th>WAPDA Ref Number</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for exchange in exchanges %}
-            <tr>
-                <td>{{ exchange.sn }}</td>
-                <td>{{ exchange.region }}</td>
-                <td>{{ exchange.domain }}</td>
-                <td>{{ exchange.exchange_name }}</td>
-                <td>{{ exchange.exchange_lic }}</td>
-                <td>{{ exchange.flc }}</td>
-                <td>{{ exchange.site_category }}</td>
-                <td>{{ exchange.nes_installed }}</td>
-                <td>{{ exchange.power_info.wapda_ref_number if exchange.power_info else 'N/A' }}</td>
-                <td>
-                    <a href="{{ url_for('edit', sn=exchange.sn) }}" class="btn btn-primary btn-sm">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Year Wise Total Exchanges Installed</h2>
+        <canvas id="yearChart" height="200"></canvas>
+    </div>
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Region Wise Exchanges Count</h2>
+        <canvas id="regionChart" height="200"></canvas>
+    </div>
 </div>
+{% endblock %}
 
-<style>
-    .chart-container {
-        width: 100%;
-        max-width: 600px;
-        margin: 20px 0;
-    }
-    .table-container {
-        margin-top: 20px;
-    }
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block scripts %}
 <script>
-    const regionCtx = document.getElementById('regionChart').getContext('2d');
-    const regionChart = new Chart(regionCtx, {
+    // Year-wise Pie Chart
+    const yearCtx = document.getElementById('yearChart').getContext('2d');
+    new Chart(yearCtx, {
         type: 'pie',
         data: {
-            labels: {{ region_labels | tojson }},
+            labels: {{ year_labels|tojson }},
             datasets: [{
-                label: 'Exchanges by Region',
-                data: {{ region_counts | tojson }},
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                ],
+                data: {{ year_counts|tojson }},
+                backgroundColor: ['#48bb78', '#ed8936'],
                 borderWidth: 1
             }]
         },
         options: {
-            responsive: true
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' }
+            }
         }
     });
 
-    const yearCtx = document.getElementById('yearChart').getContext('2d');
-    const yearChart = new Chart(yearCtx, {
+    // Region-wise Bar Chart
+    const regionCtx = document.getElementById('regionChart').getContext('2d');
+    new Chart(regionCtx, {
         type: 'bar',
         data: {
-            labels: ['2023', '2024'],
+            labels: {{ region_labels|tojson }},
             datasets: [{
-                label: 'Exchanges by Year',
-                data: {{ year_counts | tojson }},
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Exchanges',
+                data: {{ region_counts|tojson }},
+                backgroundColor: '#4c51bf',
+                borderColor: '#4c51bf',
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             scales: {
-                y: {
-                    beginAtZero: true
-                }
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
             }
         }
     });
