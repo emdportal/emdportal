@@ -52,6 +52,7 @@ class GeneralInformation(db.Model):
     battery_banks = db.relationship('BatteryBank', backref='general_info', lazy=True, cascade="all, delete-orphan")
     ac_units = db.relationship('ACUnit', backref='general_info', lazy=True, cascade="all, delete-orphan")
     solar_info = db.relationship('SolarInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
+    colocation_info = db.relationship('ColocationInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
 
 class Tower(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -139,6 +140,14 @@ class SolarInformation(db.Model):
     make_of_pv_panels = db.Column(db.String(50))
     charge_controller_make = db.Column(db.String(50))
 
+class ColocationInformation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    colocation = db.Column(db.Boolean, default=False)
+    name_of_colocation_vendors = db.Column(db.Text)
+    load_of_each_vendor = db.Column(db.Float)
+    total_load = db.Column(db.Float)
+
 # Custom login required decorator
 def login_required(f):
     @wraps(f)
@@ -174,7 +183,7 @@ def login():
             if response.user and response.user.id == user_id:
                 access_token = response.session.access_token
                 session['region'] = region
-                session['username'] = username  # Store username in session
+                session['username'] = username
                 resp = make_response(redirect(url_for('index')))
                 resp.set_cookie('auth_token', access_token, httponly=True, secure=True, samesite='Lax')
                 return resp
@@ -347,6 +356,15 @@ def add():
             )
             general.solar_info = solar_info
 
+            # Colocation Information
+            colocation_info = ColocationInformation(
+                colocation='colocation' in request.form,
+                name_of_colocation_vendors=request.form['name_of_colocation_vendors'],
+                load_of_each_vendor=float(request.form['load_of_each_vendor']) if request.form['load_of_each_vendor'] else None,
+                total_load=float(request.form['total_load']) if request.form['total_load'] else None
+            )
+            general.colocation_info = colocation_info
+
             db.session.add(general)
             db.session.commit()
             flash('Exchange added successfully!')
@@ -489,6 +507,14 @@ def edit(sn):
             general.solar_info.make_of_pv_panels = request.form['make_of_pv_panels']
             general.solar_info.charge_controller_make = request.form['charge_controller_make']
 
+            # Update Colocation Information
+            if not general.colocation_info:
+                general.colocation_info = ColocationInformation()
+            general.colocation_info.colocation = 'colocation' in request.form
+            general.colocation_info.name_of_colocation_vendors = request.form['name_of_colocation_vendors']
+            general.colocation_info.load_of_each_vendor = float(request.form['load_of_each_vendor']) if request.form['load_of_each_vendor'] else None
+            general.colocation_info.total_load = float(request.form['total_load']) if request.form['total_load'] else None
+
             db.session.commit()
             flash('Exchange updated successfully!')
             return redirect(url_for('index'))
@@ -612,6 +638,15 @@ def export():
                     'No of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed,
                     'Make of PV Panels': exchange.solar_info.make_of_pv_panels,
                     'Charge Controller Make': exchange.solar_info.charge_controller_make
+                })
+
+            # Colocation Information
+            if exchange.colocation_info:
+                row.update({
+                    'Colocation': exchange.colocation_info.colocation,
+                    'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors,
+                    'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor,
+                    'Total Load': exchange.colocation_info.total_load
                 })
 
             data.append(row)
