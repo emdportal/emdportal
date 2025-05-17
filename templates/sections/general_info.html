@@ -1,6 +1,9 @@
 <div class="mb-3">
     <label for="sn" class="form-label">SN</label>
-    <input type="number" class="form-control" id="sn" name="sn" value="{{ general.sn if general else '' }}" {% if general %}readonly{% endif %} required>
+    <input type="number" class="form-control" id="sn" name="sn" value="{{ general.sn if general else '' }}" {% if general %}readonly{% endif %} required min="1">
+    <div class="invalid-feedback">
+        Please provide a valid Serial Number (must be a positive number).
+    </div>
 </div>
 <div class="mb-3">
     <label for="region" class="form-label">Region</label>
@@ -80,3 +83,21 @@
     </div>
     <button type="button" class="btn btn-secondary mt-2" onclick="addTowerField()">Add Tower</button>
 </div>
+<script>
+// Client-side form validation for Bootstrap
+(function () {
+    'use strict';
+    window.addEventListener('load', function () {
+        var forms = document.getElementsByClassName('needs-validation');
+        Array.prototype.filter.call(forms, function (form) {
+            form.addEventListener('submit', function (event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>

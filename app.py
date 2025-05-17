@@ -142,7 +142,7 @@ class SolarInformation(db.Model):
 
 class ColocationInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_info_sn = db.Column(db.Integer, db.ForeignKey('general_information.sn'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'))  # Changed from general_info_sn to general_id
     colocation = db.Column(db.Boolean, default=False)
     name_of_colocation_vendors = db.Column(db.Text)
     load_of_each_vendor = db.Column(db.Float)
@@ -233,7 +233,13 @@ def index():
 def add():
     if request.method == 'POST':
         try:
-            sn = int(request.form['sn'])
+            # Validate SN field to prevent empty string
+            sn_input = request.form['sn'].strip()
+            if not sn_input:
+                flash('SN is required and must be a number.')
+                return redirect(url_for('add'))
+            sn = int(sn_input)
+
             existing_exchange = GeneralInformation.query.get(sn)
             if existing_exchange:
                 flash('SN already exists. Please use a different SN.')
