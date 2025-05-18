@@ -717,6 +717,20 @@ def export():
         else:
             exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
 
+        if not exchanges:
+            flash('No exchanges found to export.')
+            return redirect(url_for('index'))
+
+        # Determine the maximum number of entries for each related model
+        max_towers = max(len(exchange.towers) for exchange in exchanges) if exchanges else 0
+        max_dgs = max(len(exchange.dgs) for exchange in exchanges) if exchanges else 0
+        max_batteries = max(len(exchange.battery_banks) for exchange in exchanges) if exchanges else 0
+        max_acs = max(len(exchange.ac_units) for exchange in exchanges) if exchanges else 0
+        max_alarms = max(len(exchange.alarms) for exchange in exchanges) if exchanges else 0
+        max_earthings = max(len(exchange.earthings) for exchange in exchanges) if exchanges else 0
+        max_fire_extinguishers = max(len(exchange.fire_extinguishers) for exchange in exchanges) if exchanges else 0
+        max_pmrs = max(len(exchange.pmr_infos) for exchange in exchanges) if exchanges else 0
+
         data = []
         for exchange in exchanges:
             row = {
@@ -733,9 +747,12 @@ def export():
                 'Tower Available': exchange.tower_available
             }
 
-            for i, tower in enumerate(exchange.towers, 1):
-                row[f'Tower {i} Type/Height'] = tower.tower_type_height
+            # Handle Towers
+            for i in range(max_towers):
+                tower = exchange.towers[i] if i < len(exchange.towers) else None
+                row[f'Tower {i+1} Type/Height'] = tower.tower_type_height if tower else None
 
+            # Handle Power Information
             if exchange.power_info:
                 row.update({
                     'WAPDA Ref Number': exchange.power_info.wapda_ref_number,
@@ -758,56 +775,63 @@ def export():
                     'No of Faulty SPDs': exchange.power_info.no_of_faulty_spds
                 })
 
-            for i, dg in enumerate(exchange.dgs, 1):
+            # Handle DGs
+            for i in range(max_dgs):
+                dg = exchange.dgs[i] if i < len(exchange.dgs) else None
                 row.update({
-                    f'DG {i} Installed DG': dg.installed_dg,
-                    f'DG {i} Engine Make': dg.engine_make,
-                    f'DG {i} Installation Year': dg.installation_year,
-                    f'DG {i} DG Status': dg.dg_status,
-                    f'DG {i} DG Starting Battery': dg.dg_starting_battery,
-                    f'DG {i} Smart Switch Installed': dg.smart_switch_installed,
-                    f'DG {i} ATS Installed': dg.ats_installed,
-                    f'DG {i} ATS Capacity': dg.ats_capacity,
-                    f'DG {i} Name of Faulty ATS Parts': dg.name_of_faulty_ats_parts,
-                    f'DG {i} No of Faulty ATS Parts': dg.no_of_faulty_ats_parts,
-                    f'DG {i} Load on DG P1': dg.load_on_dg_p1,
-                    f'DG {i} Load on DG P2': dg.load_on_dg_p2,
-                    f'DG {i} Load on DG P3': dg.load_on_dg_p3,
-                    f'DG {i} Site Load Total': dg.site_load_total,
-                    f'DG {i} Site Load P1': dg.site_load_p1,
-                    f'DG {i} Site Load P2': dg.site_load_p2,
-                    f'DG {i} Site Load P3': dg.site_load_p3
+                    f'DG {i+1} Installed DG': dg.installed_dg if dg else None,
+                    f'DG {i+1} Engine Make': dg.engine_make if dg else None,
+                    f'DG {i+1} Installation Year': dg.installation_year if dg else None,
+                    f'DG {i+1} DG Status': dg.dg_status if dg else None,
+                    f'DG {i+1} DG Starting Battery': dg.dg_starting_battery if dg else None,
+                    f'DG {i+1} Smart Switch Installed': dg.smart_switch_installed if dg else None,
+                    f'DG {i+1} ATS Installed': dg.ats_installed if dg else None,
+                    f'DG {i+1} ATS Capacity': dg.ats_capacity if dg else None,
+                    f'DG {i+1} Name of Faulty ATS Parts': dg.name_of_faulty_ats_parts if dg else None,
+                    f'DG {i+1} No of Faulty ATS Parts': dg.no_of_faulty_ats_parts if dg else None,
+                    f'DG {i+1} Load on DG P1': dg.load_on_dg_p1 if dg else None,
+                    f'DG {i+1} Load on DG P2': dg.load_on_dg_p2 if dg else None,
+                    f'DG {i+1} Load on DG P3': dg.load_on_dg_p3 if dg else None,
+                    f'DG {i+1} Site Load Total': dg.site_load_total if dg else None,
+                    f'DG {i+1} Site Load P1': dg.site_load_p1 if dg else None,
+                    f'DG {i+1} Site Load P2': dg.site_load_p2 if dg else None,
+                    f'DG {i+1} Site Load P3': dg.site_load_p3 if dg else None
                 })
 
-            for i, battery in enumerate(exchange.battery_banks, 1):
+            # Handle Battery Banks
+            for i in range(max_batteries):
+                battery = exchange.battery_banks[i] if i < len(exchange.battery_banks) else None
                 row.update({
-                    f'Battery {i} Make of Battery': battery.make_of_battery,
-                    f'Battery {i} Battery Capacity': battery.battery_capacity,
-                    f'Battery {i} Battery Type': battery.battery_type,
-                    f'Battery {i} No of Cells/Bank': battery.no_of_cells_bank,
-                    f'Battery {i} Date of Installation': battery.date_of_installation,
-                    f'Battery {i} Load on Battery Bank': battery.load_on_battery_bank,
-                    f'Battery {i} Practical Backup Time': battery.practical_backup_time,
-                    f'Battery {i} Battery Installed (New/Used)': battery.battery_installed_new_or_used,
-                    f'Battery {i} Battery Moved From': battery.battery_moved_from
+                    f'Battery {i+1} Make of Battery': battery.make_of_battery if battery else None,
+                    f'Battery {i+1} Battery Capacity': battery.battery_capacity if battery else None,
+                    f'Battery {i+1} Battery Type': battery.battery_type if battery else None,
+                    f'Battery {i+1} No of Cells/Bank': battery.no_of_cells_bank if battery else None,
+                    f'Battery {i+1} Date of Installation': battery.date_of_installation if battery else None,
+                    f'Battery {i+1} Load on Battery Bank': battery.load_on_battery_bank if battery else None,
+                    f'Battery {i+1} Practical Backup Time': battery.practical_backup_time if battery else None,
+                    f'Battery {i+1} Battery Installed (New/Used)': battery.battery_installed_new_or_used if battery else None,
+                    f'Battery {i+1} Battery Moved From': battery.battery_moved_from if battery else None
                 })
 
-            for i, ac in enumerate(exchange.ac_units, 1):
+            # Handle AC Units
+            for i in range(max_acs):
+                ac = exchange.ac_units[i] if i < len(exchange.ac_units) else None
                 row.update({
-                    f'AC Unit {i} Location': ac.location_of_ac_unit,
-                    f'AC Unit {i} Working Status': ac.working_status,
-                    f'AC Unit {i} AC Make': ac.ac_make,
-                    f'AC Unit {i} Capacity (Tons)': ac.capacity_tons,
-                    f'AC Unit {i} Type of AC': ac.type_of_ac,
-                    f'AC Unit {i} Mount Type': ac.mount_type,
-                    f'AC Unit {i} Date of Installation': ac.date_of_installation,
-                    f'AC Unit {i} Sequence Controller Installed': ac.sequence_controller_installed,
-                    f'AC Unit {i} AC Load': ac.ac_load,
-                    f'AC Unit {i} Total AC Load': ac.total_ac_load,
-                    f'AC Unit {i} Fault Nature of AC Unit': ac.fault_nature_of_ac_unit,
-                    f'AC Unit {i} Estimate to Repair AC': ac.estimate_to_repair_ac
+                    f'AC Unit {i+1} Location': ac.location_of_ac_unit if ac else None,
+                    f'AC Unit {i+1} Working Status': ac.working_status if ac else None,
+                    f'AC Unit {i+1} AC Make': ac.ac_make if ac else None,
+                    f'AC Unit {i+1} Capacity (Tons)': ac.capacity_tons if ac else None,
+                    f'AC Unit {i+1} Type of AC': ac.type_of_ac if ac else None,
+                    f'AC Unit {i+1} Mount Type': ac.mount_type if ac else None,
+                    f'AC Unit {i+1} Date of Installation': ac.date_of_installation if ac else None,
+                    f'AC Unit {i+1} Sequence Controller Installed': ac.sequence_controller_installed if ac else None,
+                    f'AC Unit {i+1} AC Load': ac.ac_load if ac else None,
+                    f'AC Unit {i+1} Total AC Load': ac.total_ac_load if ac else None,
+                    f'AC Unit {i+1} Fault Nature of AC Unit': ac.fault_nature_of_ac_unit if ac else None,
+                    f'AC Unit {i+1} Estimate to Repair AC': ac.estimate_to_repair_ac if ac else None
                 })
 
+            # Handle Solar Information
             if exchange.solar_info:
                 row.update({
                     'Total Solar Size': exchange.solar_info.total_solar_size,
@@ -817,6 +841,7 @@ def export():
                     'Charge Controller Make': exchange.solar_info.charge_controller_make
                 })
 
+            # Handle Colocation Information
             if exchange.colocation_info:
                 row.update({
                     'Colocation': exchange.colocation_info.colocation,
@@ -825,52 +850,74 @@ def export():
                     'Total Load': exchange.colocation_info.total_load
                 })
 
+            # Handle Building Information
             if exchange.building_info:
                 row.update({
                     'Building Status': exchange.building_info.building_status,
                     'Wall/Doors Condition': exchange.building_info.wall_doors_condition,
                 })
 
-            for i, alarm in enumerate(exchange.alarms, 1):
+            # Handle Alarms
+            for i in range(max_alarms):
+                alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
                 row.update({
-                    f'Alarm {i} AC Main Failure': alarm.ac_main_failure,
-                    f'Alarm {i} DC Low Voltages': alarm.dc_low_voltages,
-                    f'Alarm {i} Rectifier Failure': alarm.rectifier_failure
+                    f'Alarm {i+1} AC Main Failure': alarm.ac_main_failure if alarm else None,
+                    f'Alarm {i+1} DC Low Voltages': alarm.dc_low_voltages if alarm else None,
+                    f'Alarm {i+1} Rectifier Failure': alarm.rectifier_failure if alarm else None
                 })
 
-            for i, earthing in enumerate(exchange.earthings, 1):
+            # Handle Earthings
+            for i in range(max_earthings):
+                earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
                 row.update({
-                    f'Earthing {i} Value': earthing.earthing_value,
-                    f'Earthing {i} No of Pits': earthing.no_of_pits
+                    f'Earthing {i+1} Value': earthing.earthing_value if earthing else None,
+                    f'Earthing {i+1} No of Pits': earthing.no_of_pits if earthing else None
                 })
 
-            for i, fire_ext in enumerate(exchange.fire_extinguishers, 1):
+            # Handle Fire Extinguishers
+            for i in range(max_fire_extinguishers):
+                fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers) else None
                 row.update({
-                    f'Fire Extinguisher {i} Installed': fire_ext.fe_installed,
-                    f'Fire Extinguisher {i} No of FEs': fire_ext.no_of_fes,
-                    f'Fire Extinguisher {i} Type of Gas': fire_ext.type_of_gas,
-                    f'Fire Extinguisher {i} Date of Expiry': fire_ext.date_of_expiry
+                    f'Fire Extinguisher {i+1} Installed': fire_ext.fe_installed if fire_ext else None,
+                    f'Fire Extinguisher {i+1} No of FEs': fire_ext.no_of_fes if fire_ext else None,
+                    f'Fire Extinguisher {i+1} Type of Gas': fire_ext.type_of_gas if fire_ext else None,
+                    f'Fire Extinguisher {i+1} Date of Expiry': fire_ext.date_of_expiry if fire_ext else None
                 })
 
-            for i, pmr in enumerate(exchange.pmr_infos, 1):
+            # Handle PMRs
+            for i in range(max_pmrs):
+                pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
                 row.update({
-                    f'PMR {i} Performed': pmr.pmr_performed,
-                    f'PMR {i} Last Performed Date': pmr.last_performed_date
+                    f'PMR {i+1} Performed': pmr.pmr_performed if pmr else None,
+                    f'PMR {i+1} Last Performed Date': pmr.last_performed_date if pmr else None
                 })
 
             data.append(row)
 
         df = pd.DataFrame(data)
+        
+        # Ensure columns are sorted for consistency
+        df = df.reindex(sorted(df.columns), axis=1)
+
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Exchanges')
+            # Optional: Adjust column widths for better readability
+            worksheet = writer.sheets['Exchanges']
+            for idx, col in enumerate(df.columns):
+                max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(idx, idx, max_len)
         output.seek(0)
+        
         return send_file(
             output,
             download_name='exchanges.xlsx',
             as_attachment=True,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
+    except ImportError as e:
+        flash(f'Export failed: Missing dependency - {str(e)}. Please ensure "xlsxwriter" is installed.')
+        return redirect(url_for('index'))
     except Exception as e:
         flash(f'Error exporting data: {str(e)}')
         return redirect(url_for('index'))
