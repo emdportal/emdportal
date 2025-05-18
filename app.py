@@ -415,11 +415,8 @@ def add():
             general.colocation_info = colocation_info
 
             building_info = BuildingInformation(
-                building_type=request.form['building_type'] or None,
-                construction_year=int(request.form['construction_year']) if request.form['construction_year'].strip() else None,
-                total_area_sqft=float(request.form['total_area_sqft']) if request.form['total_area_sqft'].strip() else None,
-                number_of_floors=int(request.form['number_of_floors']) if request.form['number_of_floors'].strip() else None,
-                condition=request.form['condition'] or None
+                building_status=request.form['building_status'],
+                wall_doors_condition=request.form['wall_doors_condition']
             )
             general.building_info = building_info
 
