@@ -158,7 +158,7 @@ class ColocationInformation(db.Model):
 
 class BuildingInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn'), ondelete='CASCADE'))
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     building_status = db.Column(db.String(100))
     wall_doors_condition = db.Column(db.String(100))
 
