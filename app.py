@@ -268,10 +268,14 @@ def add():
             last_sn = db.session.query(db.func.max(GeneralInformation.sn)).scalar() or 0
             sn = last_sn + 1
 
+            # Set domain based on user region
+            user_region = session.get('region')
+            domain = request.form['domain'] if user_region == 'All' else user_region
+
             general = GeneralInformation(
                 sn=sn,
                 region='RTR',
-                domain=session.get('region'),
+                domain=domain,
                 exchange_name=request.form['exchange_name'],
                 exchange_lic=request.form['exchange_lic'],
                 flc=request.form['flc'],
@@ -428,7 +432,7 @@ def edit(sn):
     if request.method == 'POST':
         try:
             general.region = 'RTR'
-            general.domain = session.get('region')
+            general.domain = request.form['domain'] if user_region == 'All' else user_region
             general.exchange_name = request.form['exchange_name']
             general.exchange_lic = request.form['exchange_lic']
             general.flc = request.form['flc']
