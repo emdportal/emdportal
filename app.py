@@ -158,12 +158,9 @@ class ColocationInformation(db.Model):
 
 class BuildingInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
-    building_type = db.Column(db.String(50), nullable=True)
-    construction_year = db.Column(db.Integer, nullable=True)
-    total_area_sqft = db.Column(db.Float, nullable=True)
-    number_of_floors = db.Column(db.Integer, nullable=True)
-    condition = db.Column(db.String(50), nullable=True)
+    general_id = db.Column(db.Integer, db.ForeignKey('general.id'), nullable=False)
+    building_status = db.Column(db.String(100))
+    wall_doors_condition = db.Column(db.String(100))
 
 class AlarmExtension(db.Model):
     __tablename__ = 'alarm_extension'

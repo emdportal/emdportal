@@ -430,24 +430,12 @@
     <h2 class="text-xl font-semibold mb-4 text-gray-700">Building Information</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
-            <label for="building_type" class="block text-gray-700 mb-2">Building Type</label>
-            <input type="text" id="building_type" name="building_type" value="{{ general.building_info.building_type if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label for="building_status" class="block text-gray-700 mb-2">Building Status</label>
+            <input type="text" id="building_status" name="building_status" value="{{ general.building_info.building_status if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         <div>
-            <label for="construction_year" class="block text-gray-700 mb-2">Construction Year</label>
-            <input type="number" id="construction_year" name="construction_year" value="{{ general.building_info.construction_year if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div>
-            <label for="total_area_sqft" class="block text-gray-700 mb-2">Total Area (sqft)</label>
-            <input type="number" step="any" id="total_area_sqft" name="total_area_sqft" value="{{ general.building_info.total_area_sqft if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div>
-            <label for="number_of_floors" class="block text-gray-700 mb-2">Number of Floors</label>
-            <input type="number" id="number_of_floors" name="number_of_floors" value="{{ general.building_info.number_of_floors if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-        <div>
-            <label for="condition" class="block text-gray-700 mb-2">Condition</label>
-            <input type="text" id="condition" name="condition" value="{{ general.building_info.condition if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <label for="wall_doors_condition" class="block text-gray-700 mb-2">Wall/Doors Condition</label>
+            <input type="text" id="wall_doors_condition" name="wall_doors_condition" value="{{ general.building_info.wall_doors_condition if general and general.building_info else '' }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
     </div>
 
