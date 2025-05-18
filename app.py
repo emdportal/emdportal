@@ -519,18 +519,41 @@ def edit(sn):
             general.power_info.working_status = 'working_status_power' in request.form
             general.power_info.load_of_individual_ne = float(request.form['load_of_individual_ne']) if request.form['load_of_individual_ne'].strip() else None
             general.power_info.name_of_nes_connected = request.form['name_of_nes_connected']
-            general.power_info.make_of_rectifier = request.form.getlist('make_of_rectifier[]')[0] if request.form.getlist('make_of_rectifier[]') and request.form.getlist('make_of_rectifier[]')[0].strip() else None
-            general.power_info.rectifier_capacity = float(request.form.getlist('rectifier_capacity[]')[0]) if request.form.getlist('rectifier_capacity[]') and request.form.getlist('rectifier_capacity[]')[0].strip() else None
-            general.power_info.no_of_modules = int(request.form.getlist('no_of_modules[]')[0]) if request.form.getlist('no_of_modules[]') and request.form.getlist('no_of_modules[]')[0].strip() else None
-            general.power_info.capacity_of_each_module = float(request.form.getlist('capacity_of_each_module[]')[0]) if request.form.getlist('capacity_of_each_module[]') and request.form.getlist('capacity_of_each_module[]')[0].strip() else None
-            general.power_info.working_modules = int(request.form.getlist('working_modules[]')[0]) if request.form.getlist('working_modules[]') and request.form.getlist('working_modules[]')[0].strip() else None
-            general.power_info.faulty_modules = int(request.form.getlist('faulty_modules[]')[0]) if request.form.getlist('faulty_modules[]') and request.form.getlist('faulty_modules[]')[0].strip() else None
-            general.power_info.space_for_new_modules = int(request.form.getlist('space_for_new_modules[]')[0]) if request.form.getlist('space_for_new_modules[]') and request.form.getlist('space_for_new_modules[]')[0].strip() else None
-            general.power_info.grounding_of_rectifier = 'grounding_of_rectifier[]' in request.form and request.form.getlist('grounding_of_rectifier[]')[0] == 'on'
-            general.power_info.spd_in_rectifier = 'spd_in_rectifier[]' in request.form and request.form.getlist('spd_in_rectifier[]')[0] == 'on'
-            general.power_info.spd_model = request.form.getlist('spd_model[]')[0] if request.form.getlist('spd_model[]') and request.form.getlist('spd_model[]')[0].strip() else None
-            general.power_info.total_installed_spds = int(request.form.getlist('total_installed_spds[]')[0]) if request.form.getlist('total_installed_spds[]') and request.form.getlist('total_installed_spds[]')[0].strip() else None
-            general.power_info.no_of_faulty_spds = int(request.form.getlist('no_of_faulty_spds[]')[0]) if request.form.getlist('no_of_faulty_spds[]') and request.form.getlist('no_of_faulty_spds[]')[0].strip() else None
+            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
+            general.power_info.make_of_rectifier = make_of_rectifiers[0] if make_of_rectifiers and make_of_rectifiers[0].strip() else None
+
+            rectifier_capacities = request.form.getlist('rectifier_capacity[]')
+            general.power_info.rectifier_capacity = float(rectifier_capacities[0]) if rectifier_capacities and rectifier_capacities[0].strip() else None
+
+            no_of_modules_list = request.form.getlist('no_of_modules[]')
+            general.power_info.no_of_modules = int(no_of_modules_list[0]) if no_of_modules_list and no_of_modules_list[0].strip() else None
+
+            capacity_of_each_module_list = request.form.getlist('capacity_of_each_module[]')
+            general.power_info.capacity_of_each_module = float(capacity_of_each_module_list[0]) if capacity_of_each_module_list and capacity_of_each_module_list[0].strip() else None
+
+            working_modules_list = request.form.getlist('working_modules[]')
+            general.power_info.working_modules = int(working_modules_list[0]) if working_modules_list and working_modules_list[0].strip() else None
+
+            faulty_modules_list = request.form.getlist('faulty_modules[]')
+            general.power_info.faulty_modules = int(faulty_modules_list[0]) if faulty_modules_list and faulty_modules_list[0].strip() else None
+
+            space_for_new_modules_list = request.form.getlist('space_for_new_modules[]')
+            general.power_info.space_for_new_modules = int(space_for_new_modules_list[0]) if space_for_new_modules_list and space_for_new_modules_list[0].strip() else None
+
+            rounding_of_rectifiers = request.form.getlist('grounding_of_rectifier[]')
+            general.power_info.grounding_of_rectifier = grounding_of_rectifiers and grounding_of_rectifiers[0] == 'on'
+
+            spd_in_rectifiers = request.form.getlist('spd_in_rectifier[]')
+            general.power_info.spd_in_rectifier = spd_in_rectifiers and spd_in_rectifiers[0] == 'on'
+
+            spd_models = request.form.getlist('spd_model[]')
+            general.power_info.spd_model = spd_models[0] if spd_models and spd_models[0].strip() else None
+
+            total_installed_spds_list = request.form.getlist('total_installed_spds[]')
+            general.power_info.total_installed_spds = int(total_installed_spds_list[0]) if total_installed_spds_list and total_installed_spds_list[0].strip() else None
+
+            no_of_faulty_spds_list = request.form.getlist('no_of_faulty_spds[]')
+            general.power_info.no_of_faulty_spds = int(no_of_faulty_spds_list[0]) if no_of_faulty_spds_list and no_of_faulty_spds_list[0].strip() else None
 
             general.dgs = []
             installed_dgs = request.form.getlist('installed_dg[]')
@@ -611,11 +634,8 @@ def edit(sn):
 
             if not general.building_info:
                 general.building_info = BuildingInformation()
-            general.building_info.building_type = request.form['building_type'] or None
-            general.building_info.construction_year = int(request.form['construction_year']) if request.form['construction_year'].strip() else None
-            general.building_info.total_area_sqft = float(request.form['total_area_sqft']) if request.form['total_area_sqft'].strip() else None
-            general.building_info.number_of_floors = int(request.form['number_of_floors']) if request.form['number_of_floors'].strip() else None
-            general.building_info.condition = request.form['condition'] or None
+            general.building_info.building_status = request.form['building_status']
+            general.building_info.wall_doors_condition = request.form['wall_doors_condition']
 
             # Update Alarm Extension
             general.alarms = []
