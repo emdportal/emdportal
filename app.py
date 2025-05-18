@@ -229,10 +229,10 @@ def index():
         if user_region == "All":
             exchanges = GeneralInformation.query.all()
         else:
-            exchanges = GeneralInformation.query.filter_by(region=user_region).all()
+            exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
 
         # Region-wise counts for bar chart
-        regions = db.session.query(GeneralInformation.region, db.func.count(GeneralInformation.sn)).group_by(GeneralInformation.region).all()
+        regions = db.session.query(GeneralInformation.domain, db.func.count(GeneralInformation.sn)).group_by(GeneralInformation.domain).all()
         region_labels = [r[0] for r in regions if r[0] is not None]
         region_counts = [r[1] for r in regions if r[0] is not None]
 
@@ -264,21 +264,14 @@ def index():
 def add():
     if request.method == 'POST':
         try:
-            sn_input = request.form['sn'].strip()
-            if not sn_input:
-                flash('SN is required and must be a number.')
-                return redirect(url_for('add'))
-            sn = int(sn_input)
-
-            existing_exchange = GeneralInformation.query.get(sn)
-            if existing_exchange:
-                flash('SN already exists. Please use a different SN.')
-                return redirect(url_for('add'))
+            # Auto-generate SN
+            last_sn = db.session.query(db.func.max(GeneralInformation.sn)).scalar() or 0
+            sn = last_sn + 1
 
             general = GeneralInformation(
                 sn=sn,
-                region=request.form['region'],
-                domain=request.form['domain'],
+                region='RTR',
+                domain=session.get('region'),
                 exchange_name=request.form['exchange_name'],
                 exchange_lic=request.form['exchange_lic'],
                 flc=request.form['flc'],
@@ -428,14 +421,14 @@ def edit(sn):
     general = GeneralInformation.query.get_or_404(sn)
     user_region = session.get('region')
     
-    if user_region != "All" and general.region != user_region:
+    if user_region != "All" and general.domain != user_region:
         flash('You do not have access to edit this exchange.')
         return redirect(url_for('index'))
 
     if request.method == 'POST':
         try:
-            general.region = request.form['region']
-            general.domain = request.form['domain']
+            general.region = 'RTR'
+            general.domain = session.get('region')
             general.exchange_name = request.form['exchange_name']
             general.exchange_lic = request.form['exchange_lic']
             general.flc = request.form['flc']
@@ -601,7 +594,7 @@ def export():
         if user_region == "All":
             exchanges = GeneralInformation.query.all()
         else:
-            exchanges = GeneralInformation.query.filter_by(region=user_region).all()
+            exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
 
         data = []
         for exchange in exchanges:
@@ -748,7 +741,7 @@ def view_exchanges():
     if user_region == "All":
         exchanges = GeneralInformation.query.all()
     else:
-        exchanges = GeneralInformation.query.filter_by(region=user_region).all()
+        exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
     return render_template('view_exchanges.html', exchanges=exchanges)
 
 if __name__ == '__main__':

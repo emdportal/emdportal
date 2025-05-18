@@ -16,24 +16,18 @@
     <h2 class="text-xl font-semibold mb-4 text-gray-700">General Information</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
-            <label for="sn" class="block text-gray-700 mb-2">SN</label>
-            <input type="number" id="sn" name="sn" value="{{ general.sn if general else '' }}" {% if general %}readonly{% endif %} class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-        </div>
-        <div>
             <label for="region" class="block text-gray-700 mb-2">Region</label>
-            <select id="region" name="region" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                <option value="" disabled selected>Select Region</option>
-                <option value="RTR" {% if general and general.region == 'RTR' %}selected{% endif %}>RTR</option>
-                {% if session.get('region') == 'All' %}
-                    <option value="All" {% if general and general.region == 'All' %}selected{% endif %}>All</option>
-                {% endif %}
+            <select id="region" name="region" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required disabled>
+                <option value="RTR" selected>RTR</option>
             </select>
         </div>
         <div>
             <label for="domain" class="block text-gray-700 mb-2">Domain</label>
             <select id="domain" name="domain" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="" disabled selected>Select Domain</option>
-                {% if session.get('region') == 'All' or (general and general.region == 'RTR') %}
+                {% if session.get('region') %}
+                    <option value="{{ session.get('region') }}" {% if general and general.domain == session.get('region') %}selected{% endif %}>{{ session.get('region') }}</option>
+                {% elif session.get('region') == 'All' or (general and general.region == 'RTR') %}
                     <option value="Attock" {% if general and general.domain == 'Attock' %}selected{% endif %}>Attock</option>
                     <option value="Pindi Gheb" {% if general and general.domain == 'Pindi Gheb' %}selected{% endif %}>Pindi Gheb</option>
                     <option value="Taxila" {% if general and general.domain == 'Taxila' %}selected{% endif %}>Taxila</option>
