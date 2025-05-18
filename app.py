@@ -540,8 +540,8 @@ def edit(sn):
             space_for_new_modules_list = request.form.getlist('space_for_new_modules[]')
             general.power_info.space_for_new_modules = int(space_for_new_modules_list[0]) if space_for_new_modules_list and space_for_new_modules_list[0].strip() else None
 
-            rounding_of_rectifiers = request.form.getlist('grounding_of_rectifier[]')
-            general.power_info.grounding_of_rectifier = grounding_of_rectifiers and grounding_of_rectifiers[0] == 'on'
+            grounding_of_rectifier = request.form.getlist('grounding_of_rectifier[]')
+            general.power_info.grounding_of_rectifier = grounding_of_rectifier[0] if grounding_of_rectifier and grounding_of_rectifier[0].strip() else None
 
             spd_in_rectifiers = request.form.getlist('spd_in_rectifier[]')
             general.power_info.spd_in_rectifier = spd_in_rectifiers and spd_in_rectifiers[0] == 'on'
