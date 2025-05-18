@@ -490,196 +490,198 @@ def edit(sn):
 
     if request.method == 'POST':
         try:
-            general.region = 'RTR'
-            general.domain = request.form['domain'] if user_region == 'All' else user_region
-            general.exchange_name = request.form['exchange_name']
-            general.exchange_lic = request.form['exchange_lic']
-            general.flc = request.form['flc']
-            general.site_category = request.form['site_category']
-            general.nes_installed = request.form['nes_installed']
-            general.latitude = float(request.form['latitude']) if request.form['latitude'].strip() else None
-            general.longitude = float(request.form['longitude']) if request.form['longitude'].strip() else None
-            general.tower_available = request.form['tower_available']
+            # Use no_autoflush to prevent premature flushing
+            with db.session.no_autoflush:
+                general.region = 'RTR'
+                general.domain = request.form['domain'] if user_region == 'All' else user_region
+                general.exchange_name = request.form['exchange_name']
+                general.exchange_lic = request.form['exchange_lic']
+                general.flc = request.form['flc']
+                general.site_category = request.form['site_category']
+                general.nes_installed = request.form['nes_installed']
+                general.latitude = float(request.form['latitude']) if request.form['latitude'].strip() else None
+                general.longitude = float(request.form['longitude']) if request.form['longitude'].strip() else None
+                general.tower_available = request.form['tower_available']
 
-            if general.tower_available == 'Yes':
-                general.towers = []
-                tower_types = request.form.getlist('tower_type_height[]')
-                for tower_type in tower_types:
-                    if tower_type:
-                        tower = Tower(tower_type_height=tower_type)
-                        general.towers.append(tower)
-            else:
-                general.towers = []
+                if general.tower_available == 'Yes':
+                    general.towers = []
+                    tower_types = request.form.getlist('tower_type_height[]')
+                    for tower_type in tower_types:
+                        if tower_type:
+                            tower = Tower(tower_type_height=tower_type)
+                            general.towers.append(tower)
+                else:
+                    general.towers = []
 
-            if not general.power_info:
-                general.power_info = PowerInformation()
-            general.power_info.wapda_ref_number = request.form['wapda_ref_number']
-            general.power_info.transformer_capacity = request.form['transformer_capacity']
-            general.power_info.transformer_earthing = request.form['transformer_earthing']
-            general.power_info.working_status = 'working_status_power' in request.form
-            general.power_info.load_of_individual_ne = float(request.form['load_of_individual_ne']) if request.form['load_of_individual_ne'].strip() else None
-            general.power_info.name_of_nes_connected = request.form['name_of_nes_connected']
-            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
-            general.power_info.make_of_rectifier = make_of_rectifiers[0] if make_of_rectifiers and make_of_rectifiers[0].strip() else None
+                if not general.power_info:
+                    general.power_info = PowerInformation()
+                general.power_info.wapda_ref_number = request.form['wapda_ref_number']
+                general.power_info.transformer_capacity = request.form['transformer_capacity']
+                general.power_info.transformer_earthing = request.form['transformer_earthing']
+                general.power_info.working_status = 'working_status_power' in request.form
+                general.power_info.load_of_individual_ne = float(request.form['load_of_individual_ne']) if request.form['load_of_individual_ne'].strip() else None
+                general.power_info.name_of_nes_connected = request.form['name_of_nes_connected']
+                make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
+                general.power_info.make_of_rectifier = make_of_rectifiers[0] if make_of_rectifiers and make_of_rectifiers[0].strip() else None
 
-            rectifier_capacities = request.form.getlist('rectifier_capacity[]')
-            general.power_info.rectifier_capacity = float(rectifier_capacities[0]) if rectifier_capacities and rectifier_capacities[0].strip() else None
+                rectifier_capacities = request.form.getlist('rectifier_capacity[]')
+                general.power_info.rectifier_capacity = float(rectifier_capacities[0]) if rectifier_capacities and rectifier_capacities[0].strip() else None
 
-            no_of_modules_list = request.form.getlist('no_of_modules[]')
-            general.power_info.no_of_modules = int(no_of_modules_list[0]) if no_of_modules_list and no_of_modules_list[0].strip() else None
+                no_of_modules_list = request.form.getlist('no_of_modules[]')
+                general.power_info.no_of_modules = int(no_of_modules_list[0]) if no_of_modules_list and no_of_modules_list[0].strip() else None
 
-            capacity_of_each_module_list = request.form.getlist('capacity_of_each_module[]')
-            general.power_info.capacity_of_each_module = float(capacity_of_each_module_list[0]) if capacity_of_each_module_list and capacity_of_each_module_list[0].strip() else None
+                capacity_of_each_module_list = request.form.getlist('capacity_of_each_module[]')
+                general.power_info.capacity_of_each_module = float(capacity_of_each_module_list[0]) if capacity_of_each_module_list and capacity_of_each_module_list[0].strip() else None
 
-            working_modules_list = request.form.getlist('working_modules[]')
-            general.power_info.working_modules = int(working_modules_list[0]) if working_modules_list and working_modules_list[0].strip() else None
+                working_modules_list = request.form.getlist('working_modules[]')
+                general.power_info.working_modules = int(working_modules_list[0]) if working_modules_list and working_modules_list[0].strip() else None
 
-            faulty_modules_list = request.form.getlist('faulty_modules[]')
-            general.power_info.faulty_modules = int(faulty_modules_list[0]) if faulty_modules_list and faulty_modules_list[0].strip() else None
+                faulty_modules_list = request.form.getlist('faulty_modules[]')
+                general.power_info.faulty_modules = int(faulty_modules_list[0]) if faulty_modules_list and faulty_modules_list[0].strip() else None
 
-            space_for_new_modules_list = request.form.getlist('space_for_new_modules[]')
-            general.power_info.space_for_new_modules = int(space_for_new_modules_list[0]) if space_for_new_modules_list and space_for_new_modules_list[0].strip() else None
+                space_for_new_modules_list = request.form.getlist('space_for_new_modules[]')
+                general.power_info.space_for_new_modules = int(space_for_new_modules_list[0]) if space_for_new_modules_list and space_for_new_modules_list[0].strip() else None
 
-            grounding_of_rectifier = request.form.getlist('grounding_of_rectifier[]')
-            general.power_info.grounding_of_rectifier = grounding_of_rectifier[0] if grounding_of_rectifier and grounding_of_rectifier[0].strip() else None
+                # Fix grounding_of_rectifier handling
+                general.power_info.grounding_of_rectifier = 'grounding_of_rectifier[]' in request.form and request.form.getlist('grounding_of_rectifier[]')[0] == 'on'
 
-            spd_in_rectifiers = request.form.getlist('spd_in_rectifier[]')
-            general.power_info.spd_in_rectifier = spd_in_rectifiers and spd_in_rectifiers[0] == 'on'
+                # Fix spd_in_rectifier handling
+                general.power_info.spd_in_rectifier = 'spd_in_rectifier[]' in request.form and request.form.getlist('spd_in_rectifier[]')[0] == 'on'
 
-            spd_models = request.form.getlist('spd_model[]')
-            general.power_info.spd_model = spd_models[0] if spd_models and spd_models[0].strip() else None
+                spd_models = request.form.getlist('spd_model[]')
+                general.power_info.spd_model = spd_models[0] if spd_models and spd_models[0].strip() else None
 
-            total_installed_spds_list = request.form.getlist('total_installed_spds[]')
-            general.power_info.total_installed_spds = int(total_installed_spds_list[0]) if total_installed_spds_list and total_installed_spds_list[0].strip() else None
+                total_installed_spds_list = request.form.getlist('total_installed_spds[]')
+                general.power_info.total_installed_spds = int(total_installed_spds_list[0]) if total_installed_spds_list and total_installed_spds_list[0].strip() else None
 
-            no_of_faulty_spds_list = request.form.getlist('no_of_faulty_spds[]')
-            general.power_info.no_of_faulty_spds = int(no_of_faulty_spds_list[0]) if no_of_faulty_spds_list and no_of_faulty_spds_list[0].strip() else None
+                no_of_faulty_spds_list = request.form.getlist('no_of_faulty_spds[]')
+                general.power_info.no_of_faulty_spds = int(no_of_faulty_spds_list[0]) if no_of_faulty_spds_list and no_of_faulty_spds_list[0].strip() else None
 
-            general.dgs = []
-            installed_dgs = request.form.getlist('installed_dg[]')
-            for i in range(len(installed_dgs)):
-                if installed_dgs[i]:
-                    dg = DGInformation(
-                        installed_dg=installed_dgs[i],
-                        engine_make=request.form.getlist('engine_make[]')[i],
-                        installation_year=int(request.form.getlist('installation_year[]')[i]) if request.form.getlist('installation_year[]')[i].strip() else None,
-                        dg_status=request.form.getlist('dg_status[]')[i],
-                        dg_starting_battery=request.form.getlist('dg_starting_battery[]')[i],
-                        smart_switch_installed='smart_switch_installed[]' in request.form and request.form.getlist('smart_switch_installed[]')[i] == 'on',
-                        ats_installed='ats_installed[]' in request.form and request.form.getlist('ats_installed[]')[i] == 'on',
-                        ats_capacity=request.form.getlist('ats_capacity[]')[i] or None,
-                        name_of_faulty_ats_parts=request.form.getlist('name_of_faulty_ats_parts[]')[i] or None,
-                        no_of_faulty_ats_parts=int(request.form.getlist('no_of_faulty_ats_parts[]')[i]) if request.form.getlist('no_of_faulty_ats_parts[]')[i].strip() else None,
-                        load_on_dg_p1=float(request.form.getlist('load_on_dg_p1[]')[i]) if request.form.getlist('load_on_dg_p1[]')[i].strip() else None,
-                        load_on_dg_p2=float(request.form.getlist('load_on_dg_p2[]')[i]) if request.form.getlist('load_on_dg_p2[]')[i].strip() else None,
-                        load_on_dg_p3=float(request.form.getlist('load_on_dg_p3[]')[i]) if request.form.getlist('load_on_dg_p3[]')[i].strip() else None,
-                        site_load_total=float(request.form.getlist('site_load_total[]')[i]) if request.form.getlist('site_load_total[]')[i].strip() else None,
-                        site_load_p1=float(request.form.getlist('site_load_p1[]')[i]) if request.form.getlist('site_load_p1[]')[i].strip() else None,
-                        site_load_p2=float(request.form.getlist('site_load_p2[]')[i]) if request.form.getlist('site_load_p2[]')[i].strip() else None,
-                        site_load_p3=float(request.form.getlist('site_load_p3[]')[i]) if request.form.getlist('site_load_p3[]')[i].strip() else None
+                general.dgs = []
+                installed_dgs = request.form.getlist('installed_dg[]')
+                for i in range(len(installed_dgs)):
+                    if installed_dgs[i]:
+                        dg = DGInformation(
+                            installed_dg=installed_dgs[i],
+                            engine_make=request.form.getlist('engine_make[]')[i],
+                            installation_year=int(request.form.getlist('installation_year[]')[i]) if request.form.getlist('installation_year[]')[i].strip() else None,
+                            dg_status=request.form.getlist('dg_status[]')[i],
+                            dg_starting_battery=request.form.getlist('dg_starting_battery[]')[i],
+                            smart_switch_installed='smart_switch_installed[]' in request.form and request.form.getlist('smart_switch_installed[]')[i] == 'on',
+                            ats_installed='ats_installed[]' in request.form and request.form.getlist('ats_installed[]')[i] == 'on',
+                            ats_capacity=request.form.getlist('ats_capacity[]')[i] or None,
+                            name_of_faulty_ats_parts=request.form.getlist('name_of_faulty_ats_parts[]')[i] or None,
+                            no_of_faulty_ats_parts=int(request.form.getlist('no_of_faulty_ats_parts[]')[i]) if request.form.getlist('no_of_faulty_ats_parts[]')[i].strip() else None,
+                            load_on_dg_p1=float(request.form.getlist('load_on_dg_p1[]')[i]) if request.form.getlist('load_on_dg_p1[]')[i].strip() else None,
+                            load_on_dg_p2=float(request.form.getlist('load_on_dg_p2[]')[i]) if request.form.getlist('load_on_dg_p2[]')[i].strip() else None,
+                            load_on_dg_p3=float(request.form.getlist('load_on_dg_p3[]')[i]) if request.form.getlist('load_on_dg_p3[]')[i].strip() else None,
+                            site_load_total=float(request.form.getlist('site_load_total[]')[i]) if request.form.getlist('site_load_total[]')[i].strip() else None,
+                            site_load_p1=float(request.form.getlist('site_load_p1[]')[i]) if request.form.getlist('site_load_p1[]')[i].strip() else None,
+                            site_load_p2=float(request.form.getlist('site_load_p2[]')[i]) if request.form.getlist('site_load_p2[]')[i].strip() else None,
+                            site_load_p3=float(request.form.getlist('site_load_p3[]')[i]) if request.form.getlist('site_load_p3[]')[i].strip() else None
+                        )
+                        general.dgs.append(dg)
+
+                general.battery_banks = []
+                makes_of_battery = request.form.getlist('make_of_battery[]')
+                for i in range(len(makes_of_battery)):
+                    if makes_of_battery[i]:
+                        battery = BatteryBank(
+                            make_of_battery=makes_of_battery[i],
+                            battery_capacity=float(request.form.getlist('battery_capacity[]')[i]) if request.form.getlist('battery_capacity[]')[i].strip() else None,
+                            battery_type=request.form.getlist('battery_type[]')[i],
+                            no_of_cells_bank=int(request.form.getlist('no_of_cells_bank[]')[i]) if request.form.getlist('no_of_cells_bank[]')[i].strip() else None,
+                            date_of_installation=request.form.getlist('date_of_installation_battery[]')[i] or None,
+                            load_on_battery_bank=float(request.form.getlist('load_on_battery_bank[]')[i]) if request.form.getlist('load_on_battery_bank[]')[i].strip() else None,
+                            practical_backup_time=float(request.form.getlist('practical_backup_time[]')[i]) if request.form.getlist('practical_backup_time[]')[i].strip() else None,
+                            battery_installed_new_or_used=request.form.getlist('battery_installed_new_or_used[]')[i] or None,
+                            battery_moved_from=request.form.getlist('battery_moved_from[]')[i] or None
+                        )
+                        general.battery_banks.append(battery)
+
+                general.ac_units = []
+                locations = request.form.getlist('location_of_ac_unit[]')
+                for i in range(len(locations)):
+                    if locations[i]:
+                        ac = ACUnit(
+                            location_of_ac_unit=locations[i],
+                            working_status='working_status_ac[]' in request.form and request.form.getlist('working_status_ac[]')[i] == 'on',
+                            ac_make=request.form.getlist('ac_make[]')[i] or None,
+                            capacity_tons=float(request.form.getlist('capacity_tons[]')[i]) if request.form.getlist('capacity_tons[]')[i].strip() else None,
+                            type_of_ac=request.form.getlist('type_of_ac[]')[i] or None,
+                            mount_type=request.form.getlist('mount_type[]')[i] or None,
+                            date_of_installation=request.form.getlist('date_of_installation_ac[]')[i] or None,
+                            sequence_controller_installed='sequence_controller_installed[]' in request.form and request.form.getlist('sequence_controller_installed[]')[i] == 'on',
+                            ac_load=float(request.form.getlist('ac_load[]')[i]) if request.form.getlist('ac_load[]')[i].strip() else None,
+                            total_ac_load=float(request.form.getlist('total_ac_load[]')[i]) if request.form.getlist('total_ac_load[]')[i].strip() else None,
+                            fault_nature_of_ac_unit=request.form.getlist('fault_nature_of_ac_unit[]')[i] or None,
+                            estimate_to_repair_ac=float(request.form.getlist('estimate_to_repair_ac[]')[i]) if request.form.getlist('estimate_to_repair_ac[]')[i].strip() else None
+                        )
+                        general.ac_units.append(ac)
+
+                if not general.solar_info:
+                    general.solar_info = SolarInformation()
+                general.solar_info.total_solar_size = float(request.form['total_solar_size']) if request.form['total_solar_size'].strip() else None
+                general.solar_info.pv_solar_panel_capacity = float(request.form['pv_solar_panel_capacity']) if request.form['pv_solar_panel_capacity'].strip() else None
+                general.solar_info.no_of_pv_panels_installed = int(request.form['no_of_pv_panels_installed']) if request.form['no_of_pv_panels_installed'].strip() else None
+                general.solar_info.make_of_pv_panels = request.form['make_of_pv_panels'] or None
+                general.solar_info.charge_controller_make = request.form['charge_controller_make'] or None
+
+                if not general.colocation_info:
+                    general.colocation_info = ColocationInformation()
+                general.colocation_info.colocation = 'colocation' in request.form
+                general.colocation_info.name_of_colocation_vendors = request.form['name_of_colocation_vendors'] or None
+                general.colocation_info.load_of_each_vendor = float(request.form['load_of_each_vendor']) if request.form['load_of_each_vendor'].strip() else None
+                general.colocation_info.total_load = float(request.form['total_load']) if request.form['total_load'].strip() else None
+
+                if not general.building_info:
+                    general.building_info = BuildingInformation()
+                general.building_info.building_status = request.form['building_status']
+                general.building_info.wall_doors_condition = request.form['wall_doors_condition']
+
+                # Update Alarm Extension
+                general.alarms = []
+                ac_main_failures = request.form.getlist('ac_main_failure[]')
+                for i in range(len(ac_main_failures)):
+                    alarm = AlarmExtension(
+                        ac_main_failure=ac_main_failures[i] == 'on',
+                        dc_low_voltages=request.form.getlist('dc_low_voltages[]')[i] == 'on',
+                        rectifier_failure=request.form.getlist('rectifier_failure[]')[i] == 'on'
                     )
-                    general.dgs.append(dg)
+                    general.alarms.append(alarm)
 
-            general.battery_banks = []
-            makes_of_battery = request.form.getlist('make_of_battery[]')
-            for i in range(len(makes_of_battery)):
-                if makes_of_battery[i]:
-                    battery = BatteryBank(
-                        make_of_battery=makes_of_battery[i],
-                        battery_capacity=float(request.form.getlist('battery_capacity[]')[i]) if request.form.getlist('battery_capacity[]')[i].strip() else None,
-                        battery_type=request.form.getlist('battery_type[]')[i],
-                        no_of_cells_bank=int(request.form.getlist('no_of_cells_bank[]')[i]) if request.form.getlist('no_of_cells_bank[]')[i].strip() else None,
-                        date_of_installation=request.form.getlist('date_of_installation_battery[]')[i] or None,
-                        load_on_battery_bank=float(request.form.getlist('load_on_battery_bank[]')[i]) if request.form.getlist('load_on_battery_bank[]')[i].strip() else None,
-                        practical_backup_time=float(request.form.getlist('practical_backup_time[]')[i]) if request.form.getlist('practical_backup_time[]')[i].strip() else None,
-                        battery_installed_new_or_used=request.form.getlist('battery_installed_new_or_used[]')[i] or None,
-                        battery_moved_from=request.form.getlist('battery_moved_from[]')[i] or None
+                # Update Earthing
+                general.earthings = []
+                earthing_values = request.form.getlist('earthing_value[]')
+                for i in range(len(earthing_values)):
+                    if earthing_values[i]:
+                        earthing = Earthing(
+                            earthing_value=float(earthing_values[i]) if earthing_values[i].strip() else None,
+                            no_of_pits=int(request.form.getlist('no_of_pits[]')[i]) if request.form.getlist('no_of_pits[]')[i].strip() else None
+                        )
+                        general.earthings.append(earthing)
+
+                # Update Fire Extinguisher
+                general.fire_extinguishers = []
+                fe_installeds = request.form.getlist('fe_installed[]')
+                for i in range(len(fe_installeds)):
+                    fire_ext = FireExtinguisher(
+                        fe_installed=fe_installeds[i] == 'on',
+                        no_of_fes=int(request.form.getlist('no_of_fes[]')[i]) if request.form.getlist('no_of_fes[]')[i].strip() else None,
+                        type_of_gas=request.form.getlist('type_of_gas[]')[i] or None,
+                        date_of_expiry=request.form.getlist('date_of_expiry[]')[i] or None
                     )
-                    general.battery_banks.append(battery)
+                    general.fire_extinguishers.append(fire_ext)
 
-            general.ac_units = []
-            locations = request.form.getlist('location_of_ac_unit[]')
-            for i in range(len(locations)):
-                if locations[i]:
-                    ac = ACUnit(
-                        location_of_ac_unit=locations[i],
-                        working_status='working_status_ac[]' in request.form and request.form.getlist('working_status_ac[]')[i] == 'on',
-                        ac_make=request.form.getlist('ac_make[]')[i] or None,
-                        capacity_tons=float(request.form.getlist('capacity_tons[]')[i]) if request.form.getlist('capacity_tons[]')[i].strip() else None,
-                        type_of_ac=request.form.getlist('type_of_ac[]')[i] or None,
-                        mount_type=request.form.getlist('mount_type[]')[i] or None,
-                        date_of_installation=request.form.getlist('date_of_installation_ac[]')[i] or None,
-                        sequence_controller_installed='sequence_controller_installed[]' in request.form and request.form.getlist('sequence_controller_installed[]')[i] == 'on',
-                        ac_load=float(request.form.getlist('ac_load[]')[i]) if request.form.getlist('ac_load[]')[i].strip() else None,
-                        total_ac_load=float(request.form.getlist('total_ac_load[]')[i]) if request.form.getlist('total_ac_load[]')[i].strip() else None,
-                        fault_nature_of_ac_unit=request.form.getlist('fault_nature_of_ac_unit[]')[i] or None,
-                        estimate_to_repair_ac=float(request.form.getlist('estimate_to_repair_ac[]')[i]) if request.form.getlist('estimate_to_repair_ac[]')[i].strip() else None
+                # Update PMR Information
+                general.pmr_infos = []
+                pmr_performeds = request.form.getlist('pmr_performed[]')
+                for i in range(len(pmr_performeds)):
+                    pmr = PMRInformation(
+                        pmr_performed=pmr_performeds[i] == 'on',
+                        last_performed_date=request.form.getlist('last_performed_date[]')[i] or None
                     )
-                    general.ac_units.append(ac)
-
-            if not general.solar_info:
-                general.solar_info = SolarInformation()
-            general.solar_info.total_solar_size = float(request.form['total_solar_size']) if request.form['total_solar_size'].strip() else None
-            general.solar_info.pv_solar_panel_capacity = float(request.form['pv_solar_panel_capacity']) if request.form['pv_solar_panel_capacity'].strip() else None
-            general.solar_info.no_of_pv_panels_installed = int(request.form['no_of_pv_panels_installed']) if request.form['no_of_pv_panels_installed'].strip() else None
-            general.solar_info.make_of_pv_panels = request.form['make_of_pv_panels'] or None
-            general.solar_info.charge_controller_make = request.form['charge_controller_make'] or None
-
-            if not general.colocation_info:
-                general.colocation_info = ColocationInformation()
-            general.colocation_info.colocation = 'colocation' in request.form
-            general.colocation_info.name_of_colocation_vendors = request.form['name_of_colocation_vendors'] or None
-            general.colocation_info.load_of_each_vendor = float(request.form['load_of_each_vendor']) if request.form['load_of_each_vendor'].strip() else None
-            general.colocation_info.total_load = float(request.form['total_load']) if request.form['total_load'].strip() else None
-
-            if not general.building_info:
-                general.building_info = BuildingInformation()
-            general.building_info.building_status = request.form['building_status']
-            general.building_info.wall_doors_condition = request.form['wall_doors_condition']
-
-            # Update Alarm Extension
-            general.alarms = []
-            ac_main_failures = request.form.getlist('ac_main_failure[]')
-            for i in range(len(ac_main_failures)):
-                alarm = AlarmExtension(
-                    ac_main_failure=ac_main_failures[i] == 'on',
-                    dc_low_voltages=request.form.getlist('dc_low_voltages[]')[i] == 'on',
-                    rectifier_failure=request.form.getlist('rectifier_failure[]')[i] == 'on'
-                )
-                general.alarms.append(alarm)
-
-            # Update Earthing
-            general.earthings = []
-            earthing_values = request.form.getlist('earthing_value[]')
-            for i in range(len(earthing_values)):
-                if earthing_values[i]:
-                    earthing = Earthing(
-                        earthing_value=float(earthing_values[i]) if earthing_values[i].strip() else None,
-                        no_of_pits=int(request.form.getlist('no_of_pits[]')[i]) if request.form.getlist('no_of_pits[]')[i].strip() else None
-                    )
-                    general.earthings.append(earthing)
-
-            # Update Fire Extinguisher
-            general.fire_extinguishers = []
-            fe_installeds = request.form.getlist('fe_installed[]')
-            for i in range(len(fe_installeds)):
-                fire_ext = FireExtinguisher(
-                    fe_installed=fe_installeds[i] == 'on',
-                    no_of_fes=int(request.form.getlist('no_of_fes[]')[i]) if request.form.getlist('no_of_fes[]')[i].strip() else None,
-                    type_of_gas=request.form.getlist('type_of_gas[]')[i] or None,
-                    date_of_expiry=request.form.getlist('date_of_expiry[]')[i] or None
-                )
-                general.fire_extinguishers.append(fire_ext)
-
-            # Update PMR Information
-            general.pmr_infos = []
-            pmr_performeds = request.form.getlist('pmr_performed[]')
-            for i in range(len(pmr_performeds)):
-                pmr = PMRInformation(
-                    pmr_performed=pmr_performeds[i] == 'on',
-                    last_performed_date=request.form.getlist('last_performed_date[]')[i] or None
-                )
-                general.pmr_infos.append(pmr)
+                    general.pmr_infos.append(pmr)
 
             db.session.commit()
             flash('Exchange updated successfully!')
@@ -825,11 +827,8 @@ def export():
 
             if exchange.building_info:
                 row.update({
-                    'Building Type': exchange.building_info.building_type,
-                    'Construction Year': exchange.building_info.construction_year,
-                    'Total Area (sqft)': exchange.building_info.total_area_sqft,
-                    'Number of Floors': exchange.building_info.number_of_floors,
-                    'Condition': exchange.building_info.condition
+                    'Building Status': exchange.building_info.building_status,
+                    'Wall/Doors Condition': exchange.building_info.wall_doors_condition,
                 })
 
             for i, alarm in enumerate(exchange.alarms, 1):
