@@ -870,7 +870,7 @@
         const entry = document.createElement('div');
         entry.className = 'tower_entry flex items-center mb-2';
         entry.innerHTML = `
-            <input type="text" name="tower_type_height[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2">
+            <input type="text" name="tower_type_height[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2" placeholder="SS or GM and 50M or 30M">
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-tower">Remove</button>
         `;
         container.appendChild(entry);
@@ -890,36 +890,36 @@
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-gray-700 mb-2">Make of Rectifier</label>
-                    <input type="text" name="make_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-gray-700 mb-2">Make of Rectifier with Model</label>
+                    <input type="text" name="make_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Huawei, ZTE ZXD1500">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Rectifier Capacity</label>
-                    <input type="number" step="any" name="rectifier_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="rectifier_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="300AH etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">No of Modules</label>
-                    <input type="number" name="no_of_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="no_of_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="6,8 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Capacity of Each Module</label>
-                    <input type="number" step="any" name="capacity_of_each_module[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="capacity_of_each_module[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="30AMP,45AMP etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Working Modules</label>
-                    <input type="number" name="working_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="working_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2,4 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Faulty Modules</label>
-                    <input type="number" name="faulty_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="faulty_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2,4 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Space for New Modules</label>
-                    <input type="number" name="space_for_new_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="space_for_new_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="3,5 etc">
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Grounding of Rectifier (Ohms)</label>
-                    <input type="text" name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-gray-700 mb-2">Grounding of Rectifier</label>
+                    <input type="text" name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Rectifier is Grounded Yes or No">
                 </div>
                 <div class="flex items-center">
                     <input type="checkbox" name="spd_in_rectifier[]" class="mr-2">
@@ -927,15 +927,15 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">SPD Model</label>
-                    <input type="text" name="spd_model[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="spd_model[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="MYS5 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Total Installed SPDs</label>
-                    <input type="number" name="total_installed_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="total_installed_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2,4 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">No of Faulty SPDs</label>
-                    <input type="number" name="no_of_faulty_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="no_of_faulty_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1,2 etc">
                 </div>
             </div>
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-rectifier">Remove Rectifier</button>
@@ -958,23 +958,23 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 mb-2">Installed DG</label>
-                    <input type="text" name="installed_dg[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="installed_dg[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Perkins, Hyundai etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Engine Make</label>
-                    <input type="text" name="engine_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="engine_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter DG Engine Make">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Installation Year</label>
-                    <input type="number" name="installation_year[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="installation_year[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2010 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">DG Status</label>
-                    <input type="text" name="dg_status[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="dg_status[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Working, Faulty or Spare">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">DG Starting Battery</label>
-                    <input type="text" name="dg_starting_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="dg_starting_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Yes or No and Capacity">
                 </div>
                 <div class="flex items-center">
                     <input type="checkbox" name="smart_switch_installed[]" class="mr-2">
@@ -986,43 +986,43 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">ATS Capacity</label>
-                    <input type="text" name="ats_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="ats_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="60A, 45A etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Name of Faulty ATS Parts</label>
-                    <input type="text" name="name_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="name_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Smart Switch, Contactor etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">No of Faulty ATS Parts</label>
-                    <input type="number" name="no_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="no_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1, 2 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Load on DG P1</label>
-                    <input type="number" step="any" name="load_on_dg_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="load_on_dg_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 1(DG)">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Load on DG P2</label>
-                    <input type="number" step="any" name="load_on_dg_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="load_on_dg_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 2(DG)">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Load on DG P3</label>
-                    <input type="number" step="any" name="load_on_dg_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="load_on_dg_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 3(DG)">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Site Load Total</label>
-                    <input type="number" step="any" name="site_load_total[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="site_load_total[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Site Total Load Amps">
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Site Load P1</label>
-                    <input type="number" step="any" name="site_load_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-gray-700 mb-2">Site Load P1</label> 
+                    <input type="number" step="any" name="site_load_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 1 (Wapda)">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Site Load P2</label>
-                    <input type="number" step="any" name="site_load_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="site_load_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 2 (Wapda)">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Site Load P3</label>
-                    <input type="number" step="any" name="site_load_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="site_load_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 3 (Wapda)">
                 </div>
             </div>
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-dg">Remove DG</button>
@@ -1045,39 +1045,39 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 mb-2">Make of Battery</label>
-                    <input type="text" name="make_of_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="make_of_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Narada, Volta etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Battery Capacity</label>
-                    <input type="number" step="any" name="battery_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="battery_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="100AH, 300AH etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Battery Type</label>
-                    <input type="text" name="battery_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="battery_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2V,12V,48V">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">No of Cells/Bank</label>
-                    <input type="number" name="no_of_cells_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="no_of_cells_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="4,24 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Date of Installation</label>
-                    <input type="date" name="date_of_installation_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" name="date_of_installation_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" >
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Load on Battery Bank</label>
-                    <input type="number" step="any" name="load_on_battery_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="load_on_battery_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Total load on Batteries">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Practical Backup Time</label>
-                    <input type="number" step="any" name="practical_backup_time[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="practical_backup_time[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Estimated Backup Time (Mins)">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Battery Installed (New/Used)</label>
-                    <input type="text" name="battery_installed_new_or_used[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="battery_installed_new_or_used[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="New or Used">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Battery Moved From</label>
-                    <input type="text" name="battery_moved_from[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="battery_moved_from[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="From Where Battery Moved(Ternol Store or Exchange)">
                 </div>
             </div>
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-battery">Remove Battery</button>
@@ -1100,7 +1100,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 mb-2">Location of AC Unit</label>
-                    <input type="text" name="location_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="location_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="AC Unit in which Exchange Room">
                 </div>
                 <div class="flex items-center">
                     <input type="checkbox" name="working_status_ac[]" class="mr-2">
@@ -1108,23 +1108,23 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">AC Make</label>
-                    <input type="text" name="ac_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="ac_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Make of AC">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Capacity (Tons)</label>
-                    <input type="number" step="any" name="capacity_tons[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="capacity_tons[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1.5,4,etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Type of AC</label>
-                    <input type="text" name="type_of_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="type_of_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Split etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Mount Type</label>
-                    <input type="text" name="mount_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="mount_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Wall Mounted etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Date of Installation</label>
-                    <input type="date" name="date_of_installation_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" name="date_of_installation_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" >
                 </div>
                 <div class="flex items-center">
                     <input type="checkbox" name="sequence_controller_installed[]" class="mr-2">
@@ -1132,19 +1132,19 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">AC Load</label>
-                    <input type="number" step="any" name="ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load of AC Unit (Amps) ">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Total AC Load</label>
-                    <input type="number" step="any" name="total_ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="total_ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" lder="Sum of All AC Units Load">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Fault Nature of AC Unit</label>
-                    <input type="text" name="fault_nature_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="fault_nature_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Compressor Faulty, Kit issue etc">
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Estimate to Repair AC</label>
-                    <input type="number" step="any" name="estimate_to_repair_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-gray-700 mb-2">Estimate to Repair AC</label> 
+                    <input type="number" step="any" name="estimate_to_repair_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Estimated Amount for Repair">
                 </div>
             </div>
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-ac">Remove AC Unit</button>
@@ -1198,11 +1198,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 mb-2">Earthing Value</label>
-                    <input type="number" step="any" name="earthing_value[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" step="any" name="earthing_value[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1.2,4 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">No of Pits</label>
-                    <input type="number" name="no_of_pits[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="no_of_pits[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="3,5 etc">
                 </div>
             </div>
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-earthing">Remove Earthing</button>
@@ -1229,11 +1229,11 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">No of Fire Extinguishers</label>
-                    <input type="number" name="no_of_fes[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" name="no_of_fes[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Total No of FEs">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Type of Gas</label>
-                    <input type="text" name="type_of_gas[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="type_of_gas[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="CO2 etc">
                 </div>
                 <div>
                     <label class="block text-gray-700 mb-2">Date of Expiry</label>
