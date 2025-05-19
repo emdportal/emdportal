@@ -5,29 +5,39 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6 text-gray-800">View Exchanges</h1>
-<div class="bg-white shadow rounded-lg overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SN</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exchange Name</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for exchange in exchanges %}
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.sn }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.region }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.site_name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <a href="{{ url_for('edit', sn=exchange.sn) }}" class="text-blue-600 hover:text-blue-800">Edit</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-8 text-white text-center bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-lg shadow-lg">
+        View Exchanges
+    </h1>
+
+    <div class="bg-white shadow-xl rounded-lg overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-teal-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">SN</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Region</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Domain</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Exchange Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for exchange in exchanges %}
+                <tr class="hover:bg-teal-50 transition duration-200">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.sn }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.region }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.domain }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ exchange.site_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <a href="{{ url_for('edit', sn=exchange.sn) }}"
+                           class="inline-block bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 shadow-md transition duration-200">
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
