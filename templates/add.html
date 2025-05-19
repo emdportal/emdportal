@@ -1144,5 +1144,17 @@
         }
     }
 </script>
-<script>document.addEventListener('DOMContentLoaded', function() { document.getElementById('site_type').addEventListener('change', function() { const towerSelect = document.getElementById('tower_available'); if (this.value === 'MSAG') { towerSelect.disabled = true; towerSelect.value = 'N/A'; } else { towerSelect.disabled = false; } }); });</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('site_type').addEventListener('change', function() {
+        const towerSelect = document.getElementById('tower_available');
+        if (this.value === 'MSAG') {
+          towerSelect.disabled = true;
+          towerSelect.value = 'N/A';
+        } else {
+          towerSelect.disabled = false;
+        }
+      });
+    });
+  </script>
 {% endblock %}
