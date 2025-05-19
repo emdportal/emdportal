@@ -83,22 +83,22 @@
                 <div>
                     <label for="site_category" class="block text-gray-700 mb-2 font-medium">Site Category</label>
                     <input type="text" id="site_category" name="site_category" value="{{ general.site_category if general else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" placeholder="Tier-1, Gold, Silver etc">
                 </div>
                 <div>
                     <label for="nes_installed" class="block text-gray-700 mb-2 font-medium">NEs Installed</label>
                     <input type="text" id="nes_installed" name="nes_installed" value="{{ general.nes_installed if general else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" placeholder="MPLS, DRS, EWSD etc>
                 </div>
                 <div>
                     <label for="latitude" class="block text-gray-700 mb-2 font-medium">Latitude</label>
                     <input type="number" step="any" id="latitude" name="latitude" value="{{ general.latitude if general else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" placeholder="32.xxx">
                 </div>
                 <div>
                     <label for="longitude" class="block text-gray-700 mb-2 font-medium">Longitude</label>
                     <input type="number" step="any" id="longitude" name="longitude" value="{{ general.longitude if general else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" placeholder="73.xxx">
                 </div>
                 <div>
                     <label for="tower_available" class="block text-gray-700 mb-2 font-medium">Tower Available</label>
@@ -142,19 +142,19 @@
                     <label for="wapda_ref_number" class="block text-gray-700 mb-2 font-medium">WAPDA Ref Number</label>
                     <input type="text" id="wapda_ref_number" name="wapda_ref_number"
                            value="{{ general.power_info.wapda_ref_number if general and general.power_info else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" placeholder="Put Complete Ref Number">
                 </div>
                 <div>
                     <label for="transformer_capacity" class="block text-gray-700 mb-2 font-medium">Transformer Capacity</label>
                     <input type="text" id="transformer_capacity" name="transformer_capacity"
                            value="{{ general.power_info.transformer_capacity if general and general.power_info else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"placeholder="25KVA, 50KVA etc">
                 </div>
                 <div>
                     <label for="transformer_earthing" class="block text-gray-700 mb-2 font-medium">Transformer Earthing</label>
                     <input type="text" id="transformer_earthing" name="transformer_earthing"
                            value="{{ general.power_info.transformer_earthing if general and general.power_info else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"placeholder="Yes or No">
                 </div>
                 <div class="flex items-center">
                     <input type="checkbox" id="working_status_power" name="working_status_power"
@@ -176,37 +176,37 @@
                                     <label class="block text-gray-700 mb-2 font-medium">Make of Rectifier</label>
                                     <input type="text" name="make_of_rectifier[]"
                                            value="{{ rectifier.make_of_rectifier }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="ZTE, Huawei">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label>
                                     <input type="number" step="any" name="rectifier_capacity[]"
                                            value="{{ rectifier.rectifier_capacity }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="100AH, 300AH etc">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">No of Modules</label>
                                     <input type="number" name="no_of_modules[]"
                                            value="{{ rectifier.no_of_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label>
                                     <input type="number" step="any" name="capacity_of_each_module[]"
                                            value="{{ rectifier.capacity_of_each_module }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30AH, 45AH etc">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Working Modules</label>
                                     <input type="number" name="working_modules[]"
                                            value="{{ rectifier.working_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter No of Working Modules">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label>
                                     <input type="number" name="faulty_modules[]"
                                            value="{{ rectifier.faulty_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter No of Faulty Modules">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label>
