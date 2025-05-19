@@ -1,3 +1,5 @@
+you provided code till that please share remaning
+
 {% extends "base.html" %}
 
 {% block title %}
@@ -16,6 +18,9 @@
 {% endif %}
 
 <form method="POST" class="bg-white shadow rounded-lg p-6">
+    <!-- CSRF Token (if using Flask-WTF) -->
+    {{ form.csrf_token if form else '' }}
+
     <!-- General Information -->
     <h2 class="text-xl font-semibold mb-4 text-gray-700">General Information</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -64,9 +69,15 @@
             <input type="text" id="flc" name="flc" value="{{ general.flc if general else '' }}"
                    class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-		<div>
-		    <label for="site_type" class="block text-gray-700 mb-2">Site Type</label>
-			<select id="site_type" name="site_type" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required><option value="" disabled {% if not general %}selected{% endif %}>Select Site Type</option><option value="Exchange" {% if general and general.site_type == 'Exchange' %}selected{% endif %}>Exchange</option><option value="MSAG" {% if general and general.site_type == 'MSAG' %}selected{% endif %}>MSAG</option><option value="Rpt/INDP" {% if general and general.site_type == 'Rpt/INDP' %}selected{% endif %}>Rpt/INDP</option></select></div>
+        <div>
+            <label for="site_type" class="block text-gray-700 mb-2">Site Type</label>
+            <select id="site_type" name="site_type" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="" disabled {% if not general %}selected{% endif %}>Select Site Type</option>
+                <option value="Exchange" {% if general and general.site_type == 'Exchange' %}selected{% endif %}>Exchange</option>
+                <option value="MSAG" {% if general and general.site_type == 'MSAG' %}selected{% endif %}>MSAG</option>
+                <option value="Rpt/INDP" {% if general and general.site_type == 'Rpt/INDP' %}selected{% endif %}>Rpt/INDP</option>
+            </select>
+        </div>
         <div>
             <label for="site_category" class="block text-gray-700 mb-2">Site Category</label>
             <input type="text" id="site_category" name="site_category" value="{{ general.site_category if general else '' }}"
@@ -89,14 +100,13 @@
         </div>
         <div>
             <label for="tower_available" class="block text-gray-700 mb-2">Tower Available</label>
-            <select id="tower_available" name="tower_available"
-			        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-					{% if general and general.site_type == 'MSAG' %}disabled{% endif %}>
-					<option value="Yes" {% if general and general.tower_available == 'Yes' %}selected{% endif %}>Yes</option>
-					<option value="No" {% if general and general.tower_available == 'No' %}selected{% endif %}>No</option>
-                    <option value="N/A" {% if general and general.tower_available == 'N/A' %}selected{% endif %}>N/A</option>
-	        </select>
-		</div>
+            <select id="tower_available" name="tower_available" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" {% if general and general.site_type == 'MSAG' %}disabled{% endif %}>
+                <option value="Yes" {% if general and general.tower_available == 'Yes' %}selected{% endif %}>Yes</option>
+                <option value="No" {% if general and general.tower_available == 'No' %}selected{% endif %}>No</option>
+                <option value="N/A" {% if general and general.site_type == 'MSAG' %}selected{% endif %}>N/A</option>
+            </select>
+        </div>
+    </div>
 
     <!-- Tower Information -->
     <h2 class="text-xl font-semibold mb-4 text-gray-700">Tower Information</h2>
@@ -148,82 +158,87 @@
     <!-- Rectifiers -->
     <h3 class="text-lg font-semibold mb-4 text-gray-600">Rectifiers</h3>
     <div id="rectifier_container" class="mb-6">
-        {% if general and general.power_info %}
-            <div class="rectifier_entry border-b pb-4 mb-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2">Make of Rectifier</label>
-                        <input type="text" name="make_of_rectifier[]"
-                               value="{{ general.power_info.make_of_rectifier if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        {% if general and general.rectifiers %}
+            {% for rectifier in general.rectifiers %}
+                <div class="rectifier_entry border-b pb-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Make of Rectifier</label>
+                            <input type="text" name="make_of_rectifier[]"
+                                   value="{{ rectifier.make_of_rectifier }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Rectifier Capacity</label>
+                            <input type="number" step="any" name="rectifier_capacity[]"
+                                   value="{{ rectifier.rectifier_capacity }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">No of Modules</label>
+                            <input type="number" name="no_of_modules[]"
+                                   value="{{ rectifier.no_of_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Capacity of Each Module</label>
+                            <input type="number" step="any" name="capacity_of_each_module[]"
+                                   value="{{ rectifier.capacity_of_each_module }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Working Modules</label>
+                            <input type="number" name="working_modules[]"
+                                   value="{{ rectifier.working_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Faulty Modules</label>
+                            <input type="number" name="faulty_modules[]"
+                                   value="{{ rectifier.faulty_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Space for New Modules</label>
+                            <input type="number" name="space_for_new_modules[]"
+                                   value="{{ rectifier.space_for_new_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Grounding of Rectifier (Ohms)</label>
+                            <input type="text" name="grounding_of_rectifier[]"
+                                   value="{{ rectifier.grounding_of_rectifier }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="spd_in_rectifier[]"
+                                   {% if rectifier.spd_in_rectifier %}checked{% endif %} class="mr-2">
+                            <label class="text-gray-700">SPD in Rectifier</label>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">SPD Model</label>
+                            <input type="text" name="spd_model[]"
+                                   value="{{ rectifier.spd_model }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Total Installed SPDs</label>
+                            <input type="number" name="total_installed_spds[]"
+                                   value="{{ rectifier.total_installed_spds }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">No of Faulty SPDs</label>
+                            <input type="number" name="no_of_faulty_spds[]"
+                                   value="{{ rectifier.no_of_faulty_spds }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Rectifier Capacity</label>
-                        <input type="number" step="any" name="rectifier_capacity[]"
-                               value="{{ general.power_info.rectifier_capacity if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">No of Modules</label>
-                        <input type="number" name="no_of_modules[]"
-                               value="{{ general.power_info.no_of_modules if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Capacity of Each Module</label>
-                        <input type="number" step="any" name="capacity_of_each_module[]"
-                               value="{{ general.power_info.capacity_of_each_module if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Working Modules</label>
-                        <input type="number" name="working_modules[]"
-                               value="{{ general.power_info.working_modules if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Faulty Modules</label>
-                        <input type="number" name="faulty_modules[]"
-                               value="{{ general.power_info.faulty_modules if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Space for New Modules</label>
-                        <input type="number" name="space_for_new_modules[]"
-                               value="{{ general.power_info.space_for_new_modules if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Grounding of Rectifier (Ohms)</label>
-                        <input type="text" name="grounding_of_rectifier[]"
-                               value="{{ general.power_info.grounding_of_rectifier if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" name="spd_in_rectifier[]"
-                               {% if general and general.power_info and general.power_info.spd_in_rectifier %}checked{% endif %} class="mr-2">
-                        <label class="text-gray-700">SPD in Rectifier</label>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">SPD Model</label>
-                        <input type="text" name="spd_model[]"
-                               value="{{ general.power_info.spd_model if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">Total Installed SPDs</label>
-                        <input type="number" name="total_installed_spds[]"
-                               value="{{ general.power_info.total_installed_spds if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 mb-2">No of Faulty SPDs</label>
-                        <input type="number" name="no_of_faulty_spds[]"
-                               value="{{ general.power_info.no_of_faulty_spds if general and general.power_info else '' }}"
-                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+                    <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-rectifier">
+                        Remove Rectifier
+                    </button>
                 </div>
-            </div>
+            {% endfor %}
         {% else %}
             <div class="rectifier_entry border-b pb-4 mb-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -287,9 +302,15 @@
                                class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
+                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-rectifier">
+                    Remove Rectifier
+                </button>
             </div>
         {% endif %}
     </div>
+    <button type="button" id="add_rectifier" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-6">
+        Add Rectifier
+    </button>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
@@ -791,6 +812,73 @@
         }
     });
 
+    // Rectifier Section
+    document.getElementById('add_rectifier').addEventListener('click', function() {
+        const container = document.getElementById('rectifier_container');
+        const entry = document.createElement('div');
+        entry.className = 'rectifier_entry border-b pb-4 mb-4';
+        entry.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Make of Rectifier</label>
+                    <input type="text" name="make_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Rectifier Capacity</label>
+                    <input type="number" step="any" name="rectifier_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">No of Modules</label>
+                    <input type="number" name="no_of_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Capacity of Each Module</label>
+                    <input type="number" step="any" name="capacity_of_each_module[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Working Modules</label>
+                    <input type="number" name="working_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Faulty Modules</label>
+                    <input type="number" name="faulty_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Space for New Modules</label>
+                    <input type="number" name="space_for_new_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Grounding of Rectifier (Ohms)</label>
+                    <input type="text" name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="spd_in_rectifier[]" class="mr-2">
+                    <label class="text-gray-700">SPD in Rectifier</label>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">SPD Model</label>
+                    <input type="text" name="spd_model[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Total Installed SPDs</label>
+                    <input type="number" name="total_installed_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">No of Faulty SPDs</label>
+                    <input type="number" name="no_of_faulty_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-rectifier">Remove Rectifier</button>
+        `;
+        container.appendChild(entry);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-rectifier')) {
+            e.target.parentElement.remove();
+        }
+    });
+
     // DG Section
     document.getElementById('add_dg').addEventListener('click', function() {
         const container = document.getElementById('dg_container');
@@ -1058,8 +1146,7 @@
         }
     });
 
-    // Fire Extinguisher Section
-    document.getElementById('add_fire_extinguisher').addEventListener('click', function() {
+    entById('add_fire_extinguisher').addEventListener('click', function() {
         const container = document.getElementById('fire_extinguisher_container');
         const entry = document.createElement('div');
         entry.className = 'fire_extinguisher_entry border-b pb-4 mb-4';
@@ -1123,38 +1210,8 @@
     // Delete Form Function
     function deleteForm(sn) {
         if (confirm('Are you sure you want to delete this exchange?')) {
-            fetch(`/delete/${sn}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Exchange deleted successfully!');
-                    window.location.href = '/';
-                } else {
-                    alert('Error deleting exchange: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('Error deleting exchange: ' + error);
-            });
+            window.location.href = '/delete/' + sn;
         }
     }
 </script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('site_type').addEventListener('change', function() {
-        const towerSelect = document.getElementById('tower_available');
-        if (this.value === 'MSAG') {
-          towerSelect.disabled = true;
-          towerSelect.value = 'N/A';
-        } else {
-          towerSelect.disabled = false;
-        }
-      });
-    });
-  </script>
 {% endblock %}
