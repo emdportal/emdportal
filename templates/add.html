@@ -50,13 +50,13 @@
             </select>
         </div>
         <div>
-            <label for="exchange_name" class="block text-gray-700 mb-2">Exchange Name</label>
-            <input type="text" id="exchange_name" name="exchange_name" value="{{ general.exchange_name if general else '' }}"
+            <label for="site_name" class="block text-gray-700 mb-2">Site Name</label>
+            <input type="text" id="site_name" name="site_name" value="{{ general.site_name if general else '' }}"
                    class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
         </div>
         <div>
-            <label for="exchange_lic" class="block text-gray-700 mb-2">Exchange LIC</label>
-            <input type="text" id="exchange_lic" name="exchange_lic" value="{{ general.exchange_lic if general else '' }}"
+            <label for="site_lic" class="block text-gray-700 mb-2">Site LIC</label>
+            <input type="text" id="site_lic" name="site_lic" value="{{ general.site_lic if general else '' }}"
                    class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         <div>
@@ -64,6 +64,9 @@
             <input type="text" id="flc" name="flc" value="{{ general.flc if general else '' }}"
                    class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
+		<div>
+		    <label for="site_type" class="block text-gray-700 mb-2">Site Type</label>
+			<select id="site_type" name="site_type" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required><option value="" disabled {% if not general %}selected{% endif %}>Select Site Type</option><option value="Exchange" {% if general and general.site_type == 'Exchange' %}selected{% endif %}>Exchange</option><option value="MSAG" {% if general and general.site_type == 'MSAG' %}selected{% endif %}>MSAG</option><option value="Rpt/INDP" {% if general and general.site_type == 'Rpt/INDP' %}selected{% endif %}>Rpt/INDP</option></select></div>
         <div>
             <label for="site_category" class="block text-gray-700 mb-2">Site Category</label>
             <input type="text" id="site_category" name="site_category" value="{{ general.site_category if general else '' }}"
@@ -87,7 +90,9 @@
         <div>
             <label for="tower_available" class="block text-gray-700 mb-2">Tower Available</label>
             <select id="tower_available" name="tower_available" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+			disabled {% if general and general.site_type == 'MSAG' %}
                 <option value="Yes" {% if general and general.tower_available == 'Yes' %}selected{% endif %}>Yes</option>
+				{% if general and general.site_type == 'MSAG' %}selected{% endif %} value="N/A"
                 <option value="No" {% if general and general.tower_available == 'No' %}selected{% endif %}>No</option>
             </select>
         </div>
@@ -1139,4 +1144,5 @@
         }
     }
 </script>
+<script>document.addEventListener('DOMContentLoaded', function() { document.getElementById('site_type').addEventListener('change', function() { const towerSelect = document.getElementById('tower_available'); if (this.value === 'MSAG') { towerSelect.disabled = true; towerSelect.value = 'N/A'; } else { towerSelect.disabled = false; } }); });</script>
 {% endblock %}

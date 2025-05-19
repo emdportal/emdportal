@@ -38,9 +38,10 @@ class GeneralInformation(db.Model):
     sn = db.Column(db.Integer, primary_key=True)
     region = db.Column(db.String(50))
     domain = db.Column(db.String(50))
-    exchange_name = db.Column(db.String(100))
-    exchange_lic = db.Column(db.String(50))
+    site_name = db.Column(db.String(100))
+    site_lic = db.Column(db.String(50))
     flc = db.Column(db.String(50))
+    site_type = db.Column(db.String(50))
     site_category = db.Column(db.String(50))
     nes_installed = db.Column(db.Text)
     latitude = db.Column(db.Float, nullable=True)
@@ -299,14 +300,16 @@ def add():
                 sn=sn,
                 region='RTR',
                 domain=domain,
-                exchange_name=request.form['exchange_name'],
-                exchange_lic=request.form['exchange_lic'],
+                site_name=request.form['site_name'],
+                site_lic=request.form['site_lic'],
                 flc=request.form['flc'],
+                site_type=request.form['site_type'],
                 site_category=request.form['site_category'],
                 nes_installed=request.form['nes_installed'],
                 latitude=float(request.form['latitude']) if request.form['latitude'].strip() else None,
                 longitude=float(request.form['longitude']) if request.form['longitude'].strip() else None,
-                tower_available=request.form['tower_available']
+                tower_available=request.form['tower_available'] if request.form['site_type'] in ['Exchange', 'Rpt/INDP'] else 'N/A',
+                if request.form['site_type'] == 'MSAG': general.nes_installed = 'MSAG'
             )
 
             if general.tower_available == 'Yes':
@@ -494,14 +497,16 @@ def edit(sn):
             with db.session.no_autoflush:
                 general.region = 'RTR'
                 general.domain = request.form['domain'] if user_region == 'All' else user_region
-                general.exchange_name = request.form['exchange_name']
-                general.exchange_lic = request.form['exchange_lic']
+                site_name = request.form['site_name']
+                site_lic = request.form['site_lic']
                 general.flc = request.form['flc']
+                site_type = request.form['site_type']
                 general.site_category = request.form['site_category']
                 general.nes_installed = request.form['nes_installed']
                 general.latitude = float(request.form['latitude']) if request.form['latitude'].strip() else None
                 general.longitude = float(request.form['longitude']) if request.form['longitude'].strip() else None
-                general.tower_available = request.form['tower_available']
+                tower_available = request.form['tower_available'] if request.form['site_type'] in ['Exchange', 'Rpt/INDP'] else 'N/A'
+                if request.form['site_type'] == 'MSAG': general.nes_installed = 'MSAG'
 
                 if general.tower_available == 'Yes':
                     general.towers = []
@@ -737,8 +742,8 @@ def export():
                 'SN': exchange.sn,
                 'Region': exchange.region,
                 'Domain': exchange.domain,
-                'Exchange Name': exchange.exchange_name,
-                'Exchange LIC': exchange.exchange_lic,
+                'Site Name': exchange.site_name,
+                'Site LIC': exchange.site_lic,
                 'FLC': exchange.flc,
                 'Site Category': exchange.site_category,
                 'NEs Installed': exchange.nes_installed,
