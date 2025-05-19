@@ -309,8 +309,11 @@ def add():
                 latitude=float(request.form['latitude']) if request.form['latitude'].strip() else None,
                 longitude=float(request.form['longitude']) if request.form['longitude'].strip() else None,
                 tower_available=request.form['tower_available'] if request.form['site_type'] in ['Exchange', 'Rpt/INDP'] else 'N/A',
-                if request.form['site_type'] == 'MSAG': general.nes_installed = 'MSAG'
             )
+            
+            # Apply the condition AFTER object creation
+            if request.form['site_type'] == 'MSAG':
+                general.nes_installed = 'MSAG'
 
             if general.tower_available == 'Yes':
                 tower_types = request.form.getlist('tower_type_height[]')
