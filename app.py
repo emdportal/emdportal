@@ -1,3 +1,4 @@
+app.config['DEBUG'] = True  # Set to False in production
 import pandas as pd
 import io
 import os
