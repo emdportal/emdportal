@@ -656,7 +656,7 @@ def add():
             flash(error_msg, 'error')
             logging.error(error_msg)
 
-    return render_template('add.html', general=None, csrf_token=generate_csrf())
+    return render_template('add.html', general=None)
 
 @app.route('/edit/<int:sn>', methods=['GET', 'POST'])
 @login_required
@@ -967,7 +967,7 @@ def edit(sn):
             flash(f"Error updating exchange: {str(e)}", 'error')
             logging.error(f"Error updating exchange SN {sn}: {str(e)}")
 
-    return render_template('add.html', general=general, csrf_token=generate_csrf())
+    return render_template('add.html', general=None)
 
 @app.route('/delete/<int:sn>', methods=['DELETE'])
 @login_required
