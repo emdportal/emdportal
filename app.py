@@ -355,21 +355,29 @@ def add():
                 latitude=latitude,
                 longitude=longitude,
                 tower_available=tower_available,
-                created_by=session.get('username'),
-                created_at=datetime.now(),
-                updated_at=datetime.now()
+                created_by=session.get('username')
+                # Removed created_at and updated_at
             )
+
+            # Add GeneralInformation to the session and commit to get the sn
+            db.session.add(general)
+            db.session.commit()  # Commit to assign general.sn
+
+            # Now that general.sn is assigned, we can create related objects
 
             # Tower Information
             tower_types = request.form.getlist('tower_type_height[]')
             for tower_type in tower_types:
                 if tower_type.strip():
-                    tower = Tower(tower_type_height=tower_type)
-                    general.towers.append(tower)
+                    tower = Tower(
+                        general_id=general.sn,
+                        tower_type_height=tower_type
+                    )
+                    db.session.add(tower)
 
             # Power Information
             power_info = PowerInformation(
-                general_id=general.sn,  # This will be set after commit
+                general_id=general.sn,
                 wapda_ref_number=request.form.get('wapda_ref_number') or 'N/A',
                 transformer_capacity=request.form.get('transformer_capacity') or 'N/A',
                 transformer_earthing=request.form.get('transformer_earthing') or 'N/A',
@@ -377,7 +385,7 @@ def add():
                 name_of_nes_connected=request.form.get('name_of_nes_connected') or 'N/A',
                 load_of_individual_ne=float(request.form.get('load_of_individual_ne')) if request.form.get('load_of_individual_ne') else None
             )
-            general.power_info = power_info
+            db.session.add(power_info)
 
             # Rectifiers (handled within PowerInformation for now)
             make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
@@ -441,6 +449,7 @@ def add():
                     smart_switch = smart_switch_installeds[i] if i < len(smart_switch_installeds) and smart_switch_installeds[i] in valid_yes_no else 'N/A'
                     ats = ats_installeds[i] if i < len(ats_installeds) and ats_installeds[i] in valid_yes_no else 'N/A'
                     dg = DGInformation(
+                        general_id=general.sn,
                         installed_dg=installed_dgs[i] or 'N/A',
                         engine_make=engine_makes[i] if i < len(engine_makes) and engine_makes[i].strip() else 'N/A',
                         installation_year=int(installation_years[i]) if i < len(installation_years) and installation_years[i].strip() else None,
@@ -459,7 +468,7 @@ def add():
                         site_load_p2=float(site_load_p2s[i]) if i < len(site_load_p2s) and site_load_p2s[i].strip() else None,
                         site_load_p3=float(site_load_p3s[i]) if i < len(site_load_p3s) and site_load_p3s[i].strip() else None
                     )
-                    general.dgs.append(dg)
+                    db.session.add(dg)
 
             # Battery Bank Information (similarly for other sections)
             make_of_batteries = request.form.getlist('make_of_battery[]')
@@ -481,6 +490,7 @@ def add():
                     battery_type = battery_types[i] if i < len(battery_types) and battery_types[i] in valid_battery_types else 'N/A'
                     battery_installation = battery_installed_new_or_useds[i] if i < len(battery_installed_new_or_useds) and battery_installed_new_or_useds[i] in valid_battery_installation else 'N/A'
                     battery = BatteryBank(
+                        general_id=general.sn,
                         make_of_battery=make_of_batteries[i] or 'N/A',
                         battery_capacity=float(battery_capacities[i]) if i < len(battery_capacities) and battery_capacities[i].strip() else None,
                         battery_type=battery_type,
@@ -491,7 +501,7 @@ def add():
                         battery_installed_new_or_used=battery_installation,
                         battery_moved_from=battery_moved_froms[i] if i < len(battery_moved_froms) and battery_moved_froms[i].strip() else 'N/A'
                     )
-                    general.battery_banks.append(battery)
+                    db.session.add(battery)
 
             # AC Unit Information (similarly for other sections)
             location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
@@ -514,6 +524,7 @@ def add():
                     working_status = working_status_acs[i] if i < len(working_status_acs) and working_status_acs[i] in valid_working_status else 'N/A'
                     sequence_controller = sequence_controller_installeds[i] if i < len(sequence_controller_installeds) and sequence_controller_installeds[i] in valid_yes_no else 'N/A'
                     ac_unit = ACUnit(
+                        general_id=general.sn,
                         location_of_ac_unit=location_of_ac_units[i] or 'N/A',
                         working_status=working_status,
                         ac_make=ac_makes[i] if i < len(ac_makes) and ac_makes[i].strip() else 'N/A',
@@ -527,36 +538,39 @@ def add():
                         fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if i < len(fault_nature_of_ac_units) and fault_nature_of_ac_units[i].strip() else 'N/A',
                         estimate_to_repair_ac=float(estimate_to_repair_acs[i]) if i < len(estimate_to_repair_acs) and estimate_to_repair_acs[i].strip() else None
                     )
-                    general.ac_units.append(ac_unit)
+                    db.session.add(ac_unit)
 
             # Solar Information
             solar_info = SolarInformation(
+                general_id=general.sn,
                 total_solar_size=float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None,
                 pv_solar_panel_capacity=float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None,
                 no_of_pv_panels_installed=int(request.form.get('no_of_pv_panels_installed')) if request.form.get('no_of_pv_panels_installed') else None,
                 make_of_pv_panels=request.form.get('make_of_pv_panels') or 'N/A',
                 charge_controller_make=request.form.get('charge_controller_make') or 'N/A'
             )
-            general.solar_info = solar_info
+            db.session.add(solar_info)
 
             # Colocation Information
             colocation = request.form.get('colocation') or 'N/A'
             if colocation not in valid_yes_no + ['N/A']:
                 raise ValueError(f"Invalid colocation value: {colocation}")
             colocation_info = ColocationInformation(
+                general_id=general.sn,
                 colocation=colocation,
                 name_of_colocation_vendors=request.form.get('name_of_colocation_vendors') or 'N/A',
                 load_of_each_vendor=float(request.form.get('load_of_each_vendor')) if request.form.get('load_of_each_vendor') else None,
                 total_load=float(request.form.get('total_load')) if request.form.get('total_load') else None
             )
-            general.colocation_info = colocation_info
+            db.session.add(colocation_info)
 
             # Building Information
             building_info = BuildingInformation(
+                general_id=general.sn,
                 building_status=request.form.get('building_status') or 'N/A',
                 wall_doors_condition=request.form.get('wall_doors_condition') or 'N/A'
             )
-            general.building_info = building_info
+            db.session.add(building_info)
 
             # Alarm Extension
             ac_main_failures = request.form.getlist('ac_main_failure[]')
@@ -570,11 +584,12 @@ def add():
                     dc_low_voltage = dc_low_voltages[i] if i < len(dc_low_voltages) and dc_low_voltages[i] in valid_yes_no else 'N/A'
                     rectifier_failure = rectifier_failures[i] if i < len(rectifier_failures) and rectifier_failures[i] in valid_yes_no else 'N/A'
                     alarm = AlarmExtension(
+                        general_id=general.sn,
                         ac_main_failure=ac_main_failure,
                         dc_low_voltages=dc_low_voltage,
                         rectifier_failure=rectifier_failure
                     )
-                    general.alarms.append(alarm)
+                    db.session.add(alarm)
 
             # Earthing
             earthing_values = request.form.getlist('earthing_value[]')
@@ -584,10 +599,11 @@ def add():
                     if not earthing_values[i].strip():
                         continue
                     earthing = Earthing(
+                        general_id=general.sn,
                         earthing_value=float(earthing_values[i]) if earthing_values[i].strip() else None,
                         no_of_pits=int(no_of_pits[i]) if i < len(no_of_pits) and no_of_pits[i].strip() else None
                     )
-                    general.earthings.append(earthing)
+                    db.session.add(earthing)
 
             # Fire Extinguishers
             fe_installeds = request.form.getlist('fe_installed[]')
@@ -600,12 +616,13 @@ def add():
                         continue
                     fe_installed = fe_installeds[i] if fe_installeds[i] in valid_yes_no else 'N/A'
                     fire_ext = FireExtinguisher(
+                        general_id=general.sn,
                         fe_installed=fe_installed,
                         no_of_fes=int(no_of_fes[i]) if i < len(no_of_fes) and no_of_fes[i].strip() else None,
                         type_of_gas=type_of_gases[i] if i < len(type_of_gases) and type_of_gases[i].strip() else 'N/A',
                         date_of_expiry=date_of_expiries[i] if i < len(date_of_expiries) and date_of_expiries[i].strip() else None
                     )
-                    general.fire_extinguishers.append(fire_ext)
+                    db.session.add(fire_ext)
 
             # PMR Information
             pmr_performeds = request.form.getlist('pmr_performed[]')
@@ -616,13 +633,13 @@ def add():
                         continue
                     pmr_performed = pmr_performeds[i] if pmr_performeds[i] in valid_yes_no else 'N/A'
                     pmr = PMRInformation(
+                        general_id=general.sn,
                         pmr_performed=pmr_performed,
                         last_performed_date=last_performed_dates[i] if i < len(last_performed_dates) and last_performed_dates[i].strip() else None
                     )
-                    general.pmr_infos.append(pmr)
+                    db.session.add(pmr)
 
-            # Add and commit to database
-            db.session.add(general)
+            # Final commit for all related objects
             db.session.commit()
 
             flash('Exchange added successfully!', 'success')
@@ -932,8 +949,8 @@ def edit(sn):
                     )
                     db.session.add(pmr)
 
-            general.updated_at = datetime.now()
             general.updated_by = session.get('username')
+            # Removed updated_at
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
