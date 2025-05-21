@@ -341,7 +341,7 @@ def add():
             tower_available = request.form.get('tower_available')
 
             # Validate required fields
-            if not all([region, domain, site_name, site_type, site_category, tower_available]):
+            if not all([domain, site_name, site_type, site_category]):
                 raise ValueError("Missing required general information fields")
 
             # Create GeneralInformation instance
@@ -678,7 +678,7 @@ def edit(sn):
             general.tower_available = request.form.get('tower_available')
 
             # Validate required fields
-            if not all([general.region, general.domain, general.site_name, general.site_type, general.site_category, general.tower_available]):
+            if not all([general.domain, general.site_name, general.site_type, general.site_category]):
                 raise ValueError("Missing required general information fields")
 
             # Tower Information
@@ -967,7 +967,7 @@ def edit(sn):
             flash(f"Error updating exchange: {str(e)}", 'error')
             logging.error(f"Error updating exchange SN {sn}: {str(e)}")
 
-    return render_template('add.html', general=None)
+    return render_template('add.html', general=general)
 
 @app.route('/delete/<int:sn>', methods=['DELETE'])
 @login_required
