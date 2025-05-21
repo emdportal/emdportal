@@ -30,7 +30,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # Initialize CSRF protection
-csrf = CSRFProtect(app)
+#csrf = CSRFProtect(app)
 
 # Configure logging
 logging.basicConfig(
