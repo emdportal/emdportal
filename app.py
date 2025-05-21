@@ -13,7 +13,7 @@ from flask_wtf.csrf import CSRFProtect
 from html import escape
 import logging
 import traceback
-
+from flask_wtf.csrf import generate_csrf
 
 # Load environment variables
 load_dotenv()
