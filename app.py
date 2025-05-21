@@ -1,4 +1,3 @@
-app.config['DEBUG'] = True  # Set to False in production
 import pandas as pd
 import io
 import os
@@ -20,6 +19,7 @@ import traceback
 load_dotenv()
 
 app = Flask(__name__)
+app.config['DEBUG'] = True  # Set to False in production
 database_url = os.environ.get('DATABASE_URL')
 if not database_url:
     raise ValueError("DATABASE_URL environment variable is not set. Please configure it in Railway.")
