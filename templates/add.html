@@ -82,8 +82,17 @@
                 </div>
                 <div>
                     <label for="site_category" class="block text-gray-700 mb-2 font-medium">Site Category</label>
-                    <input type="text" id="site_category" name="site_category" value="{{ general.site_category if general else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" placeholder="Tier-1, Gold, Silver etc">
+                    <select id="site_category" name="site_category" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" required>
+                        <option value="" disabled {% if not general %}selected{% endif %}>Select Site Category</option>
+                        <option value="Tier-1" {% if general and general.site_category == 'Tier-1' %}selected{% endif %}>Tier-1</option>
+                        <option value="Tier-2" {% if general and general.site_category == 'Tier-2' %}selected{% endif %}>Tier-2</option>
+                        <option value="Tier-3" {% if general and general.site_category == 'Tier-3' %}selected{% endif %}>Tier-3</option>
+                        <option value="Tier-4" {% if general and general.site_category == 'Tier-4' %}selected{% endif %}>Tier-4</option>
+                        <option value="Tier-5" {% if general and general.site_category == 'Tier-5' %}selected{% endif %}>Tier-5</option>
+                        <option value="Platinum" {% if general and general.site_category == 'Platinum' %}selected{% endif %}>Platinum</option>
+                        <option value="Gold" {% if general and general.site_category == 'Gold' %}selected{% endif %}>Gold</option>
+                        <option value="Silver" {% if general and general.site_category == 'Silver' %}selected{% endif %}>Silver</option>
+                    </select>
                 </div>
                 <div>
                     <label for="nes_installed" class="block text-gray-700 mb-2 font-medium">NEs Installed</label>
@@ -152,14 +161,20 @@
                 </div>
                 <div>
                     <label for="transformer_earthing" class="block text-gray-700 mb-2 font-medium">Transformer Earthing</label>
-                    <input type="text" id="transformer_earthing" name="transformer_earthing"
-                           value="{{ general.power_info.transformer_earthing if general and general.power_info else '' }}"
-                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"placeholder="Yes or No">
+                    <select id="transformer_earthing" name="transformer_earthing" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="" disabled {% if not general or not general.power_info or not general.power_info.transformer_earthing %}selected{% endif %}>Select Option</option>
+                        <option value="Yes" {% if general and general.power_info and general.power_info.transformer_earthing == 'Yes' %}selected{% endif %}>Yes</option>
+                        <option value="No" {% if general and general.power_info and general.power_info.transformer_earthing == 'No' %}selected{% endif %}>No</option>
+                    </select>
                 </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="working_status_power" name="working_status_power"
-                           {% if general and general.power_info and general.power_info.working_status %}checked{% endif %} class="mr-2">
-                    <label for="working_status_power" class="text-gray-700 font-medium">Working Status</label>
+                <div>
+                    <label for="working_status_power" class="block text-gray-700 mb-2 font-medium">Working Status</label>
+                    <select id="working_status_power" name="working_status_power" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="" disabled {% if not general or not general.power_info or not general.power_info.working_status %}selected{% endif %}>Select Status</option>
+                        <option value="Working" {% if general and general.power_info and general.power_info.working_status == 'Working' %}selected{% endif %}>Working</option>
+                        <option value="Faulty" {% if general and general.power_info and general.power_info.working_status == 'Faulty' %}selected{% endif %}>Faulty</option>
+                        <option value="Spare" {% if general and general.power_info and general.power_info.working_status == 'Spare' %}selected{% endif %}>Spare</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -216,14 +231,19 @@
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier (Ohms)</label>
-                                    <input type="text" name="grounding_of_rectifier[]"
-                                           value="{{ rectifier.grounding_of_rectifier }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                    <select name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                        <option value="" disabled {% if not rectifier or not rectifier.grounding_of_rectifier %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if rectifier and rectifier.grounding_of_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if rectifier and rectifier.grounding_of_rectifier == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="spd_in_rectifier[]"
-                                           {% if rectifier.spd_in_rectifier %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">SPD in Rectifier</label>
+                                    <select name="spd_in_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ml-2">
+                                        <option value="" disabled {% if not rectifier or not rectifier.spd_in_rectifier %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if rectifier and rectifier.spd_in_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if rectifier and rectifier.spd_in_rectifier == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">SPD Model</label>
@@ -270,9 +290,7 @@
                                        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Installed Modules">
                             </div>
                             <div>
-                                <label class="block text-gray-7
-
-00 mb-2 font-medium">Capacity of Each Module</label>
+                                <label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label>
                                 <input type="number" step="any" name="capacity_of_each_module[]" value=""
                                        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30A,45A etc">
                             </div>
@@ -293,12 +311,19 @@
                             </div>
                             <div>
                                 <label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier (Ohms)</label>
-                                <input type="text" name="grounding_of_rectifier[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Grounding Connected Yes or No">
+                                <select name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                    <option value="" disabled {% if not rectifier or not rectifier.grounding_of_rectifier %}selected{% endif %}>Select Option</option>
+                                    <option value="Yes" {% if rectifier and rectifier.grounding_of_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
+                                    <option value="No" {% if rectifier and rectifier.grounding_of_rectifier == 'No' %}selected{% endif %}>No</option>
+                                </select>
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" name="spd_in_rectifier[]" class="mr-2">
                                 <label class="text-gray-700 font-medium">SPD in Rectifier</label>
+                                <select name="spd_in_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ml-2">
+                                    <option value="" disabled {% if not rectifier or not rectifier.spd_in_rectifier %}selected{% endif %}>Select Option</option>
+                                    <option value="Yes" {% if rectifier and rectifier.spd_in_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
+                                    <option value="No" {% if rectifier and rectifier.spd_in_rectifier == 'No' %}selected{% endif %}>No</option>
+                                </select>
                             </div>
                             <div>
                                 <label class="block text-gray-700 mb-2 font-medium">SPD Model</label>
@@ -373,8 +398,12 @@
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">DG Status</label>
-                                    <input type="text" name="dg_status[]" value="{{ dg.dg_status }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Working, Faulty or Spare">
+                                    <select name="dg_status[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <option value="" disabled {% if not dg or not dg.dg_status %}selected{% endif %}>Select Status</option>
+                                        <option value="Working" {% if dg and dg.dg_status == 'Working' %}selected{% endif %}>Working</option>
+                                        <option value="Faulty" {% if dg and dg.dg_status == 'Faulty' %}selected{% endif %}>Faulty</option>
+                                        <option value="Spare" {% if dg and dg.dg_status == 'Spare' %}selected{% endif %}>Spare</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">DG Starting Battery</label>
@@ -382,14 +411,20 @@
                                            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Yes or No and Capacity">
                                 </div>
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="smart_switch_installed[]"
-                                           {% if dg.smart_switch_installed %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">Smart Switch Installed</label>
+                                    <select name="smart_switch_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 ml-2">
+                                        <option value="" disabled {% if not dg or not dg.smart_switch_installed %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if dg and dg.smart_switch_installed == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if dg and dg.smart_switch_installed == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="ats_installed[]"
-                                           {% if dg.ats_installed %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">ATS Installed</label>
+                                    <select name="ats_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 ml-2">
+                                        <option value="" disabled {% if not dg or not dg.ats_installed %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if dg and dg.ats_installed == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if dg and dg.ats_installed == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">ATS Capacity</label>
@@ -478,8 +513,12 @@
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Battery Type</label>
-                                    <input type="text" name="battery_type[]" value="{{ battery.battery_type }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="2V,12V,48V">
+                                    <select name="battery_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                        <option value="" disabled {% if not battery or not battery.battery_type %}selected{% endif %}>Select Type</option>
+                                        <option value="2V" {% if battery and battery.battery_type == '2V' %}selected{% endif %}>2V</option>
+                                        <option value="12V" {% if battery and battery.battery_type == '12V' %}selected{% endif %}>12V</option>
+                                        <option value="48V" {% if battery and battery.battery_type == '48V' %}selected{% endif %}>48V</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">No of Cells/Bank</label>
@@ -502,9 +541,13 @@
                                            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Estimated Backup Time (Mins)">
                                 </div>
                                 <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Battery Installed (New/Used)</label>
-                                    <input type="text" name="battery_installed_new_or_used[]" value="{{ battery.battery_installed_new_or_used }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="New or Used">
+                                    <label class="block text-gray-700 mb-2 font-medium">Battery Installed</label>
+                                    <select name="battery_installed_new_or_used[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                        <option value="" disabled {% if not battery or not battery.battery_installed_new_or_used %}selected{% endif %}>Select Option</option>
+                                        <option value="New" {% if battery and battery.battery_installed_new_or_used == 'New' %}selected{% endif %}>New</option>
+                                        <option value="Regenerated" {% if battery and battery.battery_installed_new_or_used == 'Regenerated' %}selected{% endif %}>Regenerated</option>
+                                        <option value="Locally Arranged" {% if battery and battery.battery_installed_new_or_used == 'Locally Arranged' %}selected{% endif %}>Locally Arranged</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Battery Moved From</label>
@@ -542,9 +585,13 @@
                                            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="AC Unit in which Exchange Room">
                                 </div>
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="working_status_ac[]"
-                                           {% if ac.working_status %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">Working Status</label>
+                                    <select name="working_status_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ml-2">
+                                        <option value="" disabled {% if not ac or not ac.working_status %}selected{% endif %}>Select Status</option>
+                                        <option value="Working" {% if ac and ac.working_status == 'Working' %}selected{% endif %}>Working</option>
+                                        <option value="Faulty" {% if ac and ac.working_status == 'Faulty' %}selected{% endif %}>Faulty</option>
+                                        <option value="Spare" {% if ac and ac.working_status == 'Spare' %}selected{% endif %}>Spare</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">AC Make</label>
@@ -572,9 +619,12 @@
                                            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                                 </div>
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="sequence_controller_installed[]"
-                                           {% if ac.sequence_controller_installed %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">Sequence Controller Installed</label>
+                                    <select name="sequence_controller_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ml-2">
+                                        <option value="" disabled {% if not ac or not ac.sequence_controller_installed %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if ac and ac.sequence_controller_installed == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if ac and ac.sequence_controller_installed == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">AC Load</label>
@@ -655,9 +705,12 @@
             <h2 class="text-2xl font-semibold mb-4 text-orange-800 text-center">Colocation Information</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex items-center">
-                    <input type="checkbox" id="colocation" name="colocation"
-                           {% if general and general.colocation_info and general.colocation_info.colocation %}checked{% endif %} class="mr-2">
                     <label for="colocation" class="text-gray-700 font-medium">Colocation</label>
+                    <select id="colocation" name="colocation" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                        <option value="" disabled {% if not general or not general.colocation_info or not general.colocation_info.colocation %}selected{% endif %}>Select Option</option>
+                        <option value="Yes" {% if general and general.colocation_info and general.colocation_info.colocation == 'Yes' %}selected{% endif %}>Yes</option>
+                        <option value="No" {% if general and general.colocation_info and general.colocation_info.colocation == 'No' %}selected{% endif %}>No</option>
+                    </select>
                 </div>
                 <div>
                     <label for="name_of_colocation_vendors" class="block text-gray-700 mb-2 font-medium">Name of Colocation Vendors</label>
@@ -699,45 +752,88 @@
             </div>
         </div>
 
-        <!-- Alarm Extension -->
-        <div class="mb-8 bg-sky-50 p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4 text-sky-800 text-center">Alarm Extension</h2>
-            <div id="alarm_container" class="mb-4">
-                {% if general and general.alarms %}
-                    {% for alarm in general.alarms %}
-                        <div class="alarm_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="flex items-center">
-                                    <input type="checkbox" name="ac_main_failure[]"
-                                           {% if alarm.ac_main_failure %}checked{% endif %} class="mr-2">
-                                    <label class="text-gray-700 font-medium">AC Main Failure</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="checkbox" name="dc_low_voltages[]"
-                                           {% if alarm.dc_low_voltages %}checked{% endif %} class="mr-2">
-                                    <label class="text-gray-700 font-medium">DC Low Voltages</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="checkbox" name="rectifier_failure[]"
-                                           {% if alarm.rectifier_failure %}checked{% endif %} class="mr-2">
-                                    <label class="text-gray-700 font-medium">Rectifier Failure</label>
-                                </div>
-                            </div>
-                            <div class="text-center mt-4">
-                                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-alarm">
-                                    Remove Alarm
-                                </button>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-            <div class="text-center">
-                <button type="button" id="add_alarm" class="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 shadow-md transition duration-200">
-                    Add Alarm
-                </button>
-            </div>
-        </div>
+    <!-- Alarm Extension -->
+     <div class="mb-8 bg-sky-50 p-6 rounded-lg shadow-md">
+         <h2 class="text-2xl font-semibold mb-4 text-sky-800 text-center">Alarm Extension</h2>
+         <div id="alarm_container" class="mb-4">
+             {% if general and general.alarms %}
+                 {% for alarm in general.alarms %}
+                     <div class="alarm_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
+                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                             <div>
+                                 <label class="text-gray-700 font-medium">AC Main Failure</label>
+                                 <select name="ac_main_failure[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                     <option value="" disabled {% if not alarm or not alarm.ac_main_failure %}selected{% endif %}>Select Option</option>
+                                     <option value="Yes" {% if alarm and alarm.ac_main_failure == 'Yes' %}selected{% endif %}>Yes</option>
+                                     <option value="No" {% if alarm and alarm.ac_main_failure == 'No' %}selected{% endif %}>No</option>
+                                 </select>
+                             </div>
+                             <div>
+                                 <label class="text-gray-700 font-medium">DC Low Voltages</label>
+                                 <select name="dc_low_voltages[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                     <option value="" disabled {% if not alarm or not alarm.dc_low_voltages %}selected{% endif %}>Select Option</option>
+                                     <option value="Yes" {% if alarm and alarm.dc_low_voltages == 'Yes' %}selected{% endif %}>Yes</option>
+                                     <option value="No" {% if alarm and alarm.dc_low_voltages == 'No' %}selected{% endif %}>No</option>
+                                 </select>
+                             </div>
+                             <div>
+                                 <label class="text-gray-700 font-medium">Rectifier Failure</label>
+                                 <select name="rectifier_failure[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                     <option value="" disabled {% if not alarm or not alarm.rectifier_failure %}selected{% endif %}>Select Option</option>
+                                     <option value="Yes" {% if alarm and alarm.rectifier_failure == 'Yes' %}selected{% endif %}>Yes</option>
+                                     <option value="No" {% if alarm and alarm.rectifier_failure == 'No' %}selected{% endif %}>No</option>
+                                 </select>
+                             </div>
+                         </div>
+                         <div class="text-center mt-4">
+                             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-alarm">
+                                 Remove Alarm
+                             </button>
+                         </div>
+                     </div>
+                 {% endfor %}
+             {% else %}
+                 <div class="alarm_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                         <div>
+                             <label class="text-gray-700 font-medium">AC Main Failure</label>
+                             <select name="ac_main_failure[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                 <option value="" disabled selected>Select Option</option>
+                                 <option value="Yes">Yes</option>
+                                 <option value="No">No</option>
+                             </select>
+                         </div>
+                         <div>
+                             <label class="text-gray-700 font-medium">DC Low Voltages</label>
+                             <select name="dc_low_voltages[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                 <option value="" disabled selected>Select Option</option>
+                                 <option value="Yes">Yes</option>
+                                 <option value="No">No</option>
+                             </select>
+                         </div>
+                         <div>
+                             <label class="text-gray-700 font-medium">Rectifier Failure</label>
+                             <select name="rectifier_failure[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                 <option value="" disabled selected>Select Option</option>
+                                 <option value="Yes">Yes</option>
+                                 <option value="No">No</option>
+                             </select>
+                         </div>
+                     </div>
+                     <div class="text-center mt-4">
+                         <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-alarm">
+                             Remove Alarm
+                         </button>
+                     </div>
+                 </div>
+             {% endif %}
+         </div>
+         <div class="text-center">
+             <button type="button" id="add_alarm" class="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 shadow-md transition duration-200">
+                 Add Alarm
+             </button>
+         </div>
+     </div>
 
         <!-- Earthing -->
         <div class="mb-8 bg-yellow-50 p-6 rounded-lg shadow-md">
@@ -783,9 +879,12 @@
                         <div class="fire_extinguisher_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="fe_installed[]"
-                                           {% if fire_ext.fe_installed %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">Fire Extinguisher Installed</label>
+                                    <select name="fe_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ml-2">
+                                        <option value="" disabled {% if not fire_ext or not fire_ext.fe_installed %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if fire_ext and fire_ext.fe_installed == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if fire_ext and fire_ext.fe_installed == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">No of Fire Extinguishers</label>
@@ -828,9 +927,12 @@
                         <div class="pmr_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="flex items-center">
-                                    <input type="checkbox" name="pmr_performed[]"
-                                           {% if pmr.pmr_performed %}checked{% endif %} class="mr-2">
                                     <label class="text-gray-700 font-medium">PMR Performed</label>
+                                    <select name="pmr_performed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 ml-2">
+                                        <option value="" disabled {% if not pmr or not pmr.pmr_performed %}selected{% endif %}>Select Option</option>
+                                        <option value="Yes" {% if pmr and pmr.pmr_performed == 'Yes' %}selected{% endif %}>Yes</option>
+                                        <option value="No" {% if pmr and pmr.pmr_performed == 'No' %}selected{% endif %}>No</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label>
@@ -864,418 +966,194 @@
 </div>
 
 <script>
-// Tower Section
+    // Tower Section
     document.getElementById('add_tower').addEventListener('click', function() {
         const container = document.getElementById('tower_container');
         const entry = document.createElement('div');
-        entry.className = 'tower_entry flex items-center mb-2';
+        entry.className = 'tower_entry flex items-center mb-2 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
-            <input type="text" name="tower_type_height[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2" placeholder="SS or GM and 50M or 30M">
+            <input type="text" name="tower_type_height[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 mr-2" placeholder="SS or GM and 50M or 30M">
             <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-tower">Remove</button>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-tower')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // Rectifier Section
     document.getElementById('add_rectifier').addEventListener('click', function() {
         const container = document.getElementById('rectifier_container');
         const entry = document.createElement('div');
-        entry.className = 'rectifier_entry border-b pb-4 mb-4';
+        entry.className = 'rectifier_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">Make of Rectifier with Model</label>
-                    <input type="text" name="make_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Huawei, ZTE ZXD1500">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Rectifier Capacity</label>
-                    <input type="number" step="any" name="rectifier_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="300AH etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">No of Modules</label>
-                    <input type="number" name="no_of_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="6,8 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Capacity of Each Module</label>
-                    <input type="number" step="any" name="capacity_of_each_module[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="30AMP,45AMP etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Working Modules</label>
-                    <input type="number" name="working_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2,4 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Faulty Modules</label>
-                    <input type="number" name="faulty_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2,4 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Space for New Modules</label>
-                    <input type="number" name="space_for_new_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="3,5 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Grounding of Rectifier</label>
-                    <input type="text" name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Rectifier is Grounded Yes or No">
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="spd_in_rectifier[]" class="mr-2">
-                    <label class="text-gray-700">SPD in Rectifier</label>
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">SPD Model</label>
-                    <input type="text" name="spd_model[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="MYS5 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Total Installed SPDs</label>
-                    <input type="number" name="total_installed_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2,4 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">No of Faulty SPDs</label>
-                    <input type="number" name="no_of_faulty_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1,2 etc">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Make of Rectifier with Model</label><input type="text" name="make_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Huawei, ZTE ZXD1500"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label><input type="number" step="any" name="rectifier_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="300AH etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">No of Modules</label><input type="number" name="no_of_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="6,8 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label><input type="number" step="any" name="capacity_of_each_module[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30AMP,45AMP etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Working Modules</label><input type="number" name="working_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label><input type="number" name="faulty_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label><input type="number" name="space_for_new_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="3,5 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier</label><select name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">SPD in Rectifier</label><select name="spd_in_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">SPD Model</label><input type="text" name="spd_model[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="MYS5 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label><input type="number" name="total_installed_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label><input type="number" name="no_of_faulty_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="1,2 etc"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-rectifier">Remove Rectifier</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">Remove Rectifier</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-rectifier')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // DG Section
     document.getElementById('add_dg').addEventListener('click', function() {
         const container = document.getElementById('dg_container');
         const entry = document.createElement('div');
-        entry.className = 'dg_entry border-b pb-4 mb-4';
+        entry.className = 'dg_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">Installed DG</label>
-                    <input type="text" name="installed_dg[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Perkins, Hyundai etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Engine Make</label>
-                    <input type="text" name="engine_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter DG Engine Make">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Installation Year</label>
-                    <input type="number" name="installation_year[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2010 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">DG Status</label>
-                    <input type="text" name="dg_status[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Working, Faulty or Spare">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">DG Starting Battery</label>
-                    <input type="text" name="dg_starting_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Yes or No and Capacity">
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="smart_switch_installed[]" class="mr-2">
-                    <label class="text-gray-700">Smart Switch Installed</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="ats_installed[]" class="mr-2">
-                    <label class="text-gray-700">ATS Installed</label>
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">ATS Capacity</label>
-                    <input type="text" name="ats_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="60A, 45A etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Name of Faulty ATS Parts</label>
-                    <input type="text" name="name_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Smart Switch, Contactor etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">No of Faulty ATS Parts</label>
-                    <input type="number" name="no_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1, 2 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Load on DG P1</label>
-                    <input type="number" step="any" name="load_on_dg_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 1(DG)">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Load on DG P2</label>
-                    <input type="number" step="any" name="load_on_dg_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 2(DG)">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Load on DG P3</label>
-                    <input type="number" step="any" name="load_on_dg_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 3(DG)">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Site Load Total</label>
-                    <input type="number" step="any" name="site_load_total[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Site Total Load Amps">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Site Load P1</label> 
-                    <input type="number" step="any" name="site_load_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 1 (Wapda)">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Site Load P2</label>
-                    <input type="number" step="any" name="site_load_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 2 (Wapda)">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Site Load P3</label>
-                    <input type="number" step="any" name="site_load_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load on Phase 3 (Wapda)">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Installed DG</label><input type="text" name="installed_dg[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Perkins, Hyundai etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Engine Make</label><input type="text" name="engine_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Enter DG Engine Make"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Installation Year</label><input type="number" name="installation_year[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="2010 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">DG Status</label><select name="dg_status[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"><option value="">Select Status</option><option value="Working">Working</option><option value="Faulty">Faulty</option><option value="Spare">Spare</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">DG Starting Battery</label><input type="text" name="dg_starting_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Yes or No and Capacity"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Smart Switch Installed</label><select name="smart_switch_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">ATS Installed</label><select name="ats_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">ATS Capacity</label><input type="text" name="ats_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="60A, 45A etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Name of Faulty ATS Parts</label><input type="text" name="name_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Smart Switch, Contactor etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">No of Faulty ATS Parts</label><input type="number" name="no_of_faulty_ats_parts[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="1, 2 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Load on DG P1</label><input type="number" step="any" name="load_on_dg_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Load on Phase 1(DG)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Load on DG P2</label><input type="number" step="any" name="load_on_dg_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Load on Phase 2(DG)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Load on DG P3</label><input type="number" step="any" name="load_on_dg_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Load on Phase 3(DG)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Site Load Total</label><input type="number" step="any" name="site_load_total[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Site Total Load Amps"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Site Load P1</label><input type="number" step="any" name="site_load_p1[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Load on Phase 1 (Wapda)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Site Load P2</label><input type="number" step="any" name="site_load_p2[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Load on Phase 2 (Wapda)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Site Load P3</label><input type="number" step="any" name="site_load_p3[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Load on Phase 3 (Wapda)"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-dg">Remove DG</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-dg">Remove DG</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-dg')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // Battery Bank Section
     document.getElementById('add_battery').addEventListener('click', function() {
         const container = document.getElementById('battery_container');
         const entry = document.createElement('div');
-        entry.className = 'battery_entry border-b pb-4 mb-4';
+        entry.className = 'battery_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">Make of Battery</label>
-                    <input type="text" name="make_of_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Narada, Volta etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Battery Capacity</label>
-                    <input type="number" step="any" name="battery_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="100AH, 300AH etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Battery Type</label>
-                    <input type="text" name="battery_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="2V,12V,48V">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">No of Cells/Bank</label>
-                    <input type="number" name="no_of_cells_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="4,24 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Date of Installation</label>
-                    <input type="date" name="date_of_installation_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" >
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Load on Battery Bank</label>
-                    <input type="number" step="any" name="load_on_battery_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Total load on Batteries">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Practical Backup Time</label>
-                    <input type="number" step="any" name="practical_backup_time[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Estimated Backup Time (Mins)">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Battery Installed (New/Used)</label>
-                    <input type="text" name="battery_installed_new_or_used[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="New or Used">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Battery Moved From</label>
-                    <input type="text" name="battery_moved_from[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="From Where Battery Moved(Ternol Store or Exchange)">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Make of Battery</label><input type="text" name="make_of_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Narada, Volta etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Battery Capacity</label><input type="number" step="any" name="battery_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="100AH, 300AH etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Battery Type</label><select name="battery_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"><option value="">Select Type</option><option value="2V">2V</option><option value="12V">12V</option><option value="48V">48V</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">No of Cells/Bank</label><input type="number" name="no_of_cells_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="4,24 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Date of Installation</label><input type="date" name="date_of_installation_battery[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Load on Battery Bank</label><input type="number" step="any" name="load_on_battery_bank[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Total load on Batteries"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Practical Backup Time</label><input type="number" step="any" name="practical_backup_time[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Estimated Backup Time (Mins)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Battery Installed (New/Used)</label><select name="battery_installed_new_or_used[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"><option value="">Select Option</option><option value="New">New</option><option value="Regenerated">Regenerated</option><option value="Locally Arranged">Locally Arranged</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Battery Moved From</label><input type="text" name="battery_moved_from[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="From Where Battery Moved(Ternol Store or Exchange)"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-battery">Remove Battery</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-battery">Remove Battery</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-battery')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // AC Unit Section
     document.getElementById('add_ac').addEventListener('click', function() {
         const container = document.getElementById('ac_container');
         const entry = document.createElement('div');
-        entry.className = 'ac_entry border-b pb-4 mb-4';
+        entry.className = 'ac_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">Location of AC Unit</label>
-                    <input type="text" name="location_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="AC Unit in which Exchange Room">
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="working_status_ac[]" class="mr-2">
-                    <label class="text-gray-700">Working Status</label>
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">AC Make</label>
-                    <input type="text" name="ac_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Make of AC">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Capacity (Tons)</label>
-                    <input type="number" step="any" name="capacity_tons[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1.5,4,etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Type of AC</label>
-                    <input type="text" name="type_of_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Split etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Mount Type</label>
-                    <input type="text" name="mount_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Wall Mounted etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Date of Installation</label>
-                    <input type="date" name="date_of_installation_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" >
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="sequence_controller_installed[]" class="mr-2">
-                    <label class="text-gray-700">Sequence Controller Installed</label>
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">AC Load</label>
-                    <input type="number" step="any" name="ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Load of AC Unit (Amps) ">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Total AC Load</label>
-                    <input type="number" step="any" name="total_ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" lder="Sum of All AC Units Load">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Fault Nature of AC Unit</label>
-                    <input type="text" name="fault_nature_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Compressor Faulty, Kit issue etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Estimate to Repair AC</label> 
-                    <input type="number" step="any" name="estimate_to_repair_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Estimated Amount for Repair">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Location of AC Unit</label><input type="text" name="location_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="AC Unit in which Exchange Room"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Working Status</label><select name="working_status_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="">Select Status</option><option value="Working">Working</option><option value="Faulty">Faulty</option><option value="Spare">Spare</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">AC Make</label><input type="text" name="ac_make[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Make of AC"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Capacity (Tons)</label><input type="number" step="any" name="capacity_tons[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="1.5,4,etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Type of AC</label><input type="text" name="type_of_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Split etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Mount Type</label><input type="text" name="mount_type[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Wall Mounted etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Date of Installation</label><input type="date" name="date_of_installation_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Sequence Controller Installed</label><select name="sequence_controller_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">AC Load</label><input type="number" step="any" name="ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Load of AC Unit (Amps)"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Total AC Load</label><input type="number" step="any" name="total_ac_load[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Sum of All AC Units Load"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Fault Nature of AC Unit</label><input type="text" name="fault_nature_of_ac_unit[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Compressor Faulty, Kit issue etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Estimate to Repair AC</label><input type="number" step="any" name="estimate_to_repair_ac[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Estimated Amount for Repair"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-ac">Remove AC Unit</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-ac">Remove AC Unit</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-ac')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // Alarm Section
     document.getElementById('add_alarm').addEventListener('click', function() {
         const container = document.getElementById('alarm_container');
         const entry = document.createElement('div');
-        entry.className = 'alarm_entry border-b pb-4 mb-4';
+        entry.className = 'alarm_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="flex items-center">
-                    <input type="checkbox" name="ac_main_failure[]" class="mr-2">
-                    <label class="text-gray-700">AC Main Failure</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="dc_low_voltages[]" class="mr-2">
-                    <label class="text-gray-700">DC Low Voltages</label>
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="rectifier_failure[]" class="mr-2">
-                    <label class="text-gray-700">Rectifier Failure</label>
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">AC Main Failure</label><select name="ac_main_failure[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">DC Low Voltages</label><select name="dc_low_voltages[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Rectifier Failure</label><select name="rectifier_failure[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-alarm">Remove Alarm</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-alarm">Remove Alarm</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-alarm')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // Earthing Section
     document.getElementById('add_earthing').addEventListener('click', function() {
         const container = document.getElementById('earthing_container');
         const entry = document.createElement('div');
-        entry.className = 'earthing_entry border-b pb-4 mb-4';
+        entry.className = 'earthing_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-gray-700 mb-2">Earthing Value</label>
-                    <input type="number" step="any" name="earthing_value[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="1.2,4 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">No of Pits</label>
-                    <input type="number" name="no_of_pits[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="3,5 etc">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Earthing Value</label><input type="number" step="any" name="earthing_value[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="1.2,4 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">No of Pits</label><input type="number" name="no_of_pits[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="3,5 etc"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-earthing">Remove Earthing</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-earthing">Remove Earthing</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-earthing')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // Fire Extinguisher Section
     document.getElementById('add_fire_extinguisher').addEventListener('click', function() {
         const container = document.getElementById('fire_extinguisher_container');
         const entry = document.createElement('div');
-        entry.className = 'fire_extinguisher_entry border-b pb-4 mb-4';
+        entry.className = 'fire_extinguisher_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center">
-                    <input type="checkbox" name="fe_installed[]" class="mr-2">
-                    <label class="text-gray-700">Fire Extinguisher Installed</label>
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">No of Fire Extinguishers</label>
-                    <input type="number" name="no_of_fes[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Total No of FEs">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Type of Gas</label>
-                    <input type="text" name="type_of_gas[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="CO2 etc">
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Date of Expiry</label>
-                    <input type="date" name="date_of_expiry[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Fire Extinguisher Installed</label><select name="fe_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">No of Fire Extinguishers</label><input type="number" name="no_of_fes[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Total No of FEs"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Type of Gas</label><input type="text" name="type_of_gas[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="CO2 etc"></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Date of Expiry</label><input type="date" name="date_of_expiry[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-fire-extinguisher">Remove Fire Extinguisher</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-fire-extinguisher">Remove Fire Extinguisher</button></div>
         `;
         container.appendChild(entry);
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-fire-extinguisher')) {
-            e.target.parentElement.remove();
-        }
     });
 
     // PMR Section
     document.getElementById('add_pmr').addEventListener('click', function() {
         const container = document.getElementById('pmr_container');
         const entry = document.createElement('div');
-        entry.className = 'pmr_entry border-b pb-4 mb-4';
+        entry.className = 'pmr_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center">
-                    <input type="checkbox" name="pmr_performed[]" class="mr-2">
-                    <label class="text-gray-700">PMR Performed</label>
-                </div>
-                <div>
-                    <label class="block text-gray-700 mb-2">Last Performed Date</label>
-                    <input type="date" name="last_performed_date[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+                <div><label class="block text-gray-700 mb-2 font-medium">PMR Performed</label><select name="pmr_performed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label><input type="date" name="last_performed_date[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"></div>
             </div>
-            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 mt-4 remove-pmr">Remove PMR</button>
+            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-pmr">Remove PMR</button></div>
         `;
         container.appendChild(entry);
     });
 
+    // Event Delegation for Remove Buttons
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-pmr')) {
-            e.target.parentElement.remove();
-        }
+        if (e.target.classList.contains('remove-tower')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-rectifier')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-dg')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-battery')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-ac')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-alarm')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-earthing')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-fire-extinguisher')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-pmr')) e.target.parentElement.remove();
     });
 
     // Handle MSAG site type and Tower Available selection
@@ -1286,19 +1164,9 @@
             towerAvailableSelect.disabled = true;
         } else {
             towerAvailableSelect.disabled = false;
-            // Reset to default or first option if not MSAG
-            if (towerAvailableSelect.value === 'N/A') {
-                towerAvailableSelect.value = 'Yes';
-            }
+            if (towerAvailableSelect.value === 'N/A') towerAvailableSelect.value = 'Yes';
         }
     });
-
-    // Delete Form Function
-    function deleteForm(sn) {
-        if (confirm('Are you sure you want to delete this exchange?')) {
-            window.location.href = '/delete/' + sn;
-        }
-    }
 
     // Initialize Tower Available based on existing site_type
     document.addEventListener('DOMContentLoaded', function() {
@@ -1309,5 +1177,12 @@
             towerAvailableSelect.disabled = true;
         }
     });
+
+    // Delete Form Function
+    function deleteForm(sn) {
+        if (confirm('Are you sure you want to delete this exchange?')) {
+            window.location.href = '/delete/' + sn;
+        }
+    }
 </script>
 {% endblock %}
