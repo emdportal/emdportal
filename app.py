@@ -12,6 +12,7 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from html import escape
 import logging
+import traceback
 
 
 # Load environment variables
@@ -650,8 +651,9 @@ def add():
             flash(str(e), 'error')
         except Exception as e:
             db.session.rollback()
-            flash(f"Error adding exchange: {str(e)}", 'error')
-            logging.error(f"Error adding exchange: {str(e)}")
+            error_msg = f"Error adding exchange: {str(e)}\nTraceback: {traceback.format_exc()}"
+            flash(error_msg, 'error')
+            logging.error(error_msg)
 
     return render_template('add.html', general=None, csrf_token=csrf.generate_csrf())
 
