@@ -355,7 +355,7 @@ def add():
                 latitude=latitude,
                 longitude=longitude,
                 tower_available=tower_available,
-                created_by=current_user.username,
+                created_by=session.get('username'),
                 created_at=datetime.now(),
                 updated_at=datetime.now()
             )
@@ -933,7 +933,7 @@ def edit(sn):
                     db.session.add(pmr)
 
             general.updated_at = datetime.now()
-            general.updated_by = current_user.username
+            general.updated_by = session.get('username')
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
