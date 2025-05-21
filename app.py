@@ -368,7 +368,7 @@ def add():
                         tower = Tower(tower_type_height=sanitize_text(tower_type))
                         general.towers.append(tower)
 
-            # Validate Power Information fields
+            # Power Information
             valid_working_status = ['Working', 'Faulty', 'Spare']
             working_status = request.form['working_status_power']
             if working_status not in valid_working_status:
@@ -379,36 +379,62 @@ def add():
             if transformer_earthing not in valid_yes_no:
                 raise ValueError(f"Invalid transformer earthing: {transformer_earthing}")
 
-            grounding_of_rectifier = request.form.getlist('grounding_of_rectifier[]')[0]
-            if grounding_of_rectifier not in valid_yes_no:
-                raise ValueError(f"Invalid grounding of rectifier: {grounding_of_rectifier}")
+            # Check if rectifier fields are present
+            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
+            if make_of_rectifiers and make_of_rectifiers[0].strip():  # Only process if at least one rectifier is added
+                grounding_of_rectifier = request.form.getlist('grounding_of_rectifier[]')[0]
+                if grounding_of_rectifier not in valid_yes_no:
+                    raise ValueError(f"Invalid grounding of rectifier: {grounding_of_rectifier}")
 
-            spd_in_rectifier = request.form.getlist('spd_in_rectifier[]')[0]
-            if spd_in_rectifier not in valid_yes_no:
-                raise ValueError(f"Invalid SPD in rectifier: {spd_in_rectifier}")
+                spd_in_rectifier = request.form.getlist('spd_in_rectifier[]')[0]
+                if spd_in_rectifier not in valid_yes_no:
+                    raise ValueError(f"Invalid SPD in rectifier: {spd_in_rectifier}")
 
-            power_info = PowerInformation(
-                wapda_ref_number=sanitize_text(request.form['wapda_ref_number']),
-                transformer_capacity=sanitize_text(request.form['transformer_capacity']),
-                transformer_earthing=transformer_earthing,
-                working_status=working_status,
-                load_of_individual_ne=safe_float(request.form['load_of_individual_ne'], 'Load of Individual NE'),
-                name_of_nes_connected=sanitize_text(request.form['name_of_nes_connected']),
-                make_of_rectifier=sanitize_text(request.form.getlist('make_of_rectifier[]')[0]) if request.form.getlist('make_of_rectifier[]') and request.form.getlist('make_of_rectifier[]')[0].strip() else None,
-                rectifier_capacity=safe_float(request.form.getlist('rectifier_capacity[]')[0], 'Rectifier Capacity') if request.form.getlist('rectifier_capacity[]') and request.form.getlist('rectifier_capacity[]')[0].strip() else None,
-                no_of_modules=safe_int(request.form.getlist('no_of_modules[]')[0], 'No of Modules') if request.form.getlist('no_of_modules[]') and request.form.getlist('no_of_modules[]')[0].strip() else None,
-                capacity_of_each_module=safe_float(request.form.getlist('capacity_of_each_module[]')[0], 'Capacity of Each Module') if request.form.getlist('capacity_of_each_module[]') and request.form.getlist('capacity_of_each_module[]')[0].strip() else None,
-                working_modules=safe_int(request.form.getlist('working_modules[]')[0], 'Working Modules') if request.form.getlist('working_modules[]') and request.form.getlist('working_modules[]')[0].strip() else None,
-                faulty_modules=safe_int(request.form.getlist('faulty_modules[]')[0], 'Faulty Modules') if request.form.getlist('faulty_modules[]') and request.form.getlist('faulty_modules[]')[0].strip() else None,
-                space_for_new_modules=safe_int(request.form.getlist('space_for_new_modules[]')[0], 'Space for New Modules') if request.form.getlist('space_for_new_modules[]') and request.form.getlist('space_for_new_modules[]')[0].strip() else None,
-                grounding_of_rectifier=grounding_of_rectifier,
-                spd_in_rectifier=spd_in_rectifier,
-                spd_model=sanitize_text(request.form.getlist('spd_model[]')[0]) if request.form.getlist('spd_model[]') and request.form.getlist('spd_model[]')[0].strip() else None,
-                total_installed_spds=safe_int(request.form.getlist('total_installed_spds[]')[0], 'Total Installed SPDs') if request.form.getlist('total_installed_spds[]') and request.form.getlist('total_installed_spds[]')[0].strip() else None,
-                no_of_faulty_spds=safe_int(request.form.getlist('no_of_faulty_spds[]')[0], 'No of Faulty SPDs') if request.form.getlist('no_of_faulty_spds[]') and request.form.getlist('no_of_faulty_spds[]')[0].strip() else None
-            )
+                power_info = PowerInformation(
+                    wapda_ref_number=sanitize_text(request.form['wapda_ref_number']),
+                    transformer_capacity=sanitize_text(request.form['transformer_capacity']),
+                    transformer_earthing=transformer_earthing,
+                    working_status=working_status,
+                    load_of_individual_ne=safe_float(request.form['load_of_individual_ne'], 'Load of Individual NE'),
+                    name_of_nes_connected=sanitize_text(request.form['name_of_nes_connected']),
+                    make_of_rectifier=sanitize_text(make_of_rectifiers[0]),
+                    rectifier_capacity=safe_float(request.form.getlist('rectifier_capacity[]')[0], 'Rectifier Capacity') if request.form.getlist('rectifier_capacity[]') and request.form.getlist('rectifier_capacity[]')[0].strip() else None,
+                    no_of_modules=safe_int(request.form.getlist('no_of_modules[]')[0], 'No of Modules') if request.form.getlist('no_of_modules[]') and request.form.getlist('no_of_modules[]')[0].strip() else None,
+                    capacity_of_each_module=safe_float(request.form.getlist('capacity_of_each_module[]')[0], 'Capacity of Each Module') if request.form.getlist('capacity_of_each_module[]') and request.form.getlist('capacity_of_each_module[]')[0].strip() else None,
+                    working_modules=safe_int(request.form.getlist('working_modules[]')[0], 'Working Modules') if request.form.getlist('working_modules[]') and request.form.getlist('working_modules[]')[0].strip() else None,
+                    faulty_modules=safe_int(request.form.getlist('faulty_modules[]')[0], 'Faulty Modules') if request.form.getlist('faulty_modules[]') and request.form.getlist('faulty_modules[]')[0].strip() else None,
+                    space_for_new_modules=safe_int(request.form.getlist('space_for_new_modules[]')[0], 'Space for New Modules') if request.form.getlist('space_for_new_modules[]') and request.form.getlist('space_for_new_modules[]')[0].strip() else None,
+                    grounding_of_rectifier=grounding_of_rectifier,
+                    spd_in_rectifier=spd_in_rectifier,
+                    spd_model=sanitize_text(request.form.getlist('spd_model[]')[0]) if request.form.getlist('spd_model[]') and request.form.getlist('spd_model[]')[0].strip() else None,
+                    total_installed_spds=safe_int(request.form.getlist('total_installed_spds[]')[0], 'Total Installed SPDs') if request.form.getlist('total_installed_spds[]') and request.form.getlist('total_installed_spds[]')[0].strip() else None,
+                    no_of_faulty_spds=safe_int(request.form.getlist('no_of_faulty_spds[]')[0], 'No of Faulty SPDs') if request.form.getlist('no_of_faulty_spds[]') and request.form.getlist('no_of_faulty_spds[]')[0].strip() else None
+                )
+            else:
+                # If no rectifiers are added, create PowerInformation without rectifier fields
+                power_info = PowerInformation(
+                    wapda_ref_number=sanitize_text(request.form['wapda_ref_number']),
+                    transformer_capacity=sanitize_text(request.form['transformer_capacity']),
+                    transformer_earthing=transformer_earthing,
+                    working_status=working_status,
+                    load_of_individual_ne=safe_float(request.form['load_of_individual_ne'], 'Load of Individual NE'),
+                    name_of_nes_connected=sanitize_text(request.form['name_of_nes_connected']),
+                    make_of_rectifier=None,
+                    rectifier_capacity=None,
+                    no_of_modules=None,
+                    capacity_of_each_module=None,
+                    working_modules=None,
+                    faulty_modules=None,
+                    space_for_new_modules=None,
+                    grounding_of_rectifier=None,
+                    spd_in_rectifier=None,
+                    spd_model=None,
+                    total_installed_spds=None,
+                    no_of_faulty_spds=None
+                )
             general.power_info = power_info
 
+            # Rest of your route (DGInformation, BatteryBank, etc.) remains unchanged
             # Validate DG Information fields
             valid_dg_status = ['Working', 'Faulty', 'Spare']
             installed_dgs = request.form.getlist('installed_dg[]')
