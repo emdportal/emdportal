@@ -1176,26 +1176,35 @@
 	
 	    // Form Validation for Rectifiers
     document.querySelector('form').addEventListener('submit', function(e) {
-        const rectifierEntries = document.querySelectorAll('.rectifier_entry');
-        rectifierEntries.forEach((entry, index) => {
-            const make = entry.querySelector('input[name="make_of_rectifier[]"]').value.trim();
-            if (make) {
-                const requiredFields = [
-                    'rectifier_capacity[]', 'no_of_modules[]', 'capacity_of_each_module[]',
-                    'working_modules[]', 'faulty_modules[]', 'space_for_new_modules[]',
-                    'grounding_of_rectifier[]', 'spd_in_rectifier[]', 'total_installed_spds[]',
-                    'no_of_faulty_spds[]'
-                ];
-                requiredFields.forEach(field => {
-                    const input = entry.querySelector(`[name="${field}"]`);
-                    if (!input.value.trim()) {
-                        e.preventDefault();
-                        alert(`Please fill all required fields for Rectifier ${index + 1}`);
-                        input.focus();
-                    }
-                });
+    const rectifierEntries = document.querySelectorAll('.rectifier_entry');
+    for (let [index, entry] of rectifierEntries.entries()) {
+        const make = entry.querySelector('input[name="rectifier_make[]"]').value.trim(); // Updated to match app.py
+        if (make) { // Only validate if make is non-empty
+            const requiredFields = [
+                { name: 'rectifier_capacity[]', label: 'Rectifier Capacity' },
+                { name: 'no_of_modules[]', label: 'Number of Modules' },
+                { name: 'capacity_of_each_module[]', label: 'Capacity of Each Module' },
+                { name: 'working_modules[]', label: 'Working Modules' },
+                { name: 'faulty_modules[]', label: 'Faulty Modules' },
+                { name: 'space_for_new_modules[]', label: 'Space for New Modules' },
+                { name: 'grounding_of_rectifier[]', label: 'Grounding of Rectifier' },
+                { name: 'spd_in_rectifier[]', label: 'SPD in Rectifier' },
+                { name: 'total_installed_spds[]', label: 'Total Installed SPDs' },
+                { name: 'no_of_faulty_spds[]', label: 'Number of Faulty SPDs' }
+            ];
+
+            for (let field of requiredFields) {
+                const input = entry.querySelector(`[name="${field.name}"]`);
+                if (!input.value.trim()) {
+                    e.preventDefault(); // Stop form submission
+                    e.stopImmediatePropagation(); // Prevent other handlers
+                    alert(`Please fill "${field.label}" for Rectifier ${index + 1}`);
+                    input.focus(); // Focus on the empty field
+                    return; // Exit the event handler
+                }
             }
-        });
-    });
+        }
+    }
+});
 </script>
 {% endblock %}
