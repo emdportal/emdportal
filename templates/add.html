@@ -179,181 +179,174 @@
         </div>
 
         <!-- Rectifiers -->
-        <div class="mb-8 bg-pink-50 p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4 text-pink-800 text-center">Rectifiers</h2>
-            <div id="rectifier_container" class="mb-4">
-                {% if general and general.rectifiers %}
-                    {% for rectifier in general.rectifiers %}
-                        <div class="rectifier_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Make of Rectifier</label>
-                                    <input type="text" name="make_of_rectifier[]"
-                                           value="{{ rectifier.make_of_rectifier }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="ZTE, Huawei">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label>
-                                    <input type="number" step="any" name="rectifier_capacity[]"
-                                           value="{{ rectifier.rectifier_capacity }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="100AH, 300AH etc">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">No of Modules</label>
-                                    <input type="number" name="no_of_modules[]"
-                                           value="{{ rectifier.no_of_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label>
-                                    <input type="number" step="any" name="capacity_of_each_module[]"
-                                           value="{{ rectifier.capacity_of_each_module }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30AH, 45AH etc">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Working Modules</label>
-                                    <input type="number" name="working_modules[]"
-                                           value="{{ rectifier.working_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter No of Working Modules">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label>
-                                    <input type="number" name="faulty_modules[]"
-                                           value="{{ rectifier.faulty_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter No of Faulty Modules">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label>
-                                    <input type="number" name="space_for_new_modules[]"
-                                           value="{{ rectifier.space_for_new_modules }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Space for more modules 2,4 etc">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier (Ohms)</label>
-                                    <select name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
-                                        <option value="" disabled {% if not rectifier or not rectifier.grounding_of_rectifier %}selected{% endif %}>Select Option</option>
-                                        <option value="Yes" {% if rectifier and rectifier.grounding_of_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
-                                        <option value="No" {% if rectifier and rectifier.grounding_of_rectifier == 'No' %}selected{% endif %}>No</option>
-                                    </select>
-                                </div>
-                                <div class="flex items-center">
-                                    <label class="text-gray-700 font-medium">SPD in Rectifier</label>
-                                    <select name="spd_in_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ml-2">
-                                        <option value="" disabled {% if not rectifier or not rectifier.spd_in_rectifier %}selected{% endif %}>Select Option</option>
-                                        <option value="Yes" {% if rectifier and rectifier.spd_in_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
-                                        <option value="No" {% if rectifier and rectifier.spd_in_rectifier == 'No' %}selected{% endif %}>No</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">SPD Model</label>
-                                    <input type="text" name="spd_model[]"
-                                           value="{{ rectifier.spd_model }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter SPD Model DOWIN,MYS5 etc">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label>
-                                    <input type="number" name="total_installed_spds[]"
-                                           value="{{ rectifier.total_installed_spds }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter Total SPDs 4 etc">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label>
-                                    <input type="number" name="no_of_faulty_spds[]"
-                                           value="{{ rectifier.no_of_faulty_spds }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
-                                </div>
-                            </div>
-                            <div class="text-center mt-4">
-                                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">
-                                    Remove Rectifier
-                                </button>
-                            </div>
+        <!-- Rectifiers -->
+<div class="mb-8 bg-pink-50 p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-semibold mb-4 text-pink-800 text-center">Rectifiers</h2>
+    <div id="rectifier_container" class="mb-4">
+        {% if general and general.power_info and general.power_info.rectifiers %}
+            {% for rectifier in general.power_info.rectifiers %}
+                <div class="rectifier_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
+                    <input type="hidden" name="rectifiers[]" value="{{ rectifier|tojson }}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Make of Rectifier</label>
+                            <input type="text" name="rectifier_make_{{ loop.index0 }}" value="{{ rectifier.make_of_rectifier }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="ZTE, Huawei">
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="rectifier_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Make of Rectifier</label>
-                                <input type="text" name="make_of_rectifier[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Huawei, ZTE ZXD1500 etc">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label>
-                                <input type="number" step="any" name="rectifier_capacity[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="300AH etc">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">No of Modules</label>
-                                <input type="number" name="no_of_modules[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Installed Modules">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label>
-                                <input type="number" step="any" name="capacity_of_each_module[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30A,45A etc">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Working Modules</label>
-                                <input type="number" name="working_modules[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Working Modules 2,4 ">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label>
-                                <input type="number" name="faulty_modules[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Faulty Modules 2,4">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label>
-                                <input type="number" name="space_for_new_modules[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Space for More Modules 1,2">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier (Ohms)</label>
-                                <select name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
-                                    <option value="" disabled {% if not rectifier or not rectifier.grounding_of_rectifier %}selected{% endif %}>Select Option</option>
-                                    <option value="Yes" {% if rectifier and rectifier.grounding_of_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
-                                    <option value="No" {% if rectifier and rectifier.grounding_of_rectifier == 'No' %}selected{% endif %}>No</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center">
-                                <label class="text-gray-700 font-medium">SPD in Rectifier</label>
-                                <select name="spd_in_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ml-2">
-                                    <option value="" disabled {% if not rectifier or not rectifier.spd_in_rectifier %}selected{% endif %}>Select Option</option>
-                                    <option value="Yes" {% if rectifier and rectifier.spd_in_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
-                                    <option value="No" {% if rectifier and rectifier.spd_in_rectifier == 'No' %}selected{% endif %}>No</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">SPD Model</label>
-                                <input type="text" name="spd_model[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="MYS5 etc">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label>
-                                <input type="number" name="total_installed_spds[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="4 etc">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label>
-                                <input type="number" name="no_of_faulty_spds[]" value=""
-                                       class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="1,3 etc">
-                            </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label>
+                            <input type="number" step="any" name="rectifier_capacity_{{ loop.index0 }}" value="{{ rectifier.rectifier_capacity }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="100AH, 300AH etc">
                         </div>
-                        <div class="text-center mt-4">
-                            <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">
-                                Remove Rectifier
-                            </button>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">No of Modules</label>
+                            <input type="number" name="no_of_modules_{{ loop.index0 }}" value="{{ rectifier.no_of_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label>
+                            <input type="number" step="any" name="capacity_of_each_module_{{ loop.index0 }}" value="{{ rectifier.capacity_of_each_module }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30AH, 45AH etc">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Working Modules</label>
+                            <input type="number" name="working_modules_{{ loop.index0 }}" value="{{ rectifier.working_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter No of Working Modules">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label>
+                            <input type="number" name="faulty_modules_{{ loop.index0 }}" value="{{ rectifier.faulty_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter No of Faulty Modules">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label>
+                            <input type="number" name="space_for_new_modules_{{ loop.index0 }}" value="{{ rectifier.space_for_new_modules }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Space for more modules 2,4 etc">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier (Ohms)</label>
+                            <select name="grounding_of_rectifier_{{ loop.index0 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                                <option value="" disabled {% if not rectifier.grounding_of_rectifier %}selected{% endif %}>Select Option</option>
+                                <option value="Yes" {% if rectifier.grounding_of_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
+                                <option value="No" {% if rectifier.grounding_of_rectifier == 'No' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <label class="text-gray-700 font-medium">SPD in Rectifier</label>
+                            <select name="spd_in_rectifier_{{ loop.index0 }}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ml-2">
+                                <option value="" disabled {% if not rectifier.spd_in_rectifier %}selected{% endif %}>Select Option</option>
+                                <option value="Yes" {% if rectifier.spd_in_rectifier == 'Yes' %}selected{% endif %}>Yes</option>
+                                <option value="No" {% if rectifier.spd_in_rectifier == 'No' %}selected{% endif %}>No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">SPD Model</label>
+                            <input type="text" name="spd_model_{{ loop.index0 }}" value="{{ rectifier.spd_model }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter SPD Model DOWIN,MYS5 etc">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label>
+                            <input type="number" name="total_installed_spds_{{ loop.index0 }}" value="{{ rectifier.total_installed_spds }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Enter Total SPDs 4 etc">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label>
+                            <input type="number" name="no_of_faulty_spds_{{ loop.index0 }}" value="{{ rectifier.no_of_faulty_spds }}"
+                                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
                         </div>
                     </div>
-                {% endif %}
+                    <div class="text-center mt-4">
+                        <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">
+                            Remove Rectifier
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="rectifier_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
+                <input type="hidden" name="rectifiers[]" value="">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Make of Rectifier</label>
+                        <input type="text" name="rectifier_make_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Huawei, ZTE ZXD1500 etc">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label>
+                        <input type="number" step="any" name="rectifier_capacity_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="300AH etc">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">No of Modules</label>
+                        <input type="number" name="no_of_modules_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Installed Modules">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label>
+                        <input type="number" step="any" name="capacity_of_each_module_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30A,45A etc">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Working Modules</label>
+                        <input type="number" name="working_modules_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Working Modules 2,4 ">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label>
+                        <input type="number" name="faulty_modules_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="No of Faulty Modules 2,4">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label>
+                        <input type="number" name="space_for_new_modules_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Space for More Modules 1,2">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier (Ohms)</label>
+                        <select name="grounding_of_rectifier_0" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                            <option value="" disabled selected>Select Option</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="text-gray-700 font-medium">SPD in Rectifier</label>
+                        <select name="spd_in_rectifier_0" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ml-2">
+                            <option value="" disabled selected>Select Option</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">SPD Model</label>
+                        <input type="text" name="spd_model_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="MYS5 etc">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label>
+                        <input type="number" name="total_installed_spds_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="4 etc">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label>
+                        <input type="number" name="no_of_faulty_spds_0" value=""
+                               class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="1,3 etc">
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">
+                        Remove Rectifier
+                    </button>
+                </div>
             </div>
-            <div class="text-center">
-                <button type="button" id="add_rectifier" class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 shadow-md transition duration-200">
-                    Add Rectifier
-                </button>
-            </div>
-        </div>
+        {% endif %}
+    </div>
+    <div class="text-center">
+        <button type="button" id="add_rectifier" class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 shadow-md transition duration-200">
+            Add Rectifier
+        </button>
+    </div>
+    </div>
 
         <div class="mb-8 bg-pink-50 p-6 rounded-lg shadow-md">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -980,26 +973,28 @@
     // Rectifier Section
     document.getElementById('add_rectifier').addEventListener('click', function() {
         const container = document.getElementById('rectifier_container');
+		const index = container.getElementsByClassName('rectifier_entry').length;
         const entry = document.createElement('div');
         entry.className = 'rectifier_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-gray-700 mb-2 font-medium">Make of Rectifier with Model</label><input type="text" name="make_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Huawei, ZTE ZXD1500"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label><input type="number" step="any" name="rectifier_capacity[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="300AH etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">No of Modules</label><input type="number" name="no_of_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="6,8 etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label><input type="number" step="any" name="capacity_of_each_module[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30AMP,45AMP etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Working Modules</label><input type="number" name="working_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label><input type="number" name="faulty_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label><input type="number" name="space_for_new_modules[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="3,5 etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier</label><select name="grounding_of_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">SPD in Rectifier</label><select name="spd_in_rectifier[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">SPD Model</label><input type="text" name="spd_model[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="MYS5 etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label><input type="number" name="total_installed_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label><input type="number" name="no_of_faulty_spds[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="1,2 etc"></div>
-            </div>
-            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">Remove Rectifier</button></div>
-        `;
-        container.appendChild(entry);
+        <input type="hidden" name="rectifiers[]" value="">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="block text-gray-700 mb-2 font-medium">Make of Rectifier with Model</label><input type="text" name="rectifier_make_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Huawei, ZTE ZXD1500"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Rectifier Capacity</label><input type="number" step="any" name="rectifier_capacity_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="300AH etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">No of Modules</label><input type="number" name="no_of_modules_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="6,8 etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Capacity of Each Module</label><input type="number" step="any" name="capacity_of_each_module_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="30AMP,45AMP etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Working Modules</label><input type="number" name="working_modules_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Faulty Modules</label><input type="number" name="faulty_modules_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Space for New Modules</label><input type="number" name="space_for_new_modules_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="3,5 etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Grounding of Rectifier</label><select name="grounding_of_rectifier_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">SPD in Rectifier</label><select name="spd_in_rectifier_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">SPD Model</label><input type="text" name="spd_model_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="MYS5 etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">Total Installed SPDs</label><input type="number" name="total_installed_spds_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="2,4 etc"></div>
+            <div><label class="block text-gray-700 mb-2 font-medium">No of Faulty SPDs</label><input type="number" name="no_of_faulty_spds_${index}" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="1,2 etc"></div>
+        </div>
+        <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-rectifier">Remove Rectifier</button></div>
+    `;
+    container.appendChild(entry);
     });
 
     // DG Section
