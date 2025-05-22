@@ -371,7 +371,7 @@ def add():
                     db.session.add(tower)
 
             # Power Information with Rectifiers
-            make_of_rectifiers = request.form.getlist('rectifier_make[]')  # Updated to match form
+            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')  # Fixed field name
             logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
@@ -393,29 +393,45 @@ def add():
                              f"spd={len(spd_in_rectifiers)}, spd_model={len(spd_models)}, "
                              f"total_spds={len(total_installed_spds)}, faulty_spds={len(no_of_faulty_spds)}")
 
+                # Ensure all lists have the same length
+                expected_length = len(make_of_rectifiers)
+                lists_to_check = [
+                    (rectifier_capacities, 'rectifier_capacity[]'),
+                    (no_of_modules, 'no_of_modules[]'),
+                    (capacity_of_each_module, 'capacity_of_each_module[]'),
+                    (working_modules, 'working_modules[]'),
+                    (faulty_modules, 'faulty_modules[]'),
+                    (space_for_new_modules, 'space_for_new_modules[]'),
+                    (grounding_of_rectifiers, 'grounding_of_rectifier[]'),
+                    (spd_in_rectifiers, 'spd_in_rectifier[]'),
+                    (spd_models, 'spd_model[]'),
+                    (total_installed_spds, 'total_installed_spds[]'),
+                    (no_of_faulty_spds, 'no_of_faulty_spds[]')
+                ]
+
+                for lst, name in lists_to_check:
+                    if len(lst) != expected_length:
+                        raise ValueError(f"Mismatch in rectifier field lengths: {name} has {len(lst)} entries, expected {expected_length}")
+
                 rectifiers_data = []
-                min_length = min(len(make_of_rectifiers), len(rectifier_capacities), len(no_of_modules),
-                                 len(capacity_of_each_module), len(working_modules), len(faulty_modules),
-                                 len(space_for_new_modules), len(grounding_of_rectifiers), len(spd_in_rectifiers),
-                                 len(spd_models), len(total_installed_spds), len(no_of_faulty_spds))
-                for i in range(min_length):
+                for i in range(expected_length):
                     if not make_of_rectifiers[i].strip():
                         continue
-                    grounding = grounding_of_rectifiers[i] if i < len(grounding_of_rectifiers) and grounding_of_rectifiers[i] in valid_yes_no else None
-                    spd = spd_in_rectifiers[i] if i < len(spd_in_rectifiers) and spd_in_rectifiers[i] in valid_yes_no else None
+                    grounding = grounding_of_rectifiers[i] if grounding_of_rectifiers[i] in valid_yes_no else None
+                    spd = spd_in_rectifiers[i] if spd_in_rectifiers[i] in valid_yes_no else None
                     rectifier = {
                         'make_of_rectifier': make_of_rectifiers[i] or None,
-                        'rectifier_capacity': safe_float(rectifier_capacities[i], 'rectifier_capacity') if i < len(rectifier_capacities) and rectifier_capacities[i].strip() else None,
-                        'no_of_modules': safe_int(no_of_modules[i], 'no_of_modules') if i < len(no_of_modules) and no_of_modules[i].strip() else None,
-                        'capacity_of_each_module': safe_float(capacity_of_each_module[i], 'capacity_of_each_module') if i < len(capacity_of_each_module) and capacity_of_each_module[i].strip() else None,
-                        'working_modules': safe_int(working_modules[i], 'working_modules') if i < len(working_modules) and working_modules[i].strip() else None,
-                        'faulty_modules': safe_int(faulty_modules[i], 'faulty_modules') if i < len(faulty_modules) and faulty_modules[i].strip() else None,
-                        'space_for_new_modules': safe_int(space_for_new_modules[i], 'space_for_new_modules') if i < len(space_for_new_modules) and space_for_new_modules[i].strip() else None,
+                        'rectifier_capacity': safe_float(rectifier_capacities[i], 'rectifier_capacity') if rectifier_capacities[i].strip() else None,
+                        'no_of_modules': safe_int(no_of_modules[i], 'no_of_modules') if no_of_modules[i].strip() else None,
+                        'capacity_of_each_module': safe_float(capacity_of_each_module[i], 'capacity_of_each_module') if capacity_of_each_module[i].strip() else None,
+                        'working_modules': safe_int(working_modules[i], 'working_modules') if working_modules[i].strip() else None,
+                        'faulty_modules': safe_int(faulty_modules[i], 'faulty_modules') if faulty_modules[i].strip() else None,
+                        'space_for_new_modules': safe_int(space_for_new_modules[i], 'space_for_new_modules') if space_for_new_modules[i].strip() else None,
                         'grounding_of_rectifier': grounding,
                         'spd_in_rectifier': spd,
-                        'spd_model': spd_models[i] if i < len(spd_models) and spd_models[i].strip() else None,
-                        'total_installed_spds': safe_int(total_installed_spds[i], 'total_installed_spds') if i < len(total_installed_spds) and total_installed_spds[i].strip() else None,
-                        'no_of_faulty_spds': safe_int(no_of_faulty_spds[i], 'no_of_faulty_spds') if i < len(no_of_faulty_spds) and no_of_faulty_spds[i].strip() else None
+                        'spd_model': spd_models[i] if spd_models[i].strip() else None,
+                        'total_installed_spds': safe_int(total_installed_spds[i], 'total_installed_spds') if total_installed_spds[i].strip() else None,
+                        'no_of_faulty_spds': safe_int(no_of_faulty_spds[i], 'no_of_faulty_spds') if no_of_faulty_spds[i].strip() else None
                     }
                     rectifiers_data.append(rectifier)
                 power_info = PowerInformation(
@@ -709,8 +725,11 @@ def edit(sn):
             # Power Information with Rectifiers
             if not general.power_info:
                 general.power_info = PowerInformation(general_id=general.sn)
-            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
+
+            # Collect rectifier data
+            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')  # Fixed field name
             logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
+            
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
                 no_of_modules = request.form.getlist('no_of_modules[]')
@@ -724,37 +743,54 @@ def edit(sn):
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
-                logging.info(f"Rectifier lists lengths: make={len(make_of_rectifiers)}, capacity={len(rectifier_capacities)}, "
-                             f"modules={len(no_of_modules)}, capacity_each={len(capacity_of_each_module)}, "
-                             f"working={len(working_modules)}, faulty={len(faulty_modules)}, "
-                             f"space={len(space_for_new_modules)}, grounding={len(grounding_of_rectifiers)}, "
-                             f"spd={len(spd_in_rectifiers)}, spd_model={len(spd_models)}, "
-                             f"total_spds={len(total_installed_spds)}, faulty_spds={len(no_of_faulty_spds)}")
+                # Log lengths of all lists for debugging
+                logging.info(f"Rectifier lists lengths: make={len(make_of_rectifiers)}, "
+                             f"capacity={len(rectifier_capacities)}, modules={len(no_of_modules)}, "
+                             f"capacity_each={len(capacity_of_each_module)}, working={len(working_modules)}, "
+                             f"faulty={len(faulty_modules)}, space={len(space_for_new_modules)}, "
+                             f"grounding={len(grounding_of_rectifiers)}, spd={len(spd_in_rectifiers)}, "
+                             f"spd_model={len(spd_models)}, total_spds={len(total_installed_spds)}, "
+                             f"faulty_spds={len(no_of_faulty_spds)}")
 
-                valid_yes_no = ['Yes', 'No']
+                # Ensure all lists have the same length
+                expected_length = len(make_of_rectifiers)
+                lists_to_check = [
+                    (rectifier_capacities, 'rectifier_capacity[]'),
+                    (no_of_modules, 'no_of_modules[]'),
+                    (capacity_of_each_module, 'capacity_of_each_module[]'),
+                    (working_modules, 'working_modules[]'),
+                    (faulty_modules, 'faulty_modules[]'),
+                    (space_for_new_modules, 'space_for_new_modules[]'),
+                    (grounding_of_rectifiers, 'grounding_of_rectifier[]'),
+                    (spd_in_rectifiers, 'spd_in_rectifier[]'),
+                    (spd_models, 'spd_model[]'),
+                    (total_installed_spds, 'total_installed_spds[]'),
+                    (no_of_faulty_spds, 'no_of_faulty_spds[]')
+                ]
+
+                for lst, name in lists_to_check:
+                    if len(lst) != expected_length:
+                        raise ValueError(f"Mismatch in rectifier field lengths: {name} has {len(lst)} entries, expected {expected_length}")
+
                 rectifiers_data = []
-                min_length = min(len(make_of_rectifiers), len(rectifier_capacities), len(no_of_modules),
-                                 len(capacity_of_each_module), len(working_modules), len(faulty_modules),
-                                 len(space_for_new_modules), len(grounding_of_rectifiers), len(spd_in_rectifiers),
-                                 len(spd_models), len(total_installed_spds), len(no_of_faulty_spds))
-                for i in range(min_length):
+                for i in range(expected_length):
                     if not make_of_rectifiers[i].strip():
                         continue
-                    grounding = grounding_of_rectifiers[i] if i < len(grounding_of_rectifiers) and grounding_of_rectifiers[i] in valid_yes_no else None
-                    spd = spd_in_rectifiers[i] if i < len(spd_in_rectifiers) and spd_in_rectifiers[i] in valid_yes_no else None
+                    grounding = grounding_of_rectifiers[i] if grounding_of_rectifiers[i] in valid_yes_no else None
+                    spd = spd_in_rectifiers[i] if spd_in_rectifiers[i] in valid_yes_no else None
                     rectifier = {
                         'make_of_rectifier': make_of_rectifiers[i] or None,
-                        'rectifier_capacity': safe_float(rectifier_capacities[i], 'rectifier_capacity') if i < len(rectifier_capacities) and rectifier_capacities[i].strip() else None,
-                        'no_of_modules': safe_int(no_of_modules[i], 'no_of_modules') if i < len(no_of_modules) and no_of_modules[i].strip() else None,
-                        'capacity_of_each_module': safe_float(capacity_of_each_module[i], 'capacity_of_each_module') if i < len(capacity_of_each_module) and capacity_of_each_module[i].strip() else None,
-                        'working_modules': safe_int(working_modules[i], 'working_modules') if i < len(working_modules) and working_modules[i].strip() else None,
-                        'faulty_modules': safe_int(faulty_modules[i], 'faulty_modules') if i < len(faulty_modules) and faulty_modules[i].strip() else None,
-                        'space_for_new_modules': safe_int(space_for_new_modules[i], 'space_for_new_modules') if i < len(space_for_new_modules) and space_for_new_modules[i].strip() else None,
+                        'rectifier_capacity': safe_float(rectifier_capacities[i], 'rectifier_capacity') if rectifier_capacities[i].strip() else None,
+                        'no_of_modules': safe_int(no_of_modules[i], 'no_of_modules') if no_of_modules[i].strip() else None,
+                        'capacity_of_each_module': safe_float(capacity_of_each_module[i], 'capacity_of_each_module') if capacity_of_each_module[i].strip() else None,
+                        'working_modules': safe_int(working_modules[i], 'working_modules') if working_modules[i].strip() else None,
+                        'faulty_modules': safe_int(faulty_modules[i], 'faulty_modules') if faulty_modules[i].strip() else None,
+                        'space_for_new_modules': safe_int(space_for_new_modules[i], 'space_for_new_modules') if space_for_new_modules[i].strip() else None,
                         'grounding_of_rectifier': grounding,
                         'spd_in_rectifier': spd,
-                        'spd_model': spd_models[i] if i < len(spd_models) and spd_models[i].strip() else None,
-                        'total_installed_spds': safe_int(total_installed_spds[i], 'total_installed_spds') if i < len(total_installed_spds) and total_installed_spds[i].strip() else None,
-                        'no_of_faulty_spds': safe_int(no_of_faulty_spds[i], 'no_of_faulty_spds') if i < len(no_of_faulty_spds) and no_of_faulty_spds[i].strip() else None
+                        'spd_model': spd_models[i] if spd_models[i].strip() else None,
+                        'total_installed_spds': safe_int(total_installed_spds[i], 'total_installed_spds') if total_installed_spds[i].strip() else None,
+                        'no_of_faulty_spds': safe_int(no_of_faulty_spds[i], 'no_of_faulty_spds') if no_of_faulty_spds[i].strip() else None
                     }
                     rectifiers_data.append(rectifier)
                 general.power_info.wapda_ref_number = request.form.get('wapda_ref_number') or None
@@ -971,7 +1007,7 @@ def edit(sn):
                     )
                     db.session.add(fire_ext)
 
-                        # PMR Information
+            # PMR Information
             PMRInformation.query.filter_by(general_id=general.sn).delete()
             pmr_performed = request.form.get('pmr_performed')
             last_performed_date = request.form.get('last_performed_date') or None
