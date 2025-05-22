@@ -638,22 +638,17 @@ def add():
                     db.session.add(fire_ext)
 
             # PMR Information
-            pmr_performeds = request.form.getlist('pmr_performed[]')
-            last_performed_dates = request.form.getlist('last_performed_date[]')
-            if pmr_performeds and pmr_performeds[0].strip():
-                for i in range(len(pmr_performeds)):
-                    if not pmr_performeds[i].strip():
-                        continue
-                    pmr_performed = pmr_performeds[i] if pmr_performeds[i] in valid_yes_no else None
-                    last_performed_date = None
-                    if pmr_performed == 'Yes' and i < len(last_performed_dates) and last_performed_dates[i].strip():
-                        last_performed_date = last_performed_dates[i]
-                    pmr = PMRInformation(
-                        general_id=general.sn,
-                        pmr_performed=pmr_performed,
-                        last_performed_date=last_performed_date
-                    )
-                    db.session.add(pmr)
+            pmr_performed = request.form.get('pmr_performed')
+            last_performed_date = request.form.get('last_performed_date') or None
+            if pmr_performed and pmr_performed.strip():
+                pmr_performed = pmr_performed if pmr_performed in valid_yes_no else None
+                last_performed_date = last_performed_date if pmr_performed == 'Yes' and last_performed_date.strip() else None
+                pmr = PMRInformation(
+                    general_id=general.sn,
+                    pmr_performed=pmr_performed,
+                    last_performed_date=last_performed_date
+                )
+                db.session.add(pmr)
 
             # Final commit for all related objects
             db.session.commit()
@@ -974,24 +969,19 @@ def edit(sn):
                     )
                     db.session.add(fire_ext)
 
-            # PMR Information
+                        # PMR Information
             PMRInformation.query.filter_by(general_id=general.sn).delete()
-            pmr_performeds = request.form.getlist('pmr_performed[]')
-            last_performed_dates = request.form.getlist('last_performed_date[]')
-            if pmr_performeds and pmr_performeds[0].strip():
-               for i in range(len(pmr_performeds)):
-                   if not pmr_performeds[i].strip()
-                       continue
-                    pmr_performed = pmr_performeds[i] if pmr_performeds[i] in valid_yes_no else None
-                    last_performed_date = None
-                    if pmr_performed == 'Yes' and i < len(last_performed_dates) and last_performed_dates[i].strip():
-                    last_performed_date = last_performed_dates[i]
-                    pmr = PMRInformation(
+            pmr_performed = request.form.get('pmr_performed')
+            last_performed_date = request.form.get('last_performed_date') or None
+            if pmr_performed and pmr_performed.strip():
+                pmr_performed = pmr_performed if pmr_performed in valid_yes_no else None
+                last_performed_date = last_performed_date if pmr_performed == 'Yes' and last_performed_date.strip() else None
+                pmr = PMRInformation(
                     general_id=general.sn,
                     pmr_performed=pmr_performed,
                     last_performed_date=last_performed_date
-        )
-        db.session.add(pmr)
+                )
+                db.session.add(pmr)
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')

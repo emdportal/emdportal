@@ -910,40 +910,23 @@
         <!-- PMR Information -->
         <div class="mb-8 bg-violet-50 p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold mb-4 text-violet-800 text-center">PMR Information</h2>
-            <div id="pmr_container" class="mb-4">
-                {% if general and general.pmr_infos %}
-                    {% for pmr in general.pmr_infos %}
-                        <div class="pmr_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="flex items-center">
-                                    <label class="text-gray-700 font-medium">PMR Performed</label>
-                                    <select name="pmr_performed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 ml-2">
-                                        <option value="" disabled {% if not pmr or not pmr.pmr_performed %}selected{% endif %}>Select Option</option>
-                                        <option value="Yes" {% if pmr and pmr.pmr_performed == 'Yes' %}selected{% endif %}>Yes</option>
-                                        <option value="No" {% if pmr and pmr.pmr_performed == 'No' %}selected{% endif %}>No</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label>
-                                    <input type="date" name="last_performed_date[]" value="{{ pmr.last_performed_date }}"
-                                           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
-                                </div>
-                            </div>
-                            <div class="text-center mt-4">
-                                <button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-pmr">
-                                    Remove PMR
-                                </button>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-            <div class="text-center">
-                <button type="button" id="add_pmr" class="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 shadow-md transition duration-200">
-                    Add PMR
-                </button>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			    <div class="flex items-center">
+            <label class="text-gray-700 font-medium">PMR Performed</label>
+            <select name="pmr_performed" id="pmr_performed" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 ml-2" required>
+                <option value="" disabled {% if not general or not general.pmr_infos or not general.pmr_infos[0] or not general.pmr_infos[0].pmr_performed %}selected{% endif %}>Select Option</option>
+                <option value="Yes" {% if general and general.pmr_infos and general.pmr_infos[0] and general.pmr_infos[0].pmr_performed == 'Yes' %}selected{% endif %}>Yes</option>
+                <option value="No" {% if general and general.pmr_infos and general.pmr_infos[0] and general.pmr_infos[0].pmr_performed == 'No' %}selected{% endif %}>No</option>
+            </select>
+		</div>
+        <div>
+            <label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label>
+            <input type="date" name="last_performed_date" id="last_performed_date" value="{{ general.pmr_infos[0].last_performed_date if general and general.pmr_infos and general.pmr_infos[0] else '' }}"
+                   class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
+				   {% if general and general.pmr_infos and general.pmr_infos[0] and general.pmr_infos[0].pmr_performed == 'No' %}disabled{% endif %}>
         </div>
+    </div>
+</div>
 
         <!-- Submit Button -->
         <div class="text-center mt-8">
@@ -1124,25 +1107,23 @@
     });
 
     // PMR Section
-    document.getElementById('add_pmr').addEventListener('click', function() {
-        const container = document.getElementById('pmr_container');
-        const entry = document.createElement('div');
-        entry.className = 'pmr_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
-        entry.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-gray-700 mb-2 font-medium">PMR Performed</label><select name="pmr_performed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"><option value="" disabled selected>Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
-                <div><label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label><input type="date" name="last_performed_date[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"></div>
-            </div>
-            <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-pmr">Remove PMR</button></div>
-        `;
-        container.appendChild(entry);
-        const pmrPerformedSelect = entry.querySelector('select[name="pmr_performed[]"]');
-        const lastPerformedDate = entry.querySelector('input[name="last_performed_date[]"]');
+document.addEventListener('DOMContentLoaded', function() {
+    const pmrPerformedSelect = document.getElementById('pmr_performed');
+    const lastPerformedDate = document.getElementById('last_performed_date');
+    updatePMRFields(pmrPerformedSelect, lastPerformedDate);
+    pmrPerformedSelect.addEventListener('change', function() {
         updatePMRFields(pmrPerformedSelect, lastPerformedDate);
-        pmrPerformedSelect.addEventListener('change', function() {
-            updatePMRFields(pmrPerformedSelect, lastPerformedDate);
-        });
     });
+});
+
+function updatePMRFields(select, dateField) {
+    if (select.value === 'No') {
+        dateField.value = '';
+        dateField.disabled = true;
+    } else {
+        dateField.disabled = false;
+    }
+}
 
     // Event Delegation for Remove Buttons
     document.addEventListener('click', function(e) {
@@ -1252,17 +1233,6 @@
                 updateFireExtinguisherFields(feInstalledSelect, feFields);
             });
         });
-
-        // PMR logic
-        document.querySelectorAll('.pmr_entry').forEach(entry => {
-            const pmrPerformedSelect = entry.querySelector('select[name="pmr_performed[]"]');
-            const lastPerformedDate = entry.querySelector('input[name="last_performed_date[]"]');
-            updatePMRFields(pmrPerformedSelect, lastPerformedDate);
-            pmrPerformedSelect.addEventListener('change', function() {
-                updatePMRFields(pmrPerformedSelect, lastPerformedDate);
-            });
-        });
-    });
 
     function updateFireExtinguisherFields(select, fields) {
         if (select.value === 'No') {
