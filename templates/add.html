@@ -923,7 +923,7 @@
             <label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label>
             <input type="date" name="last_performed_date" id="last_performed_date" value="{{ general.pmr_infos[0].last_performed_date if general and general.pmr_infos and general.pmr_infos[0] else '' }}"
                    class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
-				   {% if general and general.pmr_infos and general.pmr_infos[0] and general.pmr_infos[0].pmr_performed == 'No' %}disabled{% endif %}>
+				   {% if general and general.pmr_infos and general.pmr_infos[0] and general.pmr_infos[0].pmr_performed == 'No' %}disabled{% endif %}
         </div>
     </div>
 </div>
