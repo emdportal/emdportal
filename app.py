@@ -666,75 +666,57 @@ def add():
             logging.error(error_msg)
 
     return render_template('add.html', general=None)
-    
-@app.route('/add', methods=['GET', 'POST'])
+
+@app.route('/edit/<int:sn>', methods=['GET', 'POST'])
 @login_required
-def add():
+def edit(sn):
+    general = GeneralInformation.query.get_or_404(sn)
     if request.method == 'POST':
         try:
+            # Define validation lists at the start
+            valid_yes_no = ['Yes', 'No']
+            valid_working_status = ['Working', 'Faulty', 'Spare']
+            valid_dg_status = ['Working', 'Faulty', 'Spare']
+            valid_battery_types = ['2V', '12V', '48V']
+            valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
+
             # General Information
-            region = request.form.get('region')
-            domain = request.form.get('domain')
-            site_name = request.form.get('site_name')
-            site_lic = request.form.get('site_lic') or None
-            flc = request.form.get('flc') or None
-            site_type = request.form.get('site_type')
-            site_category = request.form.get('site_category')
-            nes_installed = request.form.get('nes_installed') or None
-            latitude = float(request.form.get('latitude')) if request.form.get('latitude') else None
-            longitude = float(request.form.get('longitude')) if request.form.get('longitude') else None
-            tower_available = request.form.get('tower_available')
+            general.region = request.form.get('region')
+            general.domain = request.form.get('domain')
+            general.site_name = request.form.get('site_name')
+            general.site_lic = request.form.get('site_lic') or None
+            general.flc = request.form.get('flc') or None
+            general.site_type = request.form.get('site_type')
+            general.site_category = request.form.get('site_category')
+            general.nes_installed = request.form.get('nes_installed') or None
+            general.latitude = float(request.form.get('latitude')) if request.form.get('latitude') else None
+            general.longitude = float(request.form.get('longitude')) if request.form.get('longitude') else None
+            general.tower_available = request.form.get('tower_available')
 
             # Validate required fields
-            if not all([domain, site_name, site_type, site_category]):
+            if not all([general.domain, general.site_name, general.site_type, general.site_category]):
                 raise ValueError("Missing required general information fields")
 
-            # Calculate the next sn value
-            max_sn = db.session.query(db.func.max(GeneralInformation.sn)).scalar() or 0
-            new_sn = max_sn + 1
-
-            # Create GeneralInformation instance with the new sn
-            general = GeneralInformation(
-                sn=new_sn,
-                region=region,
-                domain=domain,
-                site_name=site_name,
-                site_lic=site_lic,
-                flc=flc,
-                site_type=site_type,
-                site_category=site_category,
-                nes_installed=nes_installed,
-                latitude=latitude,
-                longitude=longitude,
-                tower_available=tower_available,
-            )
-
-            # Add GeneralInformation to the session
-            db.session.add(general)
-
             # Tower Information
+            Tower.query.filter_by(general_id=general.sn).delete()
             tower_types = request.form.getlist('tower_type_height[]')
             for tower_type in tower_types:
                 if tower_type.strip():
-                    tower = Tower(
-                        general_id=general.sn,
-                        tower_type_height=tower_type
-                    )
+                    tower = Tower(tower_type_height=tower_type, general_id=general.sn)
                     db.session.add(tower)
 
             # Power Information
-            power_info = PowerInformation(
-                general_id=general.sn,
-                wapda_ref_number=request.form.get('wapda_ref_number') or None,
-                transformer_capacity=request.form.get('transformer_capacity') or None,
-                transformer_earthing=request.form.get('transformer_earthing') or None,
-                working_status=request.form.get('working_status_power') or None,
-                name_of_nes_connected=request.form.get('name_of_nes_connected') or None,
-                load_of_individual_ne=float(request.form.get('load_of_individual_ne')) if request.form.get('load_of_individual_ne') else None
-            )
-            db.session.add(power_info)
+            if not general.power_info:
+                general.power_info = PowerInformation(general_id=general.sn)
+            general.power_info.wapda_ref_number = request.form.get('wapda_ref_number') or None
+            general.power_info.transformer_capacity = request.form.get('transformer_capacity') or None
+            general.power_info.transformer_earthing = request.form.get('transformer_earthing') or None
+            general.power_info.working_status = request.form.get('working_status_power') or None
+            general.power_info.name_of_nes_connected = request.form.get('name_of_nes_connected') or None
+            general.power_info.load_of_individual_ne = float(request.form.get('load_of_individual_ne')) if request.form.get('load_of_individual_ne') else None
 
             # Rectifiers (Now using the new Rectifier model)
+            Rectifier.query.filter_by(general_id=general.sn).delete()
             make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
             if make_of_rectifiers and make_of_rectifiers[0].strip():
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
@@ -749,7 +731,6 @@ def add():
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
-                valid_yes_no = ['Yes', 'No']
                 for i in range(len(make_of_rectifiers)):
                     if not make_of_rectifiers[i].strip():
                         continue
@@ -773,6 +754,7 @@ def add():
                     db.session.add(rectifier)
 
             # DG Information
+            DGInformation.query.filter_by(general_id=general.sn).delete()
             installed_dgs = request.form.getlist('installed_dg[]')
             if installed_dgs and installed_dgs[0].strip():
                 engine_makes = request.form.getlist('engine_make[]')
@@ -792,7 +774,6 @@ def add():
                 site_load_p2s = request.form.getlist('site_load_p2[]')
                 site_load_p3s = request.form.getlist('site_load_p3[]')
 
-                valid_dg_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(installed_dgs)):
                     if not installed_dgs[i].strip():
                         continue
@@ -822,6 +803,7 @@ def add():
                     db.session.add(dg)
 
             # Battery Bank Information
+            BatteryBank.query.filter_by(general_id=general.sn).delete()
             make_of_batteries = request.form.getlist('make_of_battery[]')
             if make_of_batteries and make_of_batteries[0].strip():
                 battery_capacities = request.form.getlist('battery_capacity[]')
@@ -833,8 +815,6 @@ def add():
                 battery_installed_new_or_useds = request.form.getlist('battery_installed_new_or_used[]')
                 battery_moved_froms = request.form.getlist('battery_moved_from[]')
 
-                valid_battery_types = ['2V', '12V', '48V']
-                valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
                 for i in range(len(make_of_batteries)):
                     if not make_of_batteries[i].strip():
                         continue
@@ -855,6 +835,7 @@ def add():
                     db.session.add(battery)
 
             # AC Unit Information
+            ACUnit.query.filter_by(general_id=general.sn).delete()
             location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
             if location_of_ac_units and location_of_ac_units[0].strip():
                 working_status_acs = request.form.getlist('working_status_ac[]')
@@ -869,7 +850,6 @@ def add():
                 fault_nature_of_ac_units = request.form.getlist('fault_nature_of_ac_unit[]')
                 estimate_to_repair_acs = request.form.getlist('estimate_to_repair_ac[]')
 
-                valid_working_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(location_of_ac_units)):
                     if not location_of_ac_units[i].strip():
                         continue
@@ -893,36 +873,31 @@ def add():
                     db.session.add(ac_unit)
 
             # Solar Information
-            solar_info = SolarInformation(
-                general_id=general.sn,
-                total_solar_size=float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None,
-                pv_solar_panel_capacity=float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None,
-                no_of_pv_panels_installed=int(request.form.get('no_of_pv_panels_installed')) if request.form.get('no_of_pv_panels_installed') else None,
-                make_of_pv_panels=request.form.get('make_of_pv_panels') or None,
-                charge_controller_make=request.form.get('charge_controller_make') or None
-            )
-            db.session.add(solar_info)
+            if not general.solar_info:
+                general.solar_info = SolarInformation(general_id=general.sn)
+            general.solar_info.total_solar_size = float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None
+            general.solar_info.pv_solar_panel_capacity = float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None
+            general.solar_info.no_of_pv_panels_installed = int(request.form.get('no_of_pv_panels_installed')) if request.form.get('no_of_pv_panels_installed') else None
+            general.solar_info.make_of_pv_panels = request.form.get('make_of_pv_panels') or None
+            general.solar_info.charge_controller_make = request.form.get('charge_controller_make') or None
 
             # Colocation Information
+            if not general.colocation_info:
+                general.colocation_info = ColocationInformation(general_id=general.sn)
             colocation = request.form.get('colocation')
-            colocation_info = ColocationInformation(
-                general_id=general.sn,
-                colocation=colocation,
-                name_of_colocation_vendors=request.form.get('name_of_colocation_vendors') or None,
-                load_of_each_vendor=float(request.form.get('load_of_each_vendor')) if request.form.get('load_of_each_vendor') else None,
-                total_load=float(request.form.get('total_load')) if request.form.get('total_load') else None
-            )
-            db.session.add(colocation_info)
+            general.colocation_info.colocation = colocation
+            general.colocation_info.name_of_colocation_vendors = request.form.get('name_of_colocation_vendors') or None
+            general.colocation_info.load_of_each_vendor = float(request.form.get('load_of_each_vendor')) if request.form.get('load_of_each_vendor') else None
+            general.colocation_info.total_load = float(request.form.get('total_load')) if request.form.get('total_load') else None
 
             # Building Information
-            building_info = BuildingInformation(
-                general_id=general.sn,
-                building_status=request.form.get('building_status') or None,
-                wall_doors_condition=request.form.get('wall_doors_condition') or None
-            )
-            db.session.add(building_info)
+            if not general.building_info:
+                general.building_info = BuildingInformation(general_id=general.sn)
+            general.building_info.building_status = request.form.get('building_status') or None
+            general.building_info.wall_doors_condition = request.form.get('wall_doors_condition') or None
 
             # Alarm Extension
+            AlarmExtension.query.filter_by(general_id=general.sn).delete()
             ac_main_failures = request.form.getlist('ac_main_failure[]')
             if ac_main_failures and ac_main_failures[0].strip():
                 dc_low_voltages = request.form.getlist('dc_low_voltages[]')
@@ -942,6 +917,7 @@ def add():
                     db.session.add(alarm)
 
             # Earthing
+            Earthing.query.filter_by(general_id=general.sn).delete()
             earthing_values = request.form.getlist('earthing_value[]')
             if earthing_values and earthing_values[0].strip():
                 no_of_pits = request.form.getlist('no_of_pits[]')
@@ -956,6 +932,7 @@ def add():
                     db.session.add(earthing)
 
             # Fire Extinguishers
+            FireExtinguisher.query.filter_by(general_id=general.sn).delete()
             fe_installeds = request.form.getlist('fe_installed[]')
             if fe_installeds and fe_installeds[0].strip():
                 no_of_fes = request.form.getlist('no_of_fes[]')
@@ -975,6 +952,7 @@ def add():
                     db.session.add(fire_ext)
 
             # PMR Information
+            PMRInformation.query.filter_by(general_id=general.sn).delete()
             pmr_performeds = request.form.getlist('pmr_performed[]')
             if pmr_performeds and pmr_performeds[0].strip():
                 last_performed_dates = request.form.getlist('last_performed_date[]')
@@ -989,10 +967,8 @@ def add():
                     )
                     db.session.add(pmr)
 
-            # Final commit for all related objects
             db.session.commit()
-
-            flash('Exchange added successfully!', 'success')
+            flash('Exchange updated successfully!', 'success')
             return redirect(url_for('index'))
 
         except ValueError as e:
@@ -1000,9 +976,8 @@ def add():
             flash(str(e), 'error')
         except Exception as e:
             db.session.rollback()
-            error_msg = f"Error adding exchange: {str(e)}\nTraceback: {traceback.format_exc()}"
-            flash(error_msg, 'error')
-            logging.error(error_msg)
+            flash(f"Error updating exchange: {str(e)}", 'error')
+            logging.error(f"Error updating exchange SN {sn}: {str(e)}")
 
     return render_template('add.html', general=general)
 
