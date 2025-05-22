@@ -316,6 +316,13 @@ def index():
 def add():
     if request.method == 'POST':
         try:
+            # Define validation lists at the start
+            valid_yes_no = ['Yes', 'No']
+            valid_working_status = ['Working', 'Faulty', 'Spare']
+            valid_dg_status = ['Working', 'Faulty', 'Spare']
+            valid_battery_types = ['2V', '12V', '48V']
+            valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
+
             # General Information
             region = request.form.get('region')
             domain = request.form.get('domain')
@@ -364,7 +371,7 @@ def add():
                     db.session.add(tower)
 
             # Power Information with Rectifiers
-            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
+            make_of_rectifiers = request.form.getlist('rectifier_make[]')  # Updated to match form
             logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
@@ -386,7 +393,6 @@ def add():
                              f"spd={len(spd_in_rectifiers)}, spd_model={len(spd_models)}, "
                              f"total_spds={len(total_installed_spds)}, faulty_spds={len(no_of_faulty_spds)}")
 
-                valid_yes_no = ['Yes', 'No']
                 rectifiers_data = []
                 min_length = min(len(make_of_rectifiers), len(rectifier_capacities), len(no_of_modules),
                                  len(capacity_of_each_module), len(working_modules), len(faulty_modules),
@@ -455,7 +461,6 @@ def add():
                 site_load_p2s = request.form.getlist('site_load_p2[]')
                 site_load_p3s = request.form.getlist('site_load_p3[]')
 
-                valid_dg_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(installed_dgs)):
                     if not installed_dgs[i].strip():
                         continue
@@ -496,8 +501,6 @@ def add():
                 battery_installed_new_or_useds = request.form.getlist('battery_installed_new_or_used[]')
                 battery_moved_froms = request.form.getlist('battery_moved_from[]')
 
-                valid_battery_types = ['2V', '12V', '48V']
-                valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
                 for i in range(len(make_of_batteries)):
                     if not make_of_batteries[i].strip():
                         continue
@@ -532,7 +535,6 @@ def add():
                 fault_nature_of_ac_units = request.form.getlist('fault_nature_of_ac_unit[]')
                 estimate_to_repair_acs = request.form.getlist('estimate_to_repair_ac[]')
 
-                valid_working_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(location_of_ac_units)):
                     if not location_of_ac_units[i].strip():
                         continue

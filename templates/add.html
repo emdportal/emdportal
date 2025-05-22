@@ -1107,23 +1107,45 @@
     });
 
     // PMR Section
-document.addEventListener('DOMContentLoaded', function() {
-    const pmrPerformedSelect = document.getElementById('pmr_performed');
-    const lastPerformedDate = document.getElementById('last_performed_date');
-    updatePMRFields(pmrPerformedSelect, lastPerformedDate);
-    pmrPerformedSelect.addEventListener('change', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const pmrPerformedSelect = document.getElementById('pmr_performed');
+        const lastPerformedDate = document.getElementById('last_performed_date');
         updatePMRFields(pmrPerformedSelect, lastPerformedDate);
-    });
-});
+        pmrPerformedSelect.addEventListener('change', function() {
+            updatePMRFields(pmrPerformedSelect, lastPerformedDate);
+        });
 
-function updatePMRFields(select, dateField) {
-    if (select.value === 'No') {
-        dateField.value = '';
-        dateField.disabled = true;
-    } else {
-        dateField.disabled = false;
-    }
-}
+        // Initialize Tower Available, Colocation, and related fields based on existing values
+        const siteTypeSelect = document.getElementById('site_type');
+        const towerAvailableSelect = document.getElementById('tower_available');
+        const towerContainer = document.getElementById('tower_container');
+        const colocationSelect = document.getElementById('colocation');
+        const colocationFields = document.querySelectorAll('#colocation + div input, #colocation + div select');
+
+        if (siteTypeSelect.value === 'MSAG') {
+            towerAvailableSelect.value = 'N/A';
+            towerAvailableSelect.disabled = true;
+            towerContainer.style.display = 'none';
+            colocationSelect.value = 'No';
+            colocationSelect.disabled = true;
+            colocationFields.forEach(field => {
+                field.value = 'N/A';
+                field.disabled = true;
+            });
+        }
+        updateTowerVisibility();
+        updateColocationFields();
+
+        // Fire Extinguisher logic
+        document.querySelectorAll('.fire_extinguisher_entry').forEach(entry => {
+            const feInstalledSelect = entry.querySelector('select[name="fe_installed[]"]');
+            const feFields = entry.querySelectorAll('input[name]:not([name="fe_installed[]"]), select[name]:not([name="fe_installed[]"])');
+            updateFireExtinguisherFields(feInstalledSelect, feFields);
+            feInstalledSelect.addEventListener('change', function() {
+                updateFireExtinguisherFields(feInstalledSelect, feFields);
+            });
+        });
+    });
 
     // Event Delegation for Remove Buttons
     document.addEventListener('click', function(e) {
@@ -1202,38 +1224,6 @@ function updatePMRFields(select, dateField) {
         }
     }
 
-    // Initialize Tower Available, Colocation, and related fields based on existing values
-    document.addEventListener('DOMContentLoaded', function() {
-        const siteTypeSelect = document.getElementById('site_type');
-        const towerAvailableSelect = document.getElementById('tower_available');
-        const towerContainer = document.getElementById('tower_container');
-        const colocationSelect = document.getElementById('colocation');
-        const colocationFields = document.querySelectorAll('#colocation + div input, #colocation + div select');
-
-        if (siteTypeSelect.value === 'MSAG') {
-            towerAvailableSelect.value = 'N/A';
-            towerAvailableSelect.disabled = true;
-            towerContainer.style.display = 'none';
-            colocationSelect.value = 'No';
-            colocationSelect.disabled = true;
-            colocationFields.forEach(field => {
-                field.value = 'N/A';
-                field.disabled = true;
-            });
-        }
-        updateTowerVisibility();
-        updateColocationFields();
-
-        // Fire Extinguisher logic
-        document.querySelectorAll('.fire_extinguisher_entry').forEach(entry => {
-            const feInstalledSelect = entry.querySelector('select[name="fe_installed[]"]');
-            const feFields = entry.querySelectorAll('input[name]:not([name="fe_installed[]"]), select[name]:not([name="fe_installed[]"])');
-            updateFireExtinguisherFields(feInstalledSelect, feFields);
-            feInstalledSelect.addEventListener('change', function() {
-                updateFireExtinguisherFields(feInstalledSelect, feFields);
-            });
-        });
-
     function updateFireExtinguisherFields(select, fields) {
         if (select.value === 'No') {
             fields.forEach(field => {
@@ -1250,11 +1240,10 @@ function updatePMRFields(select, dateField) {
 
     function updatePMRFields(select, dateField) {
         if (select.value === 'No') {
-            dateField.value = 'N/A';
+            dateField.value = '';
             dateField.disabled = true;
         } else {
             dateField.disabled = false;
-            if (dateField.value === 'N/A') dateField.value = '';
         }
     }
 
@@ -1286,7 +1275,7 @@ function updatePMRFields(select, dateField) {
     document.querySelector('form').addEventListener('submit', function(e) {
         const rectifierEntries = document.querySelectorAll('.rectifier_entry');
         for (let [index, entry] of rectifierEntries.entries()) {
-            const make = entry.querySelector('input[name="make_of_rectifier[]"]').value.trim(); // Corrected to match HTML
+            const make = entry.querySelector('input[name="make_of_rectifier[]"]').value.trim();
             if (make) { // Only validate if make is non-empty
                 const requiredFields = [
                     { name: 'rectifier_capacity[]', label: 'Rectifier Capacity' },
