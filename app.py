@@ -344,8 +344,13 @@ def add():
             if not all([domain, site_name, site_type, site_category]):
                 raise ValueError("Missing required general information fields")
 
-            # Create GeneralInformation instance
+            # Calculate the next sn value
+            max_sn = db.session.query(db.func.max(GeneralInformation.sn)).scalar() or 0
+            new_sn = max_sn + 1
+
+            # Create GeneralInformation instance with the new sn
             general = GeneralInformation(
+                sn=new_sn,
                 region=region,
                 domain=domain,
                 site_name=site_name,
@@ -357,14 +362,10 @@ def add():
                 latitude=latitude,
                 longitude=longitude,
                 tower_available=tower_available,
-                # Removed created_at and updated_at
             )
 
-            # Add GeneralInformation to the session and commit to get the sn
+            # Add GeneralInformation to the session
             db.session.add(general)
-            db.session.commit()  # Commit to assign general.sn
-
-            # Now that general.sn is assigned, we can create related objects
 
             # Tower Information
             tower_types = request.form.getlist('tower_type_height[]')
@@ -664,6 +665,13 @@ def edit(sn):
     general = GeneralInformation.query.get_or_404(sn)
     if request.method == 'POST':
         try:
+            # Define validation lists at the start
+            valid_yes_no = ['Yes', 'No']
+            valid_working_status = ['Working', 'Faulty', 'Spare']
+            valid_dg_status = ['Working', 'Faulty', 'Spare']
+            valid_battery_types = ['2V', '12V', '48V']
+            valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
+
             # General Information
             general.region = request.form.get('region')
             general.domain = request.form.get('domain')
@@ -714,8 +722,6 @@ def edit(sn):
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
-                valid_yes_no = ['Yes', 'No']
-                valid_working_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(make_of_rectifiers)):
                     if not make_of_rectifiers[i].strip():
                         continue
@@ -755,7 +761,6 @@ def edit(sn):
                 site_load_p2s = request.form.getlist('site_load_p2[]')
                 site_load_p3s = request.form.getlist('site_load_p3[]')
 
-                valid_dg_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(installed_dgs)):
                     if not installed_dgs[i].strip():
                         continue
@@ -797,8 +802,6 @@ def edit(sn):
                 battery_installed_new_or_useds = request.form.getlist('battery_installed_new_or_used[]')
                 battery_moved_froms = request.form.getlist('battery_moved_from[]')
 
-                valid_battery_types = ['2V', '12V', '48V']
-                valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
                 for i in range(len(make_of_batteries)):
                     if not make_of_batteries[i].strip():
                         continue
@@ -952,8 +955,6 @@ def edit(sn):
                         last_performed_date=last_performed_dates[i] if i < len(last_performed_dates) and last_performed_dates[i].strip() else None
                     )
                     db.session.add(pmr)
-
-            # Removed updated_at
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
