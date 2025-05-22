@@ -992,7 +992,7 @@ def delete(sn):
         logging.error(f"Error deleting exchange SN {sn} by {session.get('username')}: {str(e)}")
         return jsonify({'success': False, 'message': f'Error deleting exchange: {str(e)}'}), 500
 
-@app.route('/export', endpoint='export_exchanges')
+@app.route('/export')
 @login_required
 def export():
     try:
