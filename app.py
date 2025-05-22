@@ -639,16 +639,19 @@ def add():
 
             # PMR Information
             pmr_performeds = request.form.getlist('pmr_performed[]')
+            last_performed_dates = request.form.getlist('last_performed_date[]')
             if pmr_performeds and pmr_performeds[0].strip():
-                last_performed_dates = request.form.getlist('last_performed_date[]')
                 for i in range(len(pmr_performeds)):
                     if not pmr_performeds[i].strip():
                         continue
                     pmr_performed = pmr_performeds[i] if pmr_performeds[i] in valid_yes_no else None
+                    last_performed_date = None
+                    if pmr_performed == 'Yes' and i < len(last_performed_dates) and last_performed_dates[i].strip():
+                        last_performed_date = last_performed_dates[i]
                     pmr = PMRInformation(
                         general_id=general.sn,
                         pmr_performed=pmr_performed,
-                        last_performed_date=last_performed_dates[i] if last_performed_dates[i].strip() else None
+                        last_performed_date=last_performed_date
                     )
                     db.session.add(pmr)
 
@@ -974,18 +977,21 @@ def edit(sn):
             # PMR Information
             PMRInformation.query.filter_by(general_id=general.sn).delete()
             pmr_performeds = request.form.getlist('pmr_performed[]')
+            last_performed_dates = request.form.getlist('last_performed_date[]')
             if pmr_performeds and pmr_performeds[0].strip():
-                last_performed_dates = request.form.getlist('last_performed_date[]')
-                for i in range(len(pmr_performeds)):
-                    if not pmr_performeds[i].strip():
-                        continue
+               for i in range(len(pmr_performeds)):
+                   if not pmr_performeds[i].strip()
+                       continue
                     pmr_performed = pmr_performeds[i] if pmr_performeds[i] in valid_yes_no else None
+                    last_performed_date = None
+                    if pmr_performed == 'Yes' and i < len(last_performed_dates) and last_performed_dates[i].strip():
+                    last_performed_date = last_performed_dates[i]
                     pmr = PMRInformation(
-                        general_id=general.sn,
-                        pmr_performed=pmr_performed,
-                        last_performed_date=last_performed_dates[i] if last_performed_dates[i].strip() else None
-                    )
-                    db.session.add(pmr)
+                    general_id=general.sn,
+                    pmr_performed=pmr_performed,
+                    last_performed_date=last_performed_date
+        )
+        db.session.add(pmr)
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
