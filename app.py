@@ -107,7 +107,21 @@ class PowerInformation(db.Model):
     working_status = db.Column(db.String(20))  # Working/Faulty/Spare
     load_of_individual_ne = db.Column(db.Float, nullable=True)
     name_of_nes_connected = db.Column(db.Text)
-    rectifiers = db.Column(db.JSON, nullable=True)  # New JSONB column for rectifier data
+    # Temporary: Include old columns to match the current database schema
+    make_of_rectifier = db.Column(db.String(100), nullable=True)
+    rectifier_capacity = db.Column(db.Float, nullable=True)
+    no_of_modules = db.Column(db.Integer, nullable=True)
+    capacity_of_each_module = db.Column(db.Float, nullable=True)
+    working_modules = db.Column(db.Integer, nullable=True)
+    faulty_modules = db.Column(db.Integer, nullable=True)
+    space_for_new_modules = db.Column(db.Integer, nullable=True)
+    grounding_of_rectifier = db.Column(db.String(10), nullable=True)
+    spd_in_rectifier = db.Column(db.String(10), nullable=True)
+    spd_model = db.Column(db.String(50), nullable=True)
+    total_installed_spds = db.Column(db.Integer, nullable=True)
+    no_of_faulty_spds = db.Column(db.Integer, nullable=True)
+    # New JSON column
+    rectifiers = db.Column(db.JSON, nullable=True)  # JSONB in PostgreSQL
 
 class DGInformation(db.Model):
     __tablename__ = 'dg'
