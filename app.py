@@ -81,7 +81,6 @@ class GeneralInformation(db.Model):
     tower_available = db.Column(db.String(10))
     towers = db.relationship('Tower', backref='general_info', lazy=True, cascade="all, delete-orphan")
     power_info = db.relationship('PowerInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
-    rectifiers = db.relationship('Rectifier', backref='general_info', lazy=True, cascade="all, delete-orphan")
     dgs = db.relationship('DGInformation', backref='general_info', lazy=True, cascade="all, delete-orphan")
     battery_banks = db.relationship('BatteryBank', backref='general_info', lazy=True, cascade="all, delete-orphan")
     ac_units = db.relationship('ACUnit', backref='general_info', lazy=True, cascade="all, delete-orphan")
@@ -108,23 +107,7 @@ class PowerInformation(db.Model):
     working_status = db.Column(db.String(20))  # Working/Faulty/Spare
     load_of_individual_ne = db.Column(db.Float, nullable=True)
     name_of_nes_connected = db.Column(db.Text)
-    
-class Rectifier(db.Model):
-    __tablename__ = 'rectifier'
-    id = db.Column(db.Integer, primary_key=True)
-    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
-    make_of_rectifier = db.Column(db.String(50), nullable=True)
-    rectifier_capacity = db.Column(db.Float, nullable=True)
-    no_of_modules = db.Column(db.Integer, nullable=True)
-    capacity_of_each_module = db.Column(db.Float, nullable=True)
-    working_modules = db.Column(db.Integer, nullable=True)
-    faulty_modules = db.Column(db.Integer, nullable=True)
-    space_for_new_modules = db.Column(db.Integer, nullable=True)
-    grounding_of_rectifier = db.Column(db.String(10), nullable=True)  # Yes/No
-    spd_in_rectifier = db.Column(db.String(10), nullable=True)  # Yes/No
-    spd_model = db.Column(db.String(50), nullable=True)
-    total_installed_spds = db.Column(db.Integer, nullable=True)
-    no_of_faulty_spds = db.Column(db.Integer, nullable=True)
+    rectifiers = db.Column(db.JSON, nullable=True)  # New JSONB column for rectifier data
 
 class DGInformation(db.Model):
     __tablename__ = 'dg'
@@ -328,7 +311,7 @@ def index():
         flash(f"Error: {str(e)}")
         return redirect(url_for('index'))
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route('/add', methods=['GET', 'POST'], endpoint='add_exchange')
 @login_required
 def add():
     if request.method == 'POST':
@@ -377,25 +360,10 @@ def add():
             tower_types = request.form.getlist('tower_type_height[]')
             for tower_type in tower_types:
                 if tower_type.strip():
-                    tower = Tower(
-                        general_id=general.sn,
-                        tower_type_height=tower_type
-                    )
+                    tower = Tower(general_id=general.sn, tower_type_height=tower_type)
                     db.session.add(tower)
 
-            # Power Information
-            power_info = PowerInformation(
-                general_id=general.sn,
-                wapda_ref_number=request.form.get('wapda_ref_number') or None,
-                transformer_capacity=request.form.get('transformer_capacity') or None,
-                transformer_earthing=request.form.get('transformer_earthing') or None,
-                working_status=request.form.get('working_status_power') or None,
-                name_of_nes_connected=request.form.get('name_of_nes_connected') or None,
-                load_of_individual_ne=float(request.form.get('load_of_individual_ne')) if request.form.get('load_of_individual_ne') else None
-            )
-            db.session.add(power_info)
-
-            # Rectifiers (Now using the new Rectifier model)
+            # Power Information with Rectifiers
             make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
             if make_of_rectifiers and make_of_rectifiers[0].strip():
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
@@ -411,27 +379,48 @@ def add():
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
                 valid_yes_no = ['Yes', 'No']
+                rectifiers_data = []
                 for i in range(len(make_of_rectifiers)):
                     if not make_of_rectifiers[i].strip():
                         continue
                     grounding = grounding_of_rectifiers[i] if grounding_of_rectifiers[i] in valid_yes_no else None
                     spd = spd_in_rectifiers[i] if spd_in_rectifiers[i] in valid_yes_no else None
-                    rectifier = Rectifier(
-                        general_id=general.sn,
-                        make_of_rectifier=make_of_rectifiers[i] or None,
-                        rectifier_capacity=float(rectifier_capacities[i]) if rectifier_capacities[i].strip() else None,
-                        no_of_modules=int(no_of_modules[i]) if no_of_modules[i].strip() else None,
-                        capacity_of_each_module=float(capacity_of_each_module[i]) if capacity_of_each_module[i].strip() else None,
-                        working_modules=int(working_modules[i]) if working_modules[i].strip() else None,
-                        faulty_modules=int(faulty_modules[i]) if faulty_modules[i].strip() else None,
-                        space_for_new_modules=int(space_for_new_modules[i]) if space_for_new_modules[i].strip() else None,
-                        grounding_of_rectifier=grounding,
-                        spd_in_rectifier=spd,
-                        spd_model=spd_models[i] if spd_models[i].strip() else None,
-                        total_installed_spds=int(total_installed_spds[i]) if total_installed_spds[i].strip() else None,
-                        no_of_faulty_spds=int(no_of_faulty_spds[i]) if no_of_faulty_spds[i].strip() else None
-                    )
-                    db.session.add(rectifier)
+                    rectifier = {
+                        'make_of_rectifier': make_of_rectifiers[i] or None,
+                        'rectifier_capacity': safe_float(rectifier_capacities[i], 'rectifier_capacity') if rectifier_capacities[i].strip() else None,
+                        'no_of_modules': safe_int(no_of_modules[i], 'no_of_modules') if no_of_modules[i].strip() else None,
+                        'capacity_of_each_module': safe_float(capacity_of_each_module[i], 'capacity_of_each_module') if capacity_of_each_module[i].strip() else None,
+                        'working_modules': safe_int(working_modules[i], 'working_modules') if working_modules[i].strip() else None,
+                        'faulty_modules': safe_int(faulty_modules[i], 'faulty_modules') if faulty_modules[i].strip() else None,
+                        'space_for_new_modules': safe_int(space_for_new_modules[i], 'space_for_new_modules') if space_for_new_modules[i].strip() else None,
+                        'grounding_of_rectifier': grounding,
+                        'spd_in_rectifier': spd,
+                        'spd_model': spd_models[i] if spd_models[i].strip() else None,
+                        'total_installed_spds': safe_int(total_installed_spds[i], 'total_installed_spds') if total_installed_spds[i].strip() else None,
+                        'no_of_faulty_spds': safe_int(no_of_faulty_spds[i], 'no_of_faulty_spds') if no_of_faulty_spds[i].strip() else None
+                    }
+                    rectifiers_data.append(rectifier)
+                power_info = PowerInformation(
+                    general_id=general.sn,
+                    wapda_ref_number=request.form.get('wapda_ref_number') or None,
+                    transformer_capacity=request.form.get('transformer_capacity') or None,
+                    transformer_earthing=request.form.get('transformer_earthing') or None,
+                    working_status=request.form.get('working_status_power') or None,
+                    name_of_nes_connected=request.form.get('name_of_nes_connected') or None,
+                    load_of_individual_ne=safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None,
+                    rectifiers=rectifiers_data if rectifiers_data else None
+                )
+            else:
+                power_info = PowerInformation(
+                    general_id=general.sn,
+                    wapda_ref_number=request.form.get('wapda_ref_number') or None,
+                    transformer_capacity=request.form.get('transformer_capacity') or None,
+                    transformer_earthing=request.form.get('transformer_earthing') or None,
+                    working_status=request.form.get('working_status_power') or None,
+                    name_of_nes_connected=request.form.get('name_of_nes_connected') or None,
+                    load_of_individual_ne=safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None
+                )
+            db.session.add(power_info)
 
             # DG Information
             installed_dgs = request.form.getlist('installed_dg[]')
@@ -464,21 +453,21 @@ def add():
                         general_id=general.sn,
                         installed_dg=installed_dgs[i] or None,
                         engine_make=engine_makes[i] if engine_makes[i].strip() else None,
-                        installation_year=int(installation_years[i]) if installation_years[i].strip() else None,
+                        installation_year=safe_int(installation_years[i], 'installation_year') if installation_years[i].strip() else None,
                         dg_status=dg_status,
                         dg_starting_battery=dg_starting_batteries[i] if dg_starting_batteries[i].strip() else None,
                         smart_switch_installed=smart_switch,
                         ats_installed=ats,
                         ats_capacity=ats_capacities[i] if ats_capacities[i].strip() else None,
                         name_of_faulty_ats_parts=name_of_faulty_ats_parts[i] if name_of_faulty_ats_parts[i].strip() else None,
-                        no_of_faulty_ats_parts=int(no_of_faulty_ats_parts[i]) if no_of_faulty_ats_parts[i].strip() else None,
-                        load_on_dg_p1=float(load_on_dg_p1s[i]) if load_on_dg_p1s[i].strip() else None,
-                        load_on_dg_p2=float(load_on_dg_p2s[i]) if load_on_dg_p2s[i].strip() else None,
-                        load_on_dg_p3=float(load_on_dg_p3s[i]) if load_on_dg_p3s[i].strip() else None,
-                        site_load_total=float(site_load_totals[i]) if site_load_totals[i].strip() else None,
-                        site_load_p1=float(site_load_p1s[i]) if site_load_p1s[i].strip() else None,
-                        site_load_p2=float(site_load_p2s[i]) if site_load_p2s[i].strip() else None,
-                        site_load_p3=float(site_load_p3s[i]) if site_load_p3s[i].strip() else None
+                        no_of_faulty_ats_parts=safe_int(no_of_faulty_ats_parts[i], 'no_of_faulty_ats_parts') if no_of_faulty_ats_parts[i].strip() else None,
+                        load_on_dg_p1=safe_float(load_on_dg_p1s[i], 'load_on_dg_p1') if load_on_dg_p1s[i].strip() else None,
+                        load_on_dg_p2=safe_float(load_on_dg_p2s[i], 'load_on_dg_p2') if load_on_dg_p2s[i].strip() else None,
+                        load_on_dg_p3=safe_float(load_on_dg_p3s[i], 'load_on_dg_p3') if load_on_dg_p3s[i].strip() else None,
+                        site_load_total=safe_float(site_load_totals[i], 'site_load_total') if site_load_totals[i].strip() else None,
+                        site_load_p1=safe_float(site_load_p1s[i], 'site_load_p1') if site_load_p1s[i].strip() else None,
+                        site_load_p2=safe_float(site_load_p2s[i], 'site_load_p2') if site_load_p2s[i].strip() else None,
+                        site_load_p3=safe_float(site_load_p3s[i], 'site_load_p3') if site_load_p3s[i].strip() else None
                     )
                     db.session.add(dg)
 
@@ -504,12 +493,12 @@ def add():
                     battery = BatteryBank(
                         general_id=general.sn,
                         make_of_battery=make_of_batteries[i] or None,
-                        battery_capacity=float(battery_capacities[i]) if battery_capacities[i].strip() else None,
+                        battery_capacity=safe_float(battery_capacities[i], 'battery_capacity') if battery_capacities[i].strip() else None,
                         battery_type=battery_type,
-                        no_of_cells_bank=int(no_of_cells_banks[i]) if no_of_cells_banks[i].strip() else None,
+                        no_of_cells_bank=safe_int(no_of_cells_banks[i], 'no_of_cells_bank') if no_of_cells_banks[i].strip() else None,
                         date_of_installation=date_of_installations[i] if date_of_installations[i].strip() else None,
-                        load_on_battery_bank=float(load_on_battery_banks[i]) if load_on_battery_banks[i].strip() else None,
-                        practical_backup_time=float(practical_backup_times[i]) if practical_backup_times[i].strip() else None,
+                        load_on_battery_bank=safe_float(load_on_battery_banks[i], 'load_on_battery_bank') if load_on_battery_banks[i].strip() else None,
+                        practical_backup_time=safe_float(practical_backup_times[i], 'practical_backup_time') if practical_backup_times[i].strip() else None,
                         battery_installed_new_or_used=battery_installation,
                         battery_moved_from=battery_moved_froms[i] if battery_moved_froms[i].strip() else None
                     )
@@ -541,24 +530,24 @@ def add():
                         location_of_ac_unit=location_of_ac_units[i] or None,
                         working_status=working_status,
                         ac_make=ac_makes[i] if ac_makes[i].strip() else None,
-                        capacity_tons=float(capacity_tons[i]) if capacity_tons[i].strip() else None,
+                        capacity_tons=safe_float(capacity_tons[i], 'capacity_tons') if capacity_tons[i].strip() else None,
                         type_of_ac=type_of_acs[i] if type_of_acs[i].strip() else None,
                         mount_type=mount_types[i] if mount_types[i].strip() else None,
                         date_of_installation=date_of_installation_acs[i] if date_of_installation_acs[i].strip() else None,
                         sequence_controller_installed=sequence_controller,
-                        ac_load=float(ac_loads[i]) if ac_loads[i].strip() else None,
-                        total_ac_load=float(total_ac_loads[i]) if total_ac_loads[i].strip() else None,
+                        ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
+                        total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
                         fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
-                        estimate_to_repair_ac=float(estimate_to_repair_acs[i]) if estimate_to_repair_acs[i].strip() else None
+                        estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
                     )
                     db.session.add(ac_unit)
 
             # Solar Information
             solar_info = SolarInformation(
                 general_id=general.sn,
-                total_solar_size=float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None,
-                pv_solar_panel_capacity=float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None,
-                no_of_pv_panels_installed=int(request.form.get('no_of_pv_panels_installed')) if request.form.get('no_of_pv_panels_installed') else None,
+                total_solar_size=safe_float(request.form.get('total_solar_size'), 'total_solar_size') if request.form.get('total_solar_size') else None,
+                pv_solar_panel_capacity=safe_float(request.form.get('pv_solar_panel_capacity'), 'pv_solar_panel_capacity') if request.form.get('pv_solar_panel_capacity') else None,
+                no_of_pv_panels_installed=safe_int(request.form.get('no_of_pv_panels_installed'), 'no_of_pv_panels_installed') if request.form.get('no_of_pv_panels_installed') else None,
                 make_of_pv_panels=request.form.get('make_of_pv_panels') or None,
                 charge_controller_make=request.form.get('charge_controller_make') or None
             )
@@ -570,8 +559,8 @@ def add():
                 general_id=general.sn,
                 colocation=colocation,
                 name_of_colocation_vendors=request.form.get('name_of_colocation_vendors') or None,
-                load_of_each_vendor=float(request.form.get('load_of_each_vendor')) if request.form.get('load_of_each_vendor') else None,
-                total_load=float(request.form.get('total_load')) if request.form.get('total_load') else None
+                load_of_each_vendor=safe_float(request.form.get('load_of_each_vendor'), 'load_of_each_vendor') if request.form.get('load_of_each_vendor') else None,
+                total_load=safe_float(request.form.get('total_load'), 'total_load') if request.form.get('total_load') else None
             )
             db.session.add(colocation_info)
 
@@ -611,8 +600,8 @@ def add():
                         continue
                     earthing = Earthing(
                         general_id=general.sn,
-                        earthing_value=float(earthing_values[i]) if earthing_values[i].strip() else None,
-                        no_of_pits=int(no_of_pits[i]) if no_of_pits[i].strip() else None
+                        earthing_value=safe_float(earthing_values[i], 'earthing_value') if earthing_values[i].strip() else None,
+                        no_of_pits=safe_int(no_of_pits[i], 'no_of_pits') if no_of_pits[i].strip() else None
                     )
                     db.session.add(earthing)
 
@@ -629,7 +618,7 @@ def add():
                     fire_ext = FireExtinguisher(
                         general_id=general.sn,
                         fe_installed=fe_installed,
-                        no_of_fes=int(no_of_fes[i]) if no_of_fes[i].strip() else None,
+                        no_of_fes=safe_int(no_of_fes[i], 'no_of_fes') if no_of_fes[i].strip() else None,
                         type_of_gas=type_of_gases[i] if type_of_gases[i].strip() else None,
                         date_of_expiry=date_of_expiries[i] if date_of_expiries[i].strip() else None
                     )
@@ -654,7 +643,7 @@ def add():
             db.session.commit()
 
             flash('Exchange added successfully!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('index_endpoint'))
 
         except ValueError as e:
             db.session.rollback()
@@ -666,8 +655,8 @@ def add():
             logging.error(error_msg)
 
     return render_template('add.html', general=None)
-
-@app.route('/edit/<int:sn>', methods=['GET', 'POST'])
+    
+@app.route('/edit/<int:sn>', methods=['GET', 'POST'], endpoint='edit_exchange')
 @login_required
 def edit(sn):
     general = GeneralInformation.query.get_or_404(sn)
@@ -705,18 +694,9 @@ def edit(sn):
                     tower = Tower(tower_type_height=tower_type, general_id=general.sn)
                     db.session.add(tower)
 
-            # Power Information
+            # Power Information with Rectifiers
             if not general.power_info:
                 general.power_info = PowerInformation(general_id=general.sn)
-            general.power_info.wapda_ref_number = request.form.get('wapda_ref_number') or None
-            general.power_info.transformer_capacity = request.form.get('transformer_capacity') or None
-            general.power_info.transformer_earthing = request.form.get('transformer_earthing') or None
-            general.power_info.working_status = request.form.get('working_status_power') or None
-            general.power_info.name_of_nes_connected = request.form.get('name_of_nes_connected') or None
-            general.power_info.load_of_individual_ne = float(request.form.get('load_of_individual_ne')) if request.form.get('load_of_individual_ne') else None
-
-            # Rectifiers (Now using the new Rectifier model)
-            Rectifier.query.filter_by(general_id=general.sn).delete()
             make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
             if make_of_rectifiers and make_of_rectifiers[0].strip():
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
@@ -731,27 +711,42 @@ def edit(sn):
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
+                rectifiers_data = []
                 for i in range(len(make_of_rectifiers)):
                     if not make_of_rectifiers[i].strip():
                         continue
                     grounding = grounding_of_rectifiers[i] if grounding_of_rectifiers[i] in valid_yes_no else None
                     spd = spd_in_rectifiers[i] if spd_in_rectifiers[i] in valid_yes_no else None
-                    rectifier = Rectifier(
-                        general_id=general.sn,
-                        make_of_rectifier=make_of_rectifiers[i] or None,
-                        rectifier_capacity=float(rectifier_capacities[i]) if rectifier_capacities[i].strip() else None,
-                        no_of_modules=int(no_of_modules[i]) if no_of_modules[i].strip() else None,
-                        capacity_of_each_module=float(capacity_of_each_module[i]) if capacity_of_each_module[i].strip() else None,
-                        working_modules=int(working_modules[i]) if working_modules[i].strip() else None,
-                        faulty_modules=int(faulty_modules[i]) if faulty_modules[i].strip() else None,
-                        space_for_new_modules=int(space_for_new_modules[i]) if space_for_new_modules[i].strip() else None,
-                        grounding_of_rectifier=grounding,
-                        spd_in_rectifier=spd,
-                        spd_model=spd_models[i] if spd_models[i].strip() else None,
-                        total_installed_spds=int(total_installed_spds[i]) if total_installed_spds[i].strip() else None,
-                        no_of_faulty_spds=int(no_of_faulty_spds[i]) if no_of_faulty_spds[i].strip() else None
-                    )
-                    db.session.add(rectifier)
+                    rectifier = {
+                        'make_of_rectifier': make_of_rectifiers[i] or None,
+                        'rectifier_capacity': safe_float(rectifier_capacities[i], 'rectifier_capacity') if rectifier_capacities[i].strip() else None,
+                        'no_of_modules': safe_int(no_of_modules[i], 'no_of_modules') if no_of_modules[i].strip() else None,
+                        'capacity_of_each_module': safe_float(capacity_of_each_module[i], 'capacity_of_each_module') if capacity_of_each_module[i].strip() else None,
+                        'working_modules': safe_int(working_modules[i], 'working_modules') if working_modules[i].strip() else None,
+                        'faulty_modules': safe_int(faulty_modules[i], 'faulty_modules') if faulty_modules[i].strip() else None,
+                        'space_for_new_modules': safe_int(space_for_new_modules[i], 'space_for_new_modules') if space_for_new_modules[i].strip() else None,
+                        'grounding_of_rectifier': grounding,
+                        'spd_in_rectifier': spd,
+                        'spd_model': spd_models[i] if spd_models[i].strip() else None,
+                        'total_installed_spds': safe_int(total_installed_spds[i], 'total_installed_spds') if total_installed_spds[i].strip() else None,
+                        'no_of_faulty_spds': safe_int(no_of_faulty_spds[i], 'no_of_faulty_spds') if no_of_faulty_spds[i].strip() else None
+                    }
+                    rectifiers_data.append(rectifier)
+                general.power_info.wapda_ref_number = request.form.get('wapda_ref_number') or None
+                general.power_info.transformer_capacity = request.form.get('transformer_capacity') or None
+                general.power_info.transformer_earthing = request.form.get('transformer_earthing') or None
+                general.power_info.working_status = request.form.get('working_status_power') or None
+                general.power_info.name_of_nes_connected = request.form.get('name_of_nes_connected') or None
+                general.power_info.load_of_individual_ne = safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None
+                general.power_info.rectifiers = rectifiers_data if rectifiers_data else None
+            else:
+                general.power_info.wapda_ref_number = request.form.get('wapda_ref_number') or None
+                general.power_info.transformer_capacity = request.form.get('transformer_capacity') or None
+                general.power_info.transformer_earthing = request.form.get('transformer_earthing') or None
+                general.power_info.working_status = request.form.get('working_status_power') or None
+                general.power_info.name_of_nes_connected = request.form.get('name_of_nes_connected') or None
+                general.power_info.load_of_individual_ne = safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None
+                general.power_info.rectifiers = None
 
             # DG Information
             DGInformation.query.filter_by(general_id=general.sn).delete()
@@ -784,21 +779,21 @@ def edit(sn):
                         general_id=general.sn,
                         installed_dg=installed_dgs[i] or None,
                         engine_make=engine_makes[i] if engine_makes[i].strip() else None,
-                        installation_year=int(installation_years[i]) if installation_years[i].strip() else None,
+                        installation_year=safe_int(installation_years[i], 'installation_year') if installation_years[i].strip() else None,
                         dg_status=dg_status,
                         dg_starting_battery=dg_starting_batteries[i] if dg_starting_batteries[i].strip() else None,
                         smart_switch_installed=smart_switch,
                         ats_installed=ats,
                         ats_capacity=ats_capacities[i] if ats_capacities[i].strip() else None,
                         name_of_faulty_ats_parts=name_of_faulty_ats_parts[i] if name_of_faulty_ats_parts[i].strip() else None,
-                        no_of_faulty_ats_parts=int(no_of_faulty_ats_parts[i]) if no_of_faulty_ats_parts[i].strip() else None,
-                        load_on_dg_p1=float(load_on_dg_p1s[i]) if load_on_dg_p1s[i].strip() else None,
-                        load_on_dg_p2=float(load_on_dg_p2s[i]) if load_on_dg_p2s[i].strip() else None,
-                        load_on_dg_p3=float(load_on_dg_p3s[i]) if load_on_dg_p3s[i].strip() else None,
-                        site_load_total=float(site_load_totals[i]) if site_load_totals[i].strip() else None,
-                        site_load_p1=float(site_load_p1s[i]) if site_load_p1s[i].strip() else None,
-                        site_load_p2=float(site_load_p2s[i]) if site_load_p2s[i].strip() else None,
-                        site_load_p3=float(site_load_p3s[i]) if site_load_p3s[i].strip() else None
+                        no_of_faulty_ats_parts=safe_int(no_of_faulty_ats_parts[i], 'no_of_faulty_ats_parts') if no_of_faulty_ats_parts[i].strip() else None,
+                        load_on_dg_p1=safe_float(load_on_dg_p1s[i], 'load_on_dg_p1') if load_on_dg_p1s[i].strip() else None,
+                        load_on_dg_p2=safe_float(load_on_dg_p2s[i], 'load_on_dg_p2') if load_on_dg_p2s[i].strip() else None,
+                        load_on_dg_p3=safe_float(load_on_dg_p3s[i], 'load_on_dg_p3') if load_on_dg_p3s[i].strip() else None,
+                        site_load_total=safe_float(site_load_totals[i], 'site_load_total') if site_load_totals[i].strip() else None,
+                        site_load_p1=safe_float(site_load_p1s[i], 'site_load_p1') if site_load_p1s[i].strip() else None,
+                        site_load_p2=safe_float(site_load_p2s[i], 'site_load_p2') if site_load_p2s[i].strip() else None,
+                        site_load_p3=safe_float(site_load_p3s[i], 'site_load_p3') if site_load_p3s[i].strip() else None
                     )
                     db.session.add(dg)
 
@@ -823,12 +818,12 @@ def edit(sn):
                     battery = BatteryBank(
                         general_id=general.sn,
                         make_of_battery=make_of_batteries[i] or None,
-                        battery_capacity=float(battery_capacities[i]) if battery_capacities[i].strip() else None,
+                        battery_capacity=safe_float(battery_capacities[i], 'battery_capacity') if battery_capacities[i].strip() else None,
                         battery_type=battery_type,
-                        no_of_cells_bank=int(no_of_cells_banks[i]) if no_of_cells_banks[i].strip() else None,
+                        no_of_cells_bank=safe_int(no_of_cells_banks[i], 'no_of_cells_bank') if no_of_cells_banks[i].strip() else None,
                         date_of_installation=date_of_installations[i] if date_of_installations[i].strip() else None,
-                        load_on_battery_bank=float(load_on_battery_banks[i]) if load_on_battery_banks[i].strip() else None,
-                        practical_backup_time=float(practical_backup_times[i]) if practical_backup_times[i].strip() else None,
+                        load_on_battery_bank=safe_float(load_on_battery_banks[i], 'load_on_battery_bank') if load_on_battery_banks[i].strip() else None,
+                        practical_backup_time=safe_float(practical_backup_times[i], 'practical_backup_time') if practical_backup_times[i].strip() else None,
                         battery_installed_new_or_used=battery_installation,
                         battery_moved_from=battery_moved_froms[i] if battery_moved_froms[i].strip() else None
                     )
@@ -860,24 +855,24 @@ def edit(sn):
                         location_of_ac_unit=location_of_ac_units[i] or None,
                         working_status=working_status,
                         ac_make=ac_makes[i] if ac_makes[i].strip() else None,
-                        capacity_tons=float(capacity_tons[i]) if capacity_tons[i].strip() else None,
+                        capacity_tons=safe_float(capacity_tons[i], 'capacity_tons') if capacity_tons[i].strip() else None,
                         type_of_ac=type_of_acs[i] if type_of_acs[i].strip() else None,
                         mount_type=mount_types[i] if mount_types[i].strip() else None,
                         date_of_installation=date_of_installation_acs[i] if date_of_installation_acs[i].strip() else None,
                         sequence_controller_installed=sequence_controller,
-                        ac_load=float(ac_loads[i]) if ac_loads[i].strip() else None,
-                        total_ac_load=float(total_ac_loads[i]) if total_ac_loads[i].strip() else None,
+                        ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
+                        total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
                         fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
-                        estimate_to_repair_ac=float(estimate_to_repair_acs[i]) if estimate_to_repair_acs[i].strip() else None
+                        estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
                     )
                     db.session.add(ac_unit)
 
             # Solar Information
             if not general.solar_info:
                 general.solar_info = SolarInformation(general_id=general.sn)
-            general.solar_info.total_solar_size = float(request.form.get('total_solar_size')) if request.form.get('total_solar_size') else None
-            general.solar_info.pv_solar_panel_capacity = float(request.form.get('pv_solar_panel_capacity')) if request.form.get('pv_solar_panel_capacity') else None
-            general.solar_info.no_of_pv_panels_installed = int(request.form.get('no_of_pv_panels_installed')) if request.form.get('no_of_pv_panels_installed') else None
+            general.solar_info.total_solar_size = safe_float(request.form.get('total_solar_size'), 'total_solar_size') if request.form.get('total_solar_size') else None
+            general.solar_info.pv_solar_panel_capacity = safe_float(request.form.get('pv_solar_panel_capacity'), 'pv_solar_panel_capacity') if request.form.get('pv_solar_panel_capacity') else None
+            general.solar_info.no_of_pv_panels_installed = safe_int(request.form.get('no_of_pv_panels_installed'), 'no_of_pv_panels_installed') if request.form.get('no_of_pv_panels_installed') else None
             general.solar_info.make_of_pv_panels = request.form.get('make_of_pv_panels') or None
             general.solar_info.charge_controller_make = request.form.get('charge_controller_make') or None
 
@@ -887,8 +882,8 @@ def edit(sn):
             colocation = request.form.get('colocation')
             general.colocation_info.colocation = colocation
             general.colocation_info.name_of_colocation_vendors = request.form.get('name_of_colocation_vendors') or None
-            general.colocation_info.load_of_each_vendor = float(request.form.get('load_of_each_vendor')) if request.form.get('load_of_each_vendor') else None
-            general.colocation_info.total_load = float(request.form.get('total_load')) if request.form.get('total_load') else None
+            general.colocation_info.load_of_each_vendor = safe_float(request.form.get('load_of_each_vendor'), 'load_of_each_vendor') if request.form.get('load_of_each_vendor') else None
+            general.colocation_info.total_load = safe_float(request.form.get('total_load'), 'total_load') if request.form.get('total_load') else None
 
             # Building Information
             if not general.building_info:
@@ -926,8 +921,8 @@ def edit(sn):
                         continue
                     earthing = Earthing(
                         general_id=general.sn,
-                        earthing_value=float(earthing_values[i]) if earthing_values[i].strip() else None,
-                        no_of_pits=int(no_of_pits[i]) if no_of_pits[i].strip() else None
+                        earthing_value=safe_float(earthing_values[i], 'earthing_value') if earthing_values[i].strip() else None,
+                        no_of_pits=safe_int(no_of_pits[i], 'no_of_pits') if no_of_pits[i].strip() else None
                     )
                     db.session.add(earthing)
 
@@ -945,7 +940,7 @@ def edit(sn):
                     fire_ext = FireExtinguisher(
                         general_id=general.sn,
                         fe_installed=fe_installed,
-                        no_of_fes=int(no_of_fes[i]) if no_of_fes[i].strip() else None,
+                        no_of_fes=safe_int(no_of_fes[i], 'no_of_fes') if no_of_fes[i].strip() else None,
                         type_of_gas=type_of_gases[i] if type_of_gases[i].strip() else None,
                         date_of_expiry=date_of_expiries[i] if date_of_expiries[i].strip() else None
                     )
@@ -969,7 +964,7 @@ def edit(sn):
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('index_endpoint'))
 
         except ValueError as e:
             db.session.rollback()
@@ -998,7 +993,7 @@ def delete(sn):
         logging.error(f"Error deleting exchange SN {sn} by {session.get('username')}: {str(e)}")
         return jsonify({'success': False, 'message': f'Error deleting exchange: {str(e)}'}), 500
 
-@app.route('/export')
+@app.route('/export', endpoint='export_exchanges')
 @login_required
 def export():
     try:
@@ -1010,7 +1005,7 @@ def export():
 
         if not exchanges:
             flash('No exchanges found to export.')
-            return redirect(url_for('index'))
+            return redirect(url_for('index_endpoint'))
 
         total_exchanges = GeneralInformation.query.count()
         if total_exchanges > 1000:
@@ -1018,7 +1013,6 @@ def export():
 
         # Determine the maximum number of entries for each related model
         max_towers = max(len(exchange.towers) for exchange in exchanges) if exchanges else 0
-        max_rectifiers = max(len(exchange.rectifiers) for exchange in exchanges) if exchanges else 0
         max_dgs = max(len(exchange.dgs) for exchange in exchanges) if exchanges else 0
         max_batteries = max(len(exchange.battery_banks) for exchange in exchanges) if exchanges else 0
         max_acs = max(len(exchange.ac_units) for exchange in exchanges) if exchanges else 0
@@ -1026,6 +1020,7 @@ def export():
         max_earthings = max(len(exchange.earthings) for exchange in exchanges) if exchanges else 0
         max_fire_extinguishers = max(len(exchange.fire_extinguishers) for exchange in exchanges) if exchanges else 0
         max_pmrs = max(len(exchange.pmr_infos) for exchange in exchanges) if exchanges else 0
+        max_rectifiers = max(len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges) if exchanges else 0
 
         data = []
         for exchange in exchanges:
@@ -1048,7 +1043,7 @@ def export():
                 tower = exchange.towers[i] if i < len(exchange.towers) else None
                 row[f'Tower {i+1} Type/Height'] = tower.tower_type_height if tower else None
 
-            # Handle Power Information
+            # Handle Power Information and Rectifiers
             if exchange.power_info:
                 row.update({
                     'WAPDA Ref Number': exchange.power_info.wapda_ref_number,
@@ -1058,24 +1053,24 @@ def export():
                     'Name of NEs Connected': exchange.power_info.name_of_nes_connected,
                     'Load of Individual NE': exchange.power_info.load_of_individual_ne,
                 })
-
-            # Handle Rectifiers
-            for i in range(max_rectifiers):
-                rectifier = exchange.rectifiers[i] if i < len(exchange.rectifiers) else None
-                row.update({
-                    f'Rectifier {i+1} Make': rectifier.make_of_rectifier if rectifier else None,
-                    f'Rectifier {i+1} Capacity': rectifier.rectifier_capacity if rectifier else None,
-                    f'Rectifier {i+1} No of Modules': rectifier.no_of_modules if rectifier else None,
-                    f'Rectifier {i+1} Capacity of Each Module': rectifier.capacity_of_each_module if rectifier else None,
-                    f'Rectifier {i+1} Working Modules': rectifier.working_modules if rectifier else None,
-                    f'Rectifier {i+1} Faulty Modules': rectifier.faulty_modules if rectifier else None,
-                    f'Rectifier {i+1} Space for New Modules': rectifier.space_for_new_modules if rectifier else None,
-                    f'Rectifier {i+1} Grounding of Rectifier': rectifier.grounding_of_rectifier if rectifier else None,
-                    f'Rectifier {i+1} SPD in Rectifier': rectifier.spd_in_rectifier if rectifier else None,
-                    f'Rectifier {i+1} SPD Model': rectifier.spd_model if rectifier else None,
-                    f'Rectifier {i+1} Total Installed SPDs': rectifier.total_installed_spds if rectifier else None,
-                    f'Rectifier {i+1} No of Faulty SPDs': rectifier.no_of_faulty_spds if rectifier else None
-                })
+                if exchange.power_info.rectifiers:
+                    for i in range(max_rectifiers):
+                        rectifier = exchange.power_info.rectifiers[i] if i < len(exchange.power_info.rectifiers) else None
+                        if rectifier:
+                            row.update({
+                                f'Rectifier {i+1} Make': rectifier.get('make_of_rectifier'),
+                                f'Rectifier {i+1} Capacity': rectifier.get('rectifier_capacity'),
+                                f'Rectifier {i+1} No of Modules': rectifier.get('no_of_modules'),
+                                f'Rectifier {i+1} Capacity of Each Module': rectifier.get('capacity_of_each_module'),
+                                f'Rectifier {i+1} Working Modules': rectifier.get('working_modules'),
+                                f'Rectifier {i+1} Faulty Modules': rectifier.get('faulty_modules'),
+                                f'Rectifier {i+1} Space for New Modules': rectifier.get('space_for_new_modules'),
+                                f'Rectifier {i+1} Grounding of Rectifier': rectifier.get('grounding_of_rectifier'),
+                                f'Rectifier {i+1} SPD in Rectifier': rectifier.get('spd_in_rectifier'),
+                                f'Rectifier {i+1} SPD Model': rectifier.get('spd_model'),
+                                f'Rectifier {i+1} Total Installed SPDs': rectifier.get('total_installed_spds'),
+                                f'Rectifier {i+1} No of Faulty SPDs': rectifier.get('no_of_faulty_spds')
+                            })
 
             # Handle DGs
             for i in range(max_dgs):
@@ -1219,11 +1214,11 @@ def export():
     except ImportError as e:
         flash(f'Export failed: Missing dependency - {str(e)}. Please ensure "xlsxwriter" is installed.')
         logging.error(f"Export failed due to missing dependency: {str(e)}")
-        return redirect(url_for('index'))
+        return redirect(url_for('index_endpoint'))
     except Exception as e:
         flash(f'Error exporting data: {str(e)}')
         logging.error(f"Error exporting data: {str(e)}")
-        return redirect(url_for('index'))
+        return redirect(url_for('index_endpoint'))
 
 @app.route('/view_exchanges')
 @login_required
