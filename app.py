@@ -642,7 +642,7 @@ def add():
             # Final commit for all related objects
             db.session.commit()
             flash('Exchange added successfully!', 'success')
-            return redirect(url_for('index_endpoint'))
+            return redirect(url_for('index'))
 
         except ValueError as e:
             db.session.rollback()
@@ -963,7 +963,7 @@ def edit(sn):
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
-            return redirect(url_for('index_endpoint'))
+            return redirect(url_for('index'))
 
         except ValueError as e:
             db.session.rollback()
@@ -1004,7 +1004,7 @@ def export():
 
         if not exchanges:
             flash('No exchanges found to export.')
-            return redirect(url_for('index_endpoint'))
+            return redirect(url_for('index'))
 
         total_exchanges = GeneralInformation.query.count()
         if total_exchanges > 1000:
@@ -1213,11 +1213,11 @@ def export():
     except ImportError as e:
         flash(f'Export failed: Missing dependency - {str(e)}. Please ensure "xlsxwriter" is installed.')
         logging.error(f"Export failed due to missing dependency: {str(e)}")
-        return redirect(url_for('index_endpoint'))
+        return redirect(url_for('index'))
     except Exception as e:
         flash(f'Error exporting data: {str(e)}')
         logging.error(f"Error exporting data: {str(e)}")
-        return redirect(url_for('index_endpoint'))
+        return redirect(url_for('index'))
 
 @app.route('/view_exchanges')
 @login_required
