@@ -1167,11 +1167,28 @@
         }
     });
 
-    // Delete Form Function
     function deleteForm(sn) {
-        if (confirm('Are you sure you want to delete this exchange?')) {
-            window.location.href = '/delete/' + sn;
-        }
+    if (confirm('Are you sure you want to delete this exchange?')) {
+        fetch('/delete/' + sn, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value // Include CSRF token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.href = '/'; // Redirect to index or desired page
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('An error occurred: ' + error.message);
+        });
+    }
     }
 	
 	    // Form Validation for Rectifiers
