@@ -967,7 +967,7 @@
         container.appendChild(entry);
     });
 
-        // Rectifier Section
+    // Rectifier Section
     document.getElementById('add_rectifier').addEventListener('click', function() {
         const container = document.getElementById('rectifier_container');
         const entry = document.createElement('div');
@@ -1107,7 +1107,7 @@
         entry.className = 'fire_extinguisher_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-gray-700 mb-2 font-medium">Fire Extinguisher Installed</label><select name="fe_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">Fire Extinguisher Installed</label><select name="fe_installed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"><option value="" disabled selected>Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
                 <div><label class="block text-gray-700 mb-2 font-medium">No of Fire Extinguishers</label><input type="number" name="no_of_fes[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Total No of FEs"></div>
                 <div><label class="block text-gray-700 mb-2 font-medium">Type of Gas</label><input type="text" name="type_of_gas[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="CO2 etc"></div>
                 <div><label class="block text-gray-700 mb-2 font-medium">Date of Expiry</label><input type="date" name="date_of_expiry[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"></div>
@@ -1115,6 +1115,12 @@
             <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-fire-extinguisher">Remove Fire Extinguisher</button></div>
         `;
         container.appendChild(entry);
+        const feInstalledSelect = entry.querySelector('select[name="fe_installed[]"]');
+        const feFields = entry.querySelectorAll('input[name]:not([name="fe_installed[]"]), select[name]:not([name="fe_installed[]"])');
+        updateFireExtinguisherFields(feInstalledSelect, feFields);
+        feInstalledSelect.addEventListener('change', function() {
+            updateFireExtinguisherFields(feInstalledSelect, feFields);
+        });
     });
 
     // PMR Section
@@ -1124,12 +1130,18 @@
         entry.className = 'pmr_entry border-b pb-4 mb-4 bg-white p-3 rounded-lg shadow-sm';
         entry.innerHTML = `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-gray-700 mb-2 font-medium">PMR Performed</label><select name="pmr_performed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"><option value="">Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                <div><label class="block text-gray-700 mb-2 font-medium">PMR Performed</label><select name="pmr_performed[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"><option value="" disabled selected>Select Option</option><option value="Yes">Yes</option><option value="No">No</option></select></div>
                 <div><label class="block text-gray-700 mb-2 font-medium">Last Performed Date</label><input type="date" name="last_performed_date[]" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"></div>
             </div>
             <div class="text-center mt-4"><button type="button" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 remove-pmr">Remove PMR</button></div>
         `;
         container.appendChild(entry);
+        const pmrPerformedSelect = entry.querySelector('select[name="pmr_performed[]"]');
+        const lastPerformedDate = entry.querySelector('input[name="last_performed_date[]"]');
+        updatePMRFields(pmrPerformedSelect, lastPerformedDate);
+        pmrPerformedSelect.addEventListener('change', function() {
+            updatePMRFields(pmrPerformedSelect, lastPerformedDate);
+        });
     });
 
     // Event Delegation for Remove Buttons
@@ -1145,83 +1157,192 @@
         if (e.target.classList.contains('remove-pmr')) e.target.parentElement.remove();
     });
 
-    // Handle MSAG site type and Tower Available selection
+    // Handle MSAG site type, Tower Available, and Colocation logic
     document.getElementById('site_type').addEventListener('change', function() {
         const towerAvailableSelect = document.getElementById('tower_available');
+        const towerContainer = document.getElementById('tower_container');
+        const colocationSelect = document.getElementById('colocation');
+        const colocationFields = document.querySelectorAll('#colocation + div input, #colocation + div select');
+
         if (this.value === 'MSAG') {
             towerAvailableSelect.value = 'N/A';
             towerAvailableSelect.disabled = true;
+            towerContainer.style.display = 'none';
+            colocationSelect.value = 'No';
+            colocationSelect.disabled = true;
+            colocationFields.forEach(field => {
+                field.value = 'N/A';
+                field.disabled = true;
+            });
         } else {
             towerAvailableSelect.disabled = false;
             if (towerAvailableSelect.value === 'N/A') towerAvailableSelect.value = 'Yes';
+            colocationSelect.disabled = false;
+            colocationFields.forEach(field => {
+                field.disabled = false;
+                if (field.value === 'N/A') field.value = '';
+            });
         }
+        updateTowerVisibility();
+        updateColocationFields();
     });
 
-    // Initialize Tower Available based on existing site_type
+    document.getElementById('tower_available').addEventListener('change', function() {
+        updateTowerVisibility();
+    });
+
+    function updateTowerVisibility() {
+        const towerContainer = document.getElementById('tower_container');
+        const towerAvailableSelect = document.getElementById('tower_available');
+        if (towerAvailableSelect.value === 'No' || towerAvailableSelect.value === 'N/A') {
+            towerContainer.style.display = 'none';
+        } else {
+            towerContainer.style.display = 'block';
+        }
+    }
+
+    document.getElementById('colocation').addEventListener('change', function() {
+        updateColocationFields();
+    });
+
+    function updateColocationFields() {
+        const colocationSelect = document.getElementById('colocation');
+        const colocationFields = document.querySelectorAll('#colocation + div input, #colocation + div select');
+        if (colocationSelect.value === 'No') {
+            colocationFields.forEach(field => {
+                field.value = 'N/A';
+                field.disabled = true;
+            });
+        } else {
+            colocationFields.forEach(field => {
+                field.disabled = false;
+                if (field.value === 'N/A') field.value = '';
+            });
+        }
+    }
+
+    // Initialize Tower Available, Colocation, and related fields based on existing values
     document.addEventListener('DOMContentLoaded', function() {
         const siteTypeSelect = document.getElementById('site_type');
         const towerAvailableSelect = document.getElementById('tower_available');
+        const towerContainer = document.getElementById('tower_container');
+        const colocationSelect = document.getElementById('colocation');
+        const colocationFields = document.querySelectorAll('#colocation + div input, #colocation + div select');
+
         if (siteTypeSelect.value === 'MSAG') {
             towerAvailableSelect.value = 'N/A';
             towerAvailableSelect.disabled = true;
+            towerContainer.style.display = 'none';
+            colocationSelect.value = 'No';
+            colocationSelect.disabled = true;
+            colocationFields.forEach(field => {
+                field.value = 'N/A';
+                field.disabled = true;
+            });
         }
+        updateTowerVisibility();
+        updateColocationFields();
+
+        // Fire Extinguisher logic
+        document.querySelectorAll('.fire_extinguisher_entry').forEach(entry => {
+            const feInstalledSelect = entry.querySelector('select[name="fe_installed[]"]');
+            const feFields = entry.querySelectorAll('input[name]:not([name="fe_installed[]"]), select[name]:not([name="fe_installed[]"])');
+            updateFireExtinguisherFields(feInstalledSelect, feFields);
+            feInstalledSelect.addEventListener('change', function() {
+                updateFireExtinguisherFields(feInstalledSelect, feFields);
+            });
+        });
+
+        // PMR logic
+        document.querySelectorAll('.pmr_entry').forEach(entry => {
+            const pmrPerformedSelect = entry.querySelector('select[name="pmr_performed[]"]');
+            const lastPerformedDate = entry.querySelector('input[name="last_performed_date[]"]');
+            updatePMRFields(pmrPerformedSelect, lastPerformedDate);
+            pmrPerformedSelect.addEventListener('change', function() {
+                updatePMRFields(pmrPerformedSelect, lastPerformedDate);
+            });
+        });
     });
 
-    function deleteForm(sn) {
-    if (confirm('Are you sure you want to delete this exchange?')) {
-        fetch('/delete/' + sn, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value // Include CSRF token
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                window.location.href = '/'; // Redirect to index or desired page
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            alert('An error occurred: ' + error.message);
-        });
+    function updateFireExtinguisherFields(select, fields) {
+        if (select.value === 'No') {
+            fields.forEach(field => {
+                field.value = 'N/A';
+                field.disabled = true;
+            });
+        } else {
+            fields.forEach(field => {
+                field.disabled = false;
+                if (field.value === 'N/A') field.value = '';
+            });
+        }
     }
-    }
-	
-	    // Form Validation for Rectifiers
-    document.querySelector('form').addEventListener('submit', function(e) {
-    const rectifierEntries = document.querySelectorAll('.rectifier_entry');
-    for (let [index, entry] of rectifierEntries.entries()) {
-        const make = entry.querySelector('input[name="rectifier_make[]"]').value.trim(); // Updated to match app.py
-        if (make) { // Only validate if make is non-empty
-            const requiredFields = [
-                { name: 'rectifier_capacity[]', label: 'Rectifier Capacity' },
-                { name: 'no_of_modules[]', label: 'Number of Modules' },
-                { name: 'capacity_of_each_module[]', label: 'Capacity of Each Module' },
-                { name: 'working_modules[]', label: 'Working Modules' },
-                { name: 'faulty_modules[]', label: 'Faulty Modules' },
-                { name: 'space_for_new_modules[]', label: 'Space for New Modules' },
-                { name: 'grounding_of_rectifier[]', label: 'Grounding of Rectifier' },
-                { name: 'spd_in_rectifier[]', label: 'SPD in Rectifier' },
-                { name: 'total_installed_spds[]', label: 'Total Installed SPDs' },
-                { name: 'no_of_faulty_spds[]', label: 'Number of Faulty SPDs' }
-            ];
 
-            for (let field of requiredFields) {
-                const input = entry.querySelector(`[name="${field.name}"]`);
-                if (!input.value.trim()) {
-                    e.preventDefault(); // Stop form submission
-                    e.stopImmediatePropagation(); // Prevent other handlers
-                    alert(`Please fill "${field.label}" for Rectifier ${index + 1}`);
-                    input.focus(); // Focus on the empty field
-                    return; // Exit the event handler
+    function updatePMRFields(select, dateField) {
+        if (select.value === 'No') {
+            dateField.value = 'N/A';
+            dateField.disabled = true;
+        } else {
+            dateField.disabled = false;
+            if (dateField.value === 'N/A') dateField.value = '';
+        }
+    }
+
+    function deleteForm(sn) {
+        if (confirm('Are you sure you want to delete this exchange?')) {
+            fetch('/delete/' + sn, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value // Include CSRF token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/'; // Redirect to index or desired page
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('An error occurred: ' + error.message);
+            });
+        }
+    }
+
+    // Form Validation for Rectifiers
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const rectifierEntries = document.querySelectorAll('.rectifier_entry');
+        for (let [index, entry] of rectifierEntries.entries()) {
+            const make = entry.querySelector('input[name="make_of_rectifier[]"]').value.trim(); // Corrected to match HTML
+            if (make) { // Only validate if make is non-empty
+                const requiredFields = [
+                    { name: 'rectifier_capacity[]', label: 'Rectifier Capacity' },
+                    { name: 'no_of_modules[]', label: 'Number of Modules' },
+                    { name: 'capacity_of_each_module[]', label: 'Capacity of Each Module' },
+                    { name: 'working_modules[]', label: 'Working Modules' },
+                    { name: 'faulty_modules[]', label: 'Faulty Modules' },
+                    { name: 'space_for_new_modules[]', label: 'Space for New Modules' },
+                    { name: 'grounding_of_rectifier[]', label: 'Grounding of Rectifier' },
+                    { name: 'spd_in_rectifier[]', label: 'SPD in Rectifier' },
+                    { name: 'total_installed_spds[]', label: 'Total Installed SPDs' },
+                    { name: 'no_of_faulty_spds[]', label: 'Number of Faulty SPDs' }
+                ];
+
+                for (let field of requiredFields) {
+                    const input = entry.querySelector(`[name="${field.name}"]`);
+                    if (!input.value.trim()) {
+                        e.preventDefault(); // Stop form submission
+                        e.stopImmediatePropagation(); // Prevent other handlers
+                        alert(`Please fill "${field.label}" for Rectifier ${index + 1}`);
+                        input.focus(); // Focus on the empty field
+                        return; // Exit the event handler
+                    }
                 }
             }
         }
-    }
-});
+    });
 </script>
 {% endblock %}
