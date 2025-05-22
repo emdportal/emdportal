@@ -357,7 +357,6 @@ def add():
                 latitude=latitude,
                 longitude=longitude,
                 tower_available=tower_available,
-                created_by=session.get('username')
                 # Removed created_at and updated_at
             )
 
@@ -405,6 +404,7 @@ def add():
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
                 valid_yes_no = ['Yes', 'No']
+                valid_working_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(make_of_rectifiers)):
                     if not make_of_rectifiers[i].strip():
                         continue
@@ -715,6 +715,7 @@ def edit(sn):
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
                 valid_yes_no = ['Yes', 'No']
+                valid_working_status = ['Working', 'Faulty', 'Spare']
                 for i in range(len(make_of_rectifiers)):
                     if not make_of_rectifiers[i].strip():
                         continue
@@ -952,7 +953,6 @@ def edit(sn):
                     )
                     db.session.add(pmr)
 
-            general.updated_by = session.get('username')
             # Removed updated_at
 
             db.session.commit()
