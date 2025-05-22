@@ -641,7 +641,6 @@ def add():
 
             # Final commit for all related objects
             db.session.commit()
-
             flash('Exchange added successfully!', 'success')
             return redirect(url_for('index_endpoint'))
 
