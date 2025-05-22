@@ -311,7 +311,7 @@ def index():
         flash(f"Error: {str(e)}")
         return redirect(url_for('index'))
 
-@app.route('/add', methods=['GET', 'POST'], endpoint='add_exchange')
+@app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
     if request.method == 'POST':
@@ -655,7 +655,7 @@ def add():
 
     return render_template('add.html', general=None)
     
-@app.route('/edit/<int:sn>', methods=['GET', 'POST'], endpoint='edit_exchange')
+@app.route('/edit/<int:sn>', methods=['GET', 'POST'])
 @login_required
 def edit(sn):
     general = GeneralInformation.query.get_or_404(sn)
