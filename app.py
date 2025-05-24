@@ -118,8 +118,8 @@ class DGInformation(db.Model):
     installation_year = db.Column(db.Integer, nullable=True)
     dg_status = db.Column(db.String(20))  # Working/Faulty/Spare
     dg_starting_battery = db.Column(db.String(50))
-    smart_switch_installed = db.Column(db.String(10), nullable=True)  # Yes/No
-    ats_installed = db.Column(db.String(10), nullable=True)  # Yes/No
+    smart_switch_installed = db.Column(db.Boolean, nullable=True)  # Changed from String to Boolean
+    ats_installed = db.Column(db.Boolean, nullable=True)  # Changed from String to Boolean
     ats_capacity = db.Column(db.String(50))
     name_of_faulty_ats_parts = db.Column(db.String(100))
     no_of_faulty_ats_parts = db.Column(db.Integer, nullable=True)
@@ -498,8 +498,8 @@ def add():
                     if not installed_dgs[i].strip():
                         continue
                     dg_status = dg_statuses[i] if dg_statuses[i] in valid_dg_status else None
-                    smart_switch = smart_switch_installeds[i] if smart_switch_installeds[i] in valid_yes_no else None
-                    ats = ats_installeds[i] if ats_installeds[i] in valid_yes_no else None
+                    smart_switch = True if smart_switch_installeds[i].lower() == 'yes' else False if smart_switch_installeds[i].lower() == 'no' else None
+                    ats = True if ats_installeds[i].lower() == 'yes' else False if ats_installeds[i].lower() == 'no' else None
                     dg = DGInformation(
                         general_id=general.sn,
                         installed_dg=installed_dgs[i] or None,
@@ -851,8 +851,8 @@ def edit(sn):
                     if not installed_dgs[i].strip():
                         continue
                     dg_status = dg_statuses[i] if dg_statuses[i] in valid_dg_status else None
-                    smart_switch = smart_switch_installeds[i] if smart_switch_installeds[i] in valid_yes_no else None
-                    ats = ats_installeds[i] if ats_installeds[i] in valid_yes_no else None
+                    smart_switch = True if smart_switch_installeds[i].lower() == 'yes' else False if smart_switch_installeds[i].lower() == 'no' else None
+                    ats = True if ats_installeds[i].lower() == 'yes' else False if ats_installeds[i].lower() == 'no' else None
                     dg = DGInformation(
                         general_id=general.sn,
                         installed_dg=installed_dgs[i] or None,
