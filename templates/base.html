@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" id="html-theme">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,17 +10,6 @@
     <style>
         body { 
             font-family: 'Poppins', sans-serif; 
-            transition: background-color 0.3s, color 0.3s;
-        }
-        /* Light theme (default) */
-        body.light-theme {
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-        /* Dark theme */
-        body.dark-theme {
-            background-color: #1f2937;
-            color: #f3f4f6;
         }
         .sidebar { 
             background-color: #111827; 
@@ -41,7 +30,7 @@
         .content { 
             margin-left: 250px; 
             padding: 20px; 
-            min-height: calc(100vh - 80px); /* Adjusted for header height */
+            min-height: calc(100vh - 60px); /* Adjusted for header height */
         }
         .header {
             position: fixed;
@@ -56,13 +45,6 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 20px;
-            transition: background-color 0.3s;
-        }
-        .header.dark-theme {
-            background-color: #1f2937;
-        }
-        .theme-toggle {
-            cursor: pointer;
         }
         @media (max-width: 768px) {
             .sidebar { 
@@ -79,7 +61,7 @@
         }
     </style>
 </head>
-<body class="light-theme">
+<body>
     {% if request.path != '/login' %}
     <div class="sidebar flex flex-col">
         <div class="p-4">
@@ -102,29 +84,20 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Export Data
             </a>
-            <a href="{{ url_for('logout') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Logout
-            </a>
         </nav>
     </div>
 
     <header class="header flex items-center justify-between">
         <div class="flex items-center">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 mr-4">
-            <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Exchanges Master Database</h1>
+            <h1 class="text-xl font-semibold text-gray-800">Exchanges Master Database</h1>
         </div>
         <div class="flex items-center space-x-6">
-            <span class="text-gray-600 dark:text-gray-300">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
+            <span class="text-gray-600">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <button id="theme-toggle" class="theme-toggle p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                <svg id="theme-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-            </button>
-            <button id="menu-toggle" class="md:hidden p-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+            <button id="menu-toggle" class="md:hidden p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -148,20 +121,6 @@
     </main>
 
     <script>
-        // Theme Toggle Functionality
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const body = document.body;
-
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('light-theme');
-            body.classList.toggle('dark-theme');
-            const isDark = body.classList.contains('dark-theme');
-            themeIcon.innerHTML = isDark 
-                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>`
-                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>`;
-        });
-
         // Sidebar Toggle for Mobile
         document.getElementById('menu-toggle')?.addEventListener('click', () => {
             document.querySelector('.sidebar').classList.toggle('open');
