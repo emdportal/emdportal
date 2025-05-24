@@ -5,57 +5,106 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200 animate-fade-in">Exchange Deployment Analytics</h1>
+<!-- Header Section -->
+<header class="bg-gray-800 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <!-- Logo and Title -->
+        <div class="flex items-center space-x-4">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="h-10 w-auto">
+            <h1 class="text-2xl font-bold">Exchanges Master Database</h1>
+        </div>
 
-<!-- Summary Section -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Total Exchanges</h2>
-            <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-        </div>
-        <p class="text-4xl font-bold mt-2 text-purple-600 dark:text-purple-400">{{ total_exchanges }}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Overall Exchange Count</p>
-    </div>
-    <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Operational Exchanges</h2>
-            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-        <p class="text-4xl font-bold mt-2 text-blue-600 dark:text-blue-400">{{ operational_exchanges }}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Currently Active</p>
-    </div>
-    <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Non-Operational Exchanges</h2>
-            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-        <p class="text-4xl font-bold mt-2 text-red-600 dark:text-red-400">{{ non_operational_exchanges }}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Requiring Attention</p>
-    </div>
-</div>
+        <!-- Navigation -->
+        <nav class="hidden md:flex space-x-6">
+            <a href="{{ url_for('index') }}" class="hover:text-purple-300 {% if request.endpoint == 'index' %}text-purple-400 font-semibold{% endif %}">Dashboard</a>
+            <a href="{{ url_for('add') }}" class="hover:text-purple-300 {% if request.endpoint == 'add' %}text-purple-400 font-semibold{% endif %}">Add Exchange</a>
+            <a href="{{ url_for('view_exchanges') }}" class="hover:text-purple-300 {% if request.endpoint == 'view_exchanges' %}text-purple-400 font-semibold{% endif %}">View Exchanges</a>
+            <a href="{{ url_for('export') }}" class="hover:text-purple-300 {% if request.endpoint == 'export' %}text-purple-400 font-semibold{% endif %}">Export Data</a>
+            <a href="{{ url_for('logout') }}" class="hover:text-purple-300 {% if request.endpoint == 'logout' %}text-purple-400 font-semibold{% endif %}">Logout</a>
+        </nav>
 
-<!-- Charts Section -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
-        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Year Wise Total Exchanges Installed</h2>
-        <div class="relative">
-            <canvas id="yearChart"></canvas>
+        <!-- User Info and Theme Toggle -->
+        <div class="flex items-center space-x-4">
+            <span class="text-sm">Logged in as: {{ session.get('username', 'Guest') }} ({{ session.get('region', 'All') }})</span>
+            <button id="theme-toggle" class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 focus:outline-none">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-button" class="md:hidden p-2 rounded-md bg-gray-700 hover:bg-gray-600 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden bg-gray-800 py-2 px-4 space-y-2 hidden">
+        <a href="{{ url_for('index') }}" class="block hover:text-purple-300 {% if request.endpoint == 'index' %}text-purple-400 font-semibold{% endif %}">Dashboard</a>
+        <a href="{{ url_for('add') }}" class="block hover:text-purple-300 {% if request.endpoint == 'add' %}text-purple-400 font-semibold{% endif %}">Add Exchange</a>
+        <a href="{{ url_for('view_exchanges') }}" class="block hover:text-purple-300 {% if request.endpoint == 'view_exchanges' %}text-purple-400 font-semibold{% endif %}">View Exchanges</a>
+        <a href="{{ url_for('export') }}" class="block hover:text-purple-300 {% if request.endpoint == 'export' %}text-purple-400 font-semibold{% endif %}">Export Data</a>
+        <a href="{{ url_for('logout') }}" class="block hover:text-purple-300 {% if request.endpoint == 'logout' %}text-purple-400 font-semibold{% endif %}">Logout</a>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-6">
+    <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200 animate-fade-in">Exchange Deployment Analytics</h2>
+
+    <!-- Summary Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Total Exchanges</h2>
+                <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+            </div>
+            <p class="text-4xl font-bold mt-2 text-purple-600 dark:text-purple-400">{{ total_exchanges }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Overall Exchange Count</p>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Operational Exchanges</h2>
+                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <p class="text-4xl font-bold mt-2 text-blue-600 dark:text-blue-400">{{ operational_exchanges }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Currently Active</p>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Non-Operational Exchanges</h2>
+                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <p class="text-4xl font-bold mt-2 text-red-600 dark:text-red-400">{{ non_operational_exchanges }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Requiring Attention</p>
         </div>
     </div>
-    <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
-        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Region Wise Exchanges Count</h2>
-        <div class="relative">
-            <canvas id="regionChart"></canvas>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Year Wise Total Exchanges Installed</h2>
+            <div class="relative">
+                <canvas id="yearChart"></canvas>
+            </div>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 dark:bg-gray-800/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Region Wise Exchanges Count</h2>
+            <div class="relative">
+                <canvas id="regionChart"></canvas>
+            </div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% block scripts %}
@@ -194,6 +243,25 @@
             });
         } catch (error) {
             console.error('Error rendering Region Chart:', error);
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        });
+
+        // Set theme based on localStorage
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.body.classList.add('dark-theme');
         }
     });
 </script>
