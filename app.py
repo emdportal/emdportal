@@ -307,11 +307,11 @@ def index():
             if status in dg_status_counts:
                 dg_status_counts[status] += 1
 
-        # Fetch total solar size
-        solar_query = db.session.query(db.func.sum(SolarInformation.total_solar_size)).filter(SolarInformation.total_solar_size.isnot(None))
+        # Fetch count of sites with solar data (instead of sum)
+        solar_query = db.session.query(GeneralInformation.sn).join(SolarInformation).filter(SolarInformation.total_solar_size.isnot(None))
         if user_region != "All":
-            solar_query = solar_query.join(GeneralInformation).filter(GeneralInformation.domain == user_region)
-        total_solar_size = solar_query.scalar() or 0  # Default to 0 if None
+            solar_query = solar_query.filter(GeneralInformation.domain == user_region)
+        total_solar_sites = solar_query.distinct().count()  # Count unique sites with solar data
 
         return render_template('index.html',
                              exchanges=exchanges,
@@ -322,7 +322,7 @@ def index():
                              total_exchanges=total_exchanges,
                              total_installed_dgs=total_installed_dgs,
                              dg_status_counts=dg_status_counts,
-                             total_solar_size=total_solar_size)
+                             total_solar_sites=total_solar_sites)
     except Exception as e:
         logging.error(f"Error in index route: {str(e)}")
         flash(f"Error: {str(e)}")
