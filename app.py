@@ -293,9 +293,25 @@ def index():
         year_counts = [total_exchanges // 2, total_exchanges - (total_exchanges // 2)]
         year_labels = ['2024', '2025']
 
-        total_exchanges = len(exchanges)
-        operational_exchanges = sum(1 for e in exchanges if e.power_info and e.power_info.working_status == 'Working')
-        non_operational_exchanges = total_exchanges - operational_exchanges
+        # Fetch total installed DGs and their status breakdown
+        installed_dgs_query = db.session.query(DGInformation).filter(DGInformation.installed_dg.isnot(None), DGInformation.installed_dg != '')
+        if user_region != "All":
+            installed_dgs_query = installed_dgs_query.join(GeneralInformation).filter(GeneralInformation.domain == user_region)
+        installed_dgs = installed_dgs_query.all()
+        total_installed_dgs = len(installed_dgs)
+        
+        # DG Status breakdown
+        dg_status_counts = {'Working': 0, 'Faulty': 0, 'Spare': 0}
+        for dg in installed_dgs:
+            status = dg.dg_status
+            if status in dg_status_counts:
+                dg_status_counts[status] += 1
+
+        # Fetch total solar size
+        solar_query = db.session.query(db.func.sum(SolarInformation.total_solar_size)).filter(SolarInformation.total_solar_size.isnot(None))
+        if user_region != "All":
+            solar_query = solar_query.join(GeneralInformation).filter(GeneralInformation.domain == user_region)
+        total_solar_size = solar_query.scalar() or 0  # Default to 0 if None
 
         return render_template('index.html',
                              exchanges=exchanges,
@@ -304,8 +320,9 @@ def index():
                              year_labels=year_labels,
                              year_counts=year_counts,
                              total_exchanges=total_exchanges,
-                             operational_exchanges=operational_exchanges,
-                             non_operational_exchanges=non_operational_exchanges)
+                             total_installed_dgs=total_installed_dgs,
+                             dg_status_counts=dg_status_counts,
+                             total_solar_size=total_solar_size)
     except Exception as e:
         logging.error(f"Error in index route: {str(e)}")
         flash(f"Error: {str(e)}")
