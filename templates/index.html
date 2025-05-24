@@ -85,98 +85,116 @@
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Debug data
-        const yearLabels = {{ year_labels|tojson }};
-        const yearCounts = {{ year_counts|tojson }};
-        const regionLabels = {{ region_labels|tojson }};
-        const regionCounts = {{ region_counts|tojson }};
+        // Debug data with fallback
+        const yearLabels = {{ year_labels|tojson|safe }} || ['2024', '2025'];
+        const yearCounts = {{ year_counts|tojson|safe }} || [0, 0];
+        const regionLabels = {{ region_labels|tojson|safe }} || ['No Region'];
+        const regionCounts = {{ region_counts|tojson|safe }} || [0];
 
         console.log('Year Labels:', yearLabels);
         console.log('Year Counts:', yearCounts);
         console.log('Region Labels:', regionLabels);
         console.log('Region Counts:', regionCounts);
 
+        // Validate data lengths
+        if (yearLabels.length !== yearCounts.length) {
+            console.error('Year chart data mismatch: Labels length:', yearLabels.length, 'Counts length:', yearCounts.length);
+            return;
+        }
+        if (regionLabels.length !== regionCounts.length) {
+            console.error('Region chart data mismatch: Labels length:', regionLabels.length, 'Counts length:', regionCounts.length);
+            return;
+        }
+
         // Year-wise Pie Chart
-        const yearCtx = document.getElementById('yearChart').getContext('2d');
-        new Chart(yearCtx, {
-            type: 'pie',
-            data: {
-                labels: yearLabels,
-                datasets: [{
-                    data: yearCounts,
-                    backgroundColor: ['#a855f7', '#3b82f6', '#f97316', '#22c55e'],
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                    hoverOffset: 15
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { 
-                        position: 'top', 
-                        labels: { 
-                            color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#4a5568',
-                            font: { size: 14 }
+        try {
+            const yearCtx = document.getElementById('yearChart').getContext('2d');
+            new Chart(yearCtx, {
+                type: 'pie',
+                data: {
+                    labels: yearLabels,
+                    datasets: [{
+                        data: yearCounts,
+                        backgroundColor: ['#a855f7', '#3b82f6', '#f97316', '#22c55e'],
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'top', 
+                            labels: { 
+                                color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#4a5568',
+                                font: { size: 14 }
+                            }
+                        },
+                        title: { 
+                            display: true, 
+                            text: 'Distribution by Year', 
+                            color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#2d3748', 
+                            font: { size: 16 }
                         }
-                    },
-                    title: { 
-                        display: true, 
-                        text: 'Distribution by Year', 
-                        color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#2d3748', 
-                        font: { size: 16 }
                     }
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.error('Error rendering Year Chart:', error);
+        }
 
         // Region-wise Bar Chart
-        const regionCtx = document.getElementById('regionChart').getContext('2d');
-        new Chart(regionCtx, {
-            type: 'bar',
-            data: {
-                labels: regionLabels,
-                datasets: [{
-                    label: 'Exchanges',
-                    data: regionCounts,
-                    backgroundColor: 'rgba(79, 70, 229, 0.8)',
-                    borderColor: '#4f46e5',
-                    borderWidth: 1,
-                    barPercentage: 0.7,
-                    categoryPercentage: 0.5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { 
-                            color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#4a5568' 
+        try {
+            const regionCtx = document.getElementById('regionChart').getContext('2d');
+            new Chart(regionCtx, {
+                type: 'bar',
+                data: {
+                    labels: regionLabels,
+                    datasets: [{
+                        label: 'Exchanges',
+                        data: regionCounts,
+                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                        borderColor: '#4f46e5',
+                        borderWidth: 1,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#4a5568' 
+                            },
+                            grid: { 
+                                color: document.body.classList.contains('dark-theme') ? '#4b5563' : '#e2e8f0' 
+                            }
                         },
-                        grid: { 
-                            color: document.body.classList.contains('dark-theme') ? '#4b5563' : '#e2e8f0' 
+                        x: { 
+                            ticks: { 
+                                color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#4a5568' 
+                            }
                         }
                     },
-                    x: { 
-                        ticks: { 
-                            color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#4a5568' 
+                    plugins: {
+                        legend: { display: false },
+                        title: { 
+                            display: true, 
+                            text: 'Distribution by Region', 
+                            color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#2d3748', 
+                            font: { size: 16 }
                         }
                     }
-                },
-                plugins: {
-                    legend: { display: false },
-                    title: { 
-                        display: true, 
-                        text: 'Distribution by Region', 
-                        color: document.body.classList.contains('dark-theme') ? '#e5e7eb' : '#2d3748', 
-                        font: { size: 16 }
-                    }
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.error('Error rendering Region Chart:', error);
+        }
     });
 </script>
 {% endblock %}
