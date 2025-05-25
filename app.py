@@ -154,7 +154,7 @@ class ACUnit(db.Model):
     type_of_ac = db.Column(db.String(50))
     mount_type = db.Column(db.String(50))
     date_of_installation = db.Column(db.String(50))
-    sequence_controller_installed = db.Column(db.String(10), nullable=True)  # Yes/No
+    sequence_controller_installed = db.Column(db.String(10), nullable=True)  # Changed back to String for Yes/No
     ac_load = db.Column(db.Float, nullable=True)
     total_ac_load = db.Column(db.Float, nullable=True)
     fault_nature_of_ac_unit = db.Column(db.String(100))
