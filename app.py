@@ -388,7 +388,7 @@ def add():
                     db.session.add(tower)
 
             # Power Information with Rectifiers
-            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')  # Fixed field name
+            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
             logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
@@ -554,41 +554,42 @@ def add():
                     db.session.add(battery)
 
             # AC Unit Information
-            location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
-            if location_of_ac_units and location_of_ac_units[0].strip():
-                working_status_acs = request.form.getlist('working_status_ac[]')
-                ac_makes = request.form.getlist('ac_make[]')
-                capacity_tons = request.form.getlist('capacity_tons[]')
-                type_of_acs = request.form.getlist('type_of_ac[]')
-                mount_types = request.form.getlist('mount_type[]')
-                date_of_installation_acs = request.form.getlist('date_of_installation_ac[]')
-                sequence_controller_installeds = request.form.getlist('sequence_controller_installed[]')
-                ac_loads = request.form.getlist('ac_load[]')
-                total_ac_loads = request.form.getlist('total_ac_load[]')
-                fault_nature_of_ac_units = request.form.getlist('fault_nature_of_ac_unit[]')
-                estimate_to_repair_acs = request.form.getlist('estimate_to_repair_ac[]')
+            with db.session.no_autoflush:  # Prevent premature flushing
+                location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
+                if location_of_ac_units and location_of_ac_units[0].strip():
+                    working_status_acs = request.form.getlist('working_status_ac[]')
+                    ac_makes = request.form.getlist('ac_make[]')
+                    capacity_tons = request.form.getlist('capacity_tons[]')
+                    type_of_acs = request.form.getlist('type_of_ac[]')
+                    mount_types = request.form.getlist('mount_type[]')
+                    date_of_installation_acs = request.form.getlist('date_of_installation_ac[]')
+                    sequence_controller_installeds = request.form.getlist('sequence_controller_installed[]')
+                    ac_loads = request.form.getlist('ac_load[]')
+                    total_ac_loads = request.form.getlist('total_ac_load[]')
+                    fault_nature_of_ac_units = request.form.getlist('fault_nature_of_ac_unit[]')
+                    estimate_to_repair_acs = request.form.getlist('estimate_to_repair_ac[]')
 
-                for i in range(len(location_of_ac_units)):
-                    if not location_of_ac_units[i].strip():
-                        continue
-                    working_status = working_status_acs[i] if working_status_acs[i] in valid_working_status else None
-                    sequence_controller = sequence_controller_installeds[i] if sequence_controller_installeds[i] in valid_yes_no else None
-                    ac_unit = ACUnit(
-                        general_id=general.sn,
-                        location_of_ac_unit=location_of_ac_units[i] or None,
-                        working_status=working_status,
-                        ac_make=ac_makes[i] if ac_makes[i].strip() else None,
-                        capacity_tons=safe_float(capacity_tons[i], 'capacity_tons') if capacity_tons[i].strip() else None,
-                        type_of_ac=type_of_acs[i] if type_of_acs[i].strip() else None,
-                        mount_type=mount_types[i] if mount_types[i].strip() else None,
-                        date_of_installation=date_of_installation_acs[i] if date_of_installation_acs[i].strip() else None,
-                        sequence_controller_installed=sequence_controller,
-                        ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
-                        total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
-                        fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
-                        estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
-                    )
-                    db.session.add(ac_unit)
+                    for i in range(len(location_of_ac_units)):
+                        if not location_of_ac_units[i].strip():
+                            continue
+                        working_status = working_status_acs[i] if working_status_acs[i] in valid_working_status else None
+                        sequence_controller = sequence_controller_installeds[i] if sequence_controller_installeds[i] in valid_yes_no else None
+                        ac_unit = ACUnit(
+                            general_id=general.sn,
+                            location_of_ac_unit=location_of_ac_units[i] or None,
+                            working_status=working_status,
+                            ac_make=ac_makes[i] if ac_makes[i].strip() else None,
+                            capacity_tons=safe_float(capacity_tons[i], 'capacity_tons') if capacity_tons[i].strip() else None,
+                            type_of_ac=type_of_acs[i] if type_of_acs[i].strip() else None,
+                            mount_type=mount_types[i] if mount_types[i].strip() else None,
+                            date_of_installation=date_of_installation_acs[i] if date_of_installation_acs[i].strip() else None,
+                            sequence_controller_installed=sequence_controller,
+                            ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
+                            total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
+                            fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
+                            estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
+                        )
+                        db.session.add(ac_unit)
 
             # Solar Information
             solar_info = SolarInformation(
@@ -744,7 +745,7 @@ def edit(sn):
                 general.power_info = PowerInformation(general_id=general.sn)
 
             # Collect rectifier data
-            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')  # Fixed field name
+            make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
             logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
             
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
@@ -760,7 +761,6 @@ def edit(sn):
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
-                # Log lengths of all lists for debugging
                 logging.info(f"Rectifier lists lengths: make={len(make_of_rectifiers)}, "
                              f"capacity={len(rectifier_capacities)}, modules={len(no_of_modules)}, "
                              f"capacity_each={len(capacity_of_each_module)}, working={len(working_modules)}, "
@@ -769,7 +769,6 @@ def edit(sn):
                              f"spd_model={len(spd_models)}, total_spds={len(total_installed_spds)}, "
                              f"faulty_spds={len(no_of_faulty_spds)}")
 
-                # Ensure all lists have the same length
                 expected_length = len(make_of_rectifiers)
                 lists_to_check = [
                     (rectifier_capacities, 'rectifier_capacity[]'),
@@ -908,42 +907,43 @@ def edit(sn):
                     db.session.add(battery)
 
             # AC Unit Information
-            ACUnit.query.filter_by(general_id=general.sn).delete()
-            location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
-            if location_of_ac_units and location_of_ac_units[0].strip():
-                working_status_acs = request.form.getlist('working_status_ac[]')
-                ac_makes = request.form.getlist('ac_make[]')
-                capacity_tons = request.form.getlist('capacity_tons[]')
-                type_of_acs = request.form.getlist('type_of_ac[]')
-                mount_types = request.form.getlist('mount_type[]')
-                date_of_installation_acs = request.form.getlist('date_of_installation_ac[]')
-                sequence_controller_installeds = request.form.getlist('sequence_controller_installed[]')
-                ac_loads = request.form.getlist('ac_load[]')
-                total_ac_loads = request.form.getlist('total_ac_load[]')
-                fault_nature_of_ac_units = request.form.getlist('fault_nature_of_ac_unit[]')
-                estimate_to_repair_acs = request.form.getlist('estimate_to_repair_ac[]')
+            with db.session.no_autoflush:  # Prevent premature flushing
+                ACUnit.query.filter_by(general_id=general.sn).delete()
+                location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
+                if location_of_ac_units and location_of_ac_units[0].strip():
+                    working_status_acs = request.form.getlist('working_status_ac[]')
+                    ac_makes = request.form.getlist('ac_make[]')
+                    capacity_tons = request.form.getlist('capacity_tons[]')
+                    type_of_acs = request.form.getlist('type_of_ac[]')
+                    mount_types = request.form.getlist('mount_type[]')
+                    date_of_installation_acs = request.form.getlist('date_of_installation_ac[]')
+                    sequence_controller_installeds = request.form.getlist('sequence_controller_installed[]')
+                    ac_loads = request.form.getlist('ac_load[]')
+                    total_ac_loads = request.form.getlist('total_ac_load[]')
+                    fault_nature_of_ac_units = request.form.getlist('fault_nature_of_ac_unit[]')
+                    estimate_to_repair_acs = request.form.getlist('estimate_to_repair_ac[]')
 
-                for i in range(len(location_of_ac_units)):
-                    if not location_of_ac_units[i].strip():
-                        continue
-                    working_status = working_status_acs[i] if working_status_acs[i] in valid_working_status else None
-                    sequence_controller = sequence_controller_installeds[i] if sequence_controller_installeds[i] in valid_yes_no else None
-                    ac_unit = ACUnit(
-                        general_id=general.sn,
-                        location_of_ac_unit=location_of_ac_units[i] or None,
-                        working_status=working_status,
-                        ac_make=ac_makes[i] if ac_makes[i].strip() else None,
-                        capacity_tons=safe_float(capacity_tons[i], 'capacity_tons') if capacity_tons[i].strip() else None,
-                        type_of_ac=type_of_acs[i] if type_of_acs[i].strip() else None,
-                        mount_type=mount_types[i] if mount_types[i].strip() else None,
-                        date_of_installation=date_of_installation_acs[i] if date_of_installation_acs[i].strip() else None,
-                        sequence_controller_installed=sequence_controller,
-                        ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
-                        total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
-                        fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
-                        estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
-                    )
-                    db.session.add(ac_unit)
+                    for i in range(len(location_of_ac_units)):
+                        if not location_of_ac_units[i].strip():
+                            continue
+                        working_status = working_status_acs[i] if working_status_acs[i] in valid_working_status else None
+                        sequence_controller = sequence_controller_installeds[i] if sequence_controller_installeds[i] in valid_yes_no else None
+                        ac_unit = ACUnit(
+                            general_id=general.sn,
+                            location_of_ac_unit=location_of_ac_units[i] or None,
+                            working_status=working_status,
+                            ac_make=ac_makes[i] if ac_makes[i].strip() else None,
+                            capacity_tons=safe_float(capacity_tons[i], 'capacity_tons') if capacity_tons[i].strip() else None,
+                            type_of_ac=type_of_acs[i] if type_of_acs[i].strip() else None,
+                            mount_type=mount_types[i] if mount_types[i].strip() else None,
+                            date_of_installation=date_of_installation_acs[i] if date_of_installation_acs[i].strip() else None,
+                            sequence_controller_installed=sequence_controller,
+                            ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
+                            total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
+                            fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
+                            estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
+                        )
+                        db.session.add(ac_unit)
 
             # Solar Information
             if not general.solar_info:
