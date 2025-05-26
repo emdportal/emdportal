@@ -1304,6 +1304,16 @@ def view_exchanges():
         exchanges = GeneralInformation.query.all()
     else:
         exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
+    return render_template('view_exchanges.html', exchanges=exchanges)
+    
+@app.route('/view_all_exchanges')
+@login_required
+def view_all_exchanges():
+    user_region = session.get('region')
+    if user_region == "All":
+        exchanges = GeneralInformation.query.all()
+    else:
+        exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
 
     # Prepare data for the table
     table_data = []
@@ -1413,7 +1423,7 @@ def view_exchanges():
         }
         table_data.append(row)
 
-    return render_template('view_all_exchanges.html', exchanges=exchanges, table_data=table_data)
+    return render_template('view_all_exchanges.html', table_data=table_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
