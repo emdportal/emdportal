@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}
+    View All Exchanges
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h2 class="text-3xl font-bold mb-6 text-gray-900">All Exchanges Data</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">SN</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Region</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Domain</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Site Name</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Site LIC</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">FLC</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Site Category</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">NEs Installed</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Latitude</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Longitude</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Tower Available</th>
+                    {% for i in range(1, (table_data|map(attribute='Towers')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Tower {{ i }} Type/Height</th>
+                    {% endfor %}
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">WAPDA Ref Number</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Transformer Capacity</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Transformer Earthing</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Working Status (Power)</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Name of NEs Connected</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Load of Individual NE</th>
+                    {% for i in range(1, (table_data|map(attribute='Power Info')|map(attribute='Rectifiers')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Make</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Capacity</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} No of Modules</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Capacity of Each Module</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Working Modules</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Faulty Modules</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Space for New Modules</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Grounding</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} SPD</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} SPD Model</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} Total Installed SPDs</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Rectifier {{ i }} No of Faulty SPDs</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='DGs')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Installed DG</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Engine Make</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Installation Year</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} DG Status</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} DG Starting Battery</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Smart Switch Installed</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} ATS Installed</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} ATS Capacity</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Name of Faulty ATS Parts</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} No of Faulty ATS Parts</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Load on DG P1</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Load on DG P2</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Load on DG P3</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Site Load Total</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Site Load P1</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Site Load P2</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">DG {{ i }} Site Load P3</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='Battery Banks')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Make</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Capacity</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Type</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} No of Cells/Bank</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Date of Installation</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Load on Battery Bank</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Practical Backup Time</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Installed (New/Used)</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Battery {{ i }} Moved From</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='AC Units')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Location</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Working Status</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Make</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Capacity (Tons)</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Type</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Mount Type</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Date of Installation</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Sequence Controller Installed</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} AC Load</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Total AC Load</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Fault Nature</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">AC {{ i }} Estimate to Repair</th>
+                    {% endfor %}
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Total Solar Size</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">PV Solar Panel Capacity</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">No of PV Panels Installed</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Make of PV Panels</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Charge Controller Make</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Colocation</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Name of Colocation Vendors</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Load of Each Vendor</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Total Load</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Building Status</th>
+                    <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Wall/Doors Condition</th>
+                    {% for i in range(1, (table_data|map(attribute='Alarms')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Alarm {{ i }} AC Main Failure</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Alarm {{ i }} DC Low Voltages</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Alarm {{ i }} Rectifier Failure</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='Earthings')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Earthing {{ i }} Value</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Earthing {{ i }} No of Pits</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='Fire Extinguishers')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">FE {{ i }} Installed</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">FE {{ i }} No of FEs</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">FE {{ i }} Type of Gas</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">FE {{ i }} Date of Expiry</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='PMR Infos')|map('length')|max)|default(1) + 1) %}
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">PMR {{ i }} Performed</th>
+                        <th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">PMR {{ i }} Last Performed Date</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table_data %}
+                <tr class="hover:bg-gray-50">
+                    <td class="py-2 px-4 border-b">{{ row.SN }}</td>
+                    <td class="py-2 px-4 border-b">{{ row.Region }}</td>
+                    <td class="py-2 px-4 border-b">{{ row.Domain }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Site Name'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Site LIC'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row.FLC }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Site Category'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['NEs Installed'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row.Latitude }}</td>
+                    <td class="py-2 px-4 border-b">{{ row.Longitude }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Tower Available'] }}</td>
+                    {% for tower in row.Towers %}
+                        <td class="py-2 px-4 border-b">{{ tower }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.Towers|length), (table_data|map(attribute='Towers')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    <td class="py-2 px-4 border-b">{{ row['Power Info']['WAPDA Ref Number'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Power Info']['Transformer Capacity'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Power Info']['Transformer Earthing'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Power Info']['Working Status'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Power Info']['Name of NEs Connected'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Power Info']['Load of Individual NE'] }}</td>
+                    {% for rectifier in row['Power Info']['Rectifiers'] %}
+                        <td class="py-2 px-4 border-b">{{ rectifier.make_of_rectifier }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.rectifier_capacity }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.no_of_modules }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.capacity_of_each_module }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.working_modules }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.faulty_modules }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.space_for_new_modules }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.grounding_of_rectifier }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.spd_in_rectifier }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.spd_model }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.total_installed_spds }}</td>
+                        <td class="py-2 px-4 border-b">{{ rectifier.no_of_faulty_spds }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['Power Info']['Rectifiers']|length), (table_data|map(attribute='Power Info')|map(attribute='Rectifiers')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    {% for dg in row.DGs %}
+                        <td class="py-2 px-4 border-b">{{ dg['Installed DG'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Engine Make'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Installation Year'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['DG Status'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['DG Starting Battery'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Smart Switch Installed'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['ATS Installed'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['ATS Capacity'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Name of Faulty ATS Parts'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['No of Faulty ATS Parts'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Load on DG P1'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Load on DG P2'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Load on DG P3'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Site Load Total'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Site Load P1'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Site Load P2'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ dg['Site Load P3'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.DGs|length), (table_data|map(attribute='DGs')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    {% for battery in row['Battery Banks'] %}
+                        <td class="py-2 px-4 border-b">{{ battery['Make of Battery'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Battery Capacity'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Battery Type'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['No of Cells/Bank'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Date of Installation'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Load on Battery Bank'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Practical Backup Time'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Battery Installed (New/Used)'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ battery['Battery Moved From'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['Battery Banks']|length), (table_data|map(attribute='Battery Banks')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    {% for ac in row['AC Units'] %}
+                        <td class="py-2 px-4 border-b">{{ ac.Location }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Working Status'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['AC Make'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Capacity (Tons)'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Type of AC'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Mount Type'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Date of Installation'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Sequence Controller Installed'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['AC Load'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Total AC Load'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Fault Nature of AC Unit'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ ac['Estimate to Repair AC'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['AC Units']|length), (table_data|map(attribute='AC Units')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    <td class="py-2 px-4 border-b">{{ row['Solar Info']['Total Solar Size'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Solar Info']['PV Solar Panel Capacity'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Solar Info']['No of PV Panels Installed'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Solar Info']['Make of PV Panels'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Solar Info']['Charge Controller Make'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Colocation Info']['Colocation'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Colocation Info']['Name of Colocation Vendors'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Colocation Info']['Load of Each Vendor'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Colocation Info']['Total Load'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Building Info']['Building Status'] }}</td>
+                    <td class="py-2 px-4 border-b">{{ row['Building Info']['Wall/Doors Condition'] }}</td>
+                    {% for alarm in row.Alarms %}
+                        <td class="py-2 px-4 border-b">{{ alarm['AC Main Failure'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ alarm['DC Low Voltages'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ alarm['Rectifier Failure'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.Alarms|length), (table_data|map(attribute='Alarms')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    {% for earthing in row.Earthings %}
+                        <td class="py-2 px-4 border-b">{{ earthing['Earthing Value'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ earthing['No of Pits'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.Earthings|length), (table_data|map(attribute='Earthings')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    {% for fe in row['Fire Extinguishers'] %}
+                        <td class="py-2 px-4 border-b">{{ fe.Installed }}</td>
+                        <td class="py-2 px-4 border-b">{{ fe['No of FEs'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ fe['Type of Gas'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ fe['Date of Expiry'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['Fire Extinguishers']|length), (table_data|map(attribute='Fire Extinguishers')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                    {% for pmr in row['PMR Infos'] %}
+                        <td class="py-2 px-4 border-b">{{ pmr['PMR Performed'] }}</td>
+                        <td class="py-2 px-4 border-b">{{ pmr['Last Performed Date'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['PMR Infos']|length), (table_data|map(attribute='PMR Infos')|map('length')|max)|default(0)) %}
+                        <td class="py-2 px-4 border-b"></td>
+                        <td class="py-2 px-4 border-b"></td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

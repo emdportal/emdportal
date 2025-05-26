@@ -1304,7 +1304,116 @@ def view_exchanges():
         exchanges = GeneralInformation.query.all()
     else:
         exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
-    return render_template('view_exchanges.html', exchanges=exchanges)
+
+    # Prepare data for the table
+    table_data = []
+    for exchange in exchanges:
+        row = {
+            'SN': exchange.sn,
+            'Region': exchange.region,
+            'Domain': exchange.domain,
+            'Site Name': exchange.site_name,
+            'Site LIC': exchange.site_lic,
+            'FLC': exchange.flc,
+            'Site Category': exchange.site_category,
+            'NEs Installed': exchange.nes_installed,
+            'Latitude': exchange.latitude,
+            'Longitude': exchange.longitude,
+            'Tower Available': exchange.tower_available,
+            'Towers': [tower.tower_type_height for tower in exchange.towers] if exchange.towers else [],
+            'Power Info': {
+                'WAPDA Ref Number': exchange.power_info.wapda_ref_number if exchange.power_info else None,
+                'Transformer Capacity': exchange.power_info.transformer_capacity if exchange.power_info else None,
+                'Transformer Earthing': exchange.power_info.transformer_earthing if exchange.power_info else None,
+                'Working Status': exchange.power_info.working_status if exchange.power_info else None,
+                'Name of NEs Connected': exchange.power_info.name_of_nes_connected if exchange.power_info else None,
+                'Load of Individual NE': exchange.power_info.load_of_individual_ne if exchange.power_info else None,
+                'Rectifiers': exchange.power_info.rectifiers if exchange.power_info and exchange.power_info.rectifiers else []
+            },
+            'DGs': [{
+                'Installed DG': dg.installed_dg,
+                'Engine Make': dg.engine_make,
+                'Installation Year': dg.installation_year,
+                'DG Status': dg.dg_status,
+                'DG Starting Battery': dg.dg_starting_battery,
+                'Smart Switch Installed': dg.smart_switch_installed,
+                'ATS Installed': dg.ats_installed,
+                'ATS Capacity': dg.ats_capacity,
+                'Name of Faulty ATS Parts': dg.name_of_faulty_ats_parts,
+                'No of Faulty ATS Parts': dg.no_of_faulty_ats_parts,
+                'Load on DG P1': dg.load_on_dg_p1,
+                'Load on DG P2': dg.load_on_dg_p2,
+                'Load on DG P3': dg.load_on_dg_p3,
+                'Site Load Total': dg.site_load_total,
+                'Site Load P1': dg.site_load_p1,
+                'Site Load P2': dg.site_load_p2,
+                'Site Load P3': dg.site_load_p3
+            } for dg in exchange.dgs] if exchange.dgs else [],
+            'Battery Banks': [{
+                'Make of Battery': battery.make_of_battery,
+                'Battery Capacity': battery.battery_capacity,
+                'Battery Type': battery.battery_type,
+                'No of Cells/Bank': battery.no_of_cells_bank,
+                'Date of Installation': battery.date_of_installation,
+                'Load on Battery Bank': battery.load_on_battery_bank,
+                'Practical Backup Time': battery.practical_backup_time,
+                'Battery Installed (New/Used)': battery.battery_installed_new_or_used,
+                'Battery Moved From': battery.battery_moved_from
+            } for battery in exchange.battery_banks] if exchange.battery_banks else [],
+            'AC Units': [{
+                'Location': ac.location_of_ac_unit,
+                'Working Status': ac.working_status,
+                'AC Make': ac.ac_make,
+                'Capacity (Tons)': ac.capacity_tons,
+                'Type of AC': ac.type_of_ac,
+                'Mount Type': ac.mount_type,
+                'Date of Installation': ac.date_of_installation,
+                'Sequence Controller Installed': ac.sequence_controller_installed,
+                'AC Load': ac.ac_load,
+                'Total AC Load': ac.total_ac_load,
+                'Fault Nature of AC Unit': ac.fault_nature_of_ac_unit,
+                'Estimate to Repair AC': ac.estimate_to_repair_ac
+            } for ac in exchange.ac_units] if exchange.ac_units else [],
+            'Solar Info': {
+                'Total Solar Size': exchange.solar_info.total_solar_size if exchange.solar_info else None,
+                'PV Solar Panel Capacity': exchange.solar_info.pv_solar_panel_capacity if exchange.solar_info else None,
+                'No of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed if exchange.solar_info else None,
+                'Make of PV Panels': exchange.solar_info.make_of_pv_panels if exchange.solar_info else None,
+                'Charge Controller Make': exchange.solar_info.charge_controller_make if exchange.solar_info else None
+            },
+            'Colocation Info': {
+                'Colocation': exchange.colocation_info.colocation if exchange.colocation_info else None,
+                'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors if exchange.colocation_info else None,
+                'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor if exchange.colocation_info else None,
+                'Total Load': exchange.colocation_info.total_load if exchange.colocation_info else None
+            },
+            'Building Info': {
+                'Building Status': exchange.building_info.building_status if exchange.building_info else None,
+                'Wall/Doors Condition': exchange.building_info.wall_doors_condition if exchange.building_info else None
+            },
+            'Alarms': [{
+                'AC Main Failure': alarm.ac_main_failure,
+                'DC Low Voltages': alarm.dc_low_voltages,
+                'Rectifier Failure': alarm.rectifier_failure
+            } for alarm in exchange.alarms] if exchange.alarms else [],
+            'Earthings': [{
+                'Earthing Value': earthing.earthing_value,
+                'No of Pits': earthing.no_of_pits
+            } for earthing in exchange.earthings] if exchange.earthings else [],
+            'Fire Extinguishers': [{
+                'Installed': fe.fe_installed,
+                'No of FEs': fe.no_of_fes,
+                'Type of Gas': fe.type_of_gas,
+                'Date of Expiry': fe.date_of_expiry
+            } for fe in exchange.fire_extinguishers] if exchange.fire_extinguishers else [],
+            'PMR Infos': [{
+                'PMR Performed': pmr.pmr_performed,
+                'Last Performed Date': pmr.last_performed_date
+            } for pmr in exchange.pmr_infos] if exchange.pmr_infos else []
+        }
+        table_data.append(row)
+
+    return render_template('view_all_exchanges.html', exchanges=exchanges, table_data=table_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
