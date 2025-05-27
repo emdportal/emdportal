@@ -1308,7 +1308,7 @@ def view_exchanges():
     
 @app.route('/filters')
 @login_required
-def view_all_exchanges():
+def filters():
     user_region = session.get('region')
     if user_region == "All":
         exchanges = GeneralInformation.query.all()
