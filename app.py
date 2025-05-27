@@ -1321,7 +1321,6 @@ def filters():
     available_domains = [d[0] for d in available_domains_query if d[0] is not None]
     available_categories_query = db.session.query(GeneralInformation.site_category).filter_by(region=user_region).distinct().all()
     available_categories = [c[0] for c in available_categories_query if c[0] is not None]
-
     logger.debug(f"Available domains: {available_domains}")
     logger.debug(f"Available categories: {available_categories}")
 
@@ -1464,6 +1463,8 @@ def filters():
         }
         table_data.append(row)
 
+    logger.debug(f"Table data length: {len(table_data)}")
+
     # Handle export action
     if request.method == 'POST' and 'export_filtered' in request.form:
         df = pd.DataFrame(table_data)
@@ -1483,6 +1484,6 @@ def filters():
         )
 
     return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter)
-    
+
 if __name__ == '__main__':
     app.run(debug=True)
