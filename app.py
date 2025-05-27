@@ -1317,9 +1317,13 @@ def filters():
     logger.debug(f"User region from session: {user_region}")
 
     # Get available filter options based on user's unlocked regions
-    available_domains_query = db.session.query(GeneralInformation.domain).filter_by(region=user_region).distinct().all()
+    if user_region == "All":
+        available_domains_query = db.session.query(GeneralInformation.domain).distinct().all()
+        available_categories_query = db.session.query(GeneralInformation.site_category).distinct().all()
+    else:
+        available_domains_query = db.session.query(GeneralInformation.domain).filter_by(region=user_region).distinct().all()
+        available_categories_query = db.session.query(GeneralInformation.site_category).filter_by(region=user_region).distinct().all()
     available_domains = [d[0] for d in available_domains_query if d[0] is not None]
-    available_categories_query = db.session.query(GeneralInformation.site_category).filter_by(region=user_region).distinct().all()
     available_categories = [c[0] for c in available_categories_query if c[0] is not None]
     logger.debug(f"Available domains: {available_domains}")
     logger.debug(f"Available categories: {available_categories}")
@@ -1346,7 +1350,9 @@ def filters():
             return redirect(url_for('filters'))
 
     # Fetch data based on region and applied filters
-    query = GeneralInformation.query.filter_by(region=user_region)
+    query = GeneralInformation.query
+    if user_region != "All":
+        query = query.filter_by(region=user_region)
     if domain_filter and domain_filter in available_domains:
         query = query.filter_by(domain=domain_filter)
     if category_filter and category_filter in available_categories:
@@ -1484,6 +1490,6 @@ def filters():
         )
 
     return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter)
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
