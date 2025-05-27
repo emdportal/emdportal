@@ -1361,126 +1361,219 @@ def filters():
     exchanges = query.all()
     logger.debug(f"Number of exchanges fetched: {len(exchanges)}")
 
-    # Prepare data for the table
+    # Prepare data for the table by flattening all sections
     table_data = []
     for exchange in exchanges:
-        row = {
-            'SN': exchange.sn,
-            'Region': exchange.region,
-            'Domain': exchange.domain,
-            'Site Name': exchange.site_name,
-            'Site LIC': exchange.site_lic,
-            'FLC': exchange.flc,
-            'Site Category': exchange.site_category,
-            'NEs Installed': exchange.nes_installed,
-            'Latitude': exchange.latitude,
-            'Longitude': exchange.longitude,
-            'Tower Available': exchange.tower_available,
-            'Towers': [tower.tower_type_height for tower in exchange.towers] if exchange.towers else [],
-            'Power Info': {
-                'WAPDA Ref Number': exchange.power_info.wapda_ref_number if exchange.power_info else None,
-                'Transformer Capacity': exchange.power_info.transformer_capacity if exchange.power_info else None,
-                'Transformer Earthing': exchange.power_info.transformer_earthing if exchange.power_info else None,
-                'Working Status': exchange.power_info.working_status if exchange.power_info else None,
-                'Name of NEs Connected': exchange.power_info.name_of_nes_connected if exchange.power_info else None,
-                'Load of Individual NE': exchange.power_info.load_of_individual_ne if exchange.power_info else None,
-                'Rectifiers': exchange.power_info.rectifiers if exchange.power_info and exchange.power_info.rectifiers else []
-            },
-            'DGs': [{
-                'Installed DG': dg.installed_dg,
-                'Engine Make': dg.engine_make,
-                'Installation Year': dg.installation_year,
-                'DG Status': dg.dg_status,
-                'DG Starting Battery': dg.dg_starting_battery,
-                'Smart Switch Installed': dg.smart_switch_installed,
-                'ATS Installed': dg.ats_installed,
-                'ATS Capacity': dg.ats_capacity,
-                'Name of Faulty ATS Parts': dg.name_of_faulty_ats_parts,
-                'No of Faulty ATS Parts': dg.no_of_faulty_ats_parts,
-                'Load on DG P1': dg.load_on_dg_p1,
-                'Load on DG P2': dg.load_on_dg_p2,
-                'Load on DG P3': dg.load_on_dg_p3,
-                'Site Load Total': dg.site_load_total,
-                'Site Load P1': dg.site_load_p1,
-                'Site Load P2': dg.site_load_p2,
-                'Site Load P3': dg.site_load_p3
-            } for dg in exchange.dgs] if exchange.dgs else [],
-            'Battery Banks': [{
-                'Make of Battery': battery.make_of_battery,
-                'Battery Capacity': battery.battery_capacity,
-                'Battery Type': battery.battery_type,
-                'No of Cells/Bank': battery.no_of_cells_bank,
-                'Date of Installation': battery.date_of_installation,
-                'Load on Battery Bank': battery.load_on_battery_bank,
-                'Practical Backup Time': battery.practical_backup_time,
-                'Battery Installed (New/Used)': battery.battery_installed_new_or_used,
-                'Battery Moved From': battery.battery_moved_from
-            } for battery in exchange.battery_banks] if exchange.battery_banks else [],
-            'AC Units': [{
-                'Location': ac.location_of_ac_unit,
-                'Working Status': ac.working_status,
-                'AC Make': ac.ac_make,
-                'Capacity (Tons)': ac.capacity_tons,
-                'Type of AC': ac.type_of_ac,
-                'Mount Type': ac.mount_type,
-                'Date of Installation': ac.date_of_installation,
-                'Sequence Controller Installed': ac.sequence_controller_installed,
-                'AC Load': ac.ac_load,
-                'Total AC Load': ac.total_ac_load,
-                'Fault Nature of AC Unit': ac.fault_nature_of_ac_unit,
-                'Estimate to Repair AC': ac.estimate_to_repair_ac
-            } for ac in exchange.ac_units] if exchange.ac_units else [],
-            'Solar Info': {
-                'Total Solar Size': exchange.solar_info.total_solar_size if exchange.solar_info else None,
-                'PV Solar Panel Capacity': exchange.solar_info.pv_solar_panel_capacity if exchange.solar_info else None,
-                'No of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed if exchange.solar_info else None,
-                'Make of PV Panels': exchange.solar_info.make_of_pv_panels if exchange.solar_info else None,
-                'Charge Controller Make': exchange.solar_info.charge_controller_make if exchange.solar_info else None
-            },
-            'Colocation Info': {
-                'Colocation': exchange.colocation_info.colocation if exchange.colocation_info else None,
-                'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors if exchange.colocation_info else None,
-                'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor if exchange.colocation_info else None,
-                'Total Load': exchange.colocation_info.total_load if exchange.colocation_info else None
-            },
-            'Building Info': {
-                'Building Status': exchange.building_info.building_status if exchange.building_info else None,
-                'Wall/Doors Condition': exchange.building_info.wall_doors_condition if exchange.building_info else None
-            },
-            'Alarms': [{
-                'AC Main Failure': alarm.ac_main_failure,
-                'DC Low Voltages': alarm.dc_low_voltages,
-                'Rectifier Failure': alarm.rectifier_failure
-            } for alarm in exchange.alarms] if exchange.alarms else [],
-            'Earthings': [{
-                'Earthing Value': earthing.earthing_value,
-                'No of Pits': earthing.no_of_pits
-            } for earthing in exchange.earthings] if exchange.earthings else [],
-            'Fire Extinguishers': [{
-                'Installed': fe.fe_installed,
-                'No of FEs': fe.no_of_fes,
-                'Type of Gas': fe.type_of_gas,
-                'Date of Expiry': fe.date_of_expiry
-            } for fe in exchange.fire_extinguishers] if exchange.fire_extinguishers else [],
-            'PMR Infos': [{
-                'PMR Performed': pmr.pmr_performed,
-                'Last Performed Date': pmr.last_performed_date
-            } for pmr in exchange.pmr_infos] if exchange.pmr_infos else []
-        }
+        row = {}
+        # General Information
+        row['SN'] = exchange.sn
+        row['Region'] = exchange.region
+        row['Domain'] = exchange.domain
+        row['Exchange Name'] = exchange.site_name
+        row['Exchange LIC'] = exchange.site_lic
+        row['FLC'] = exchange.flc
+        row['Site Category'] = exchange.site_category
+        row['NEs Installed (Complete Detail)'] = exchange.nes_installed
+        row['Latitude'] = exchange.latitude
+        row['Longitude'] = exchange.longitude
+        row['Tower Available (Y/N)'] = exchange.tower_available
+        row['Type and Height of Tower'] = ', '.join([tower.tower_type_height for tower in exchange.towers]) if exchange.towers else None
+
+        # Power Information
+        power_info = exchange.power_info if exchange.power_info else {}
+        row['Wapda Ref Number'] = power_info.get('wapda_ref_number')
+        row['Transformer Capacity'] = power_info.get('transformer_capacity')
+        row['Transformer Earthing'] = power_info.get('transformer_earthing')
+        row['Working Status (Y/N)'] = power_info.get('working_status')
+        row['Name of NEs Connected with Rectifier'] = power_info.get('name_of_nes_connected')
+        row['Load of Individual NE (A)'] = power_info.get('load_of_individual_ne')
+
+        # Rectifiers (up to 3 entries: A, B, C)
+        rectifiers = power_info.get('rectifiers', []) if power_info else []
+        for idx, rectifier in enumerate(rectifiers[:3]):
+            suffix = chr(65 + idx)  # A, B, C
+            row[f'Make of Rectifier {suffix}'] = rectifier.get('make_of_rectifier')
+            row[f'Rectifier Capacity (A) {suffix}'] = rectifier.get('rectifier_capacity')
+            row[f'No. of Modules {suffix}'] = rectifier.get('no_of_modules')
+            row[f'Capacity of Each Module (A) {suffix}'] = rectifier.get('capacity_of_each_module')
+            row[f'Working Modules (No.) {suffix}'] = rectifier.get('working_modules')
+            row[f'Faulty Modules (No.) {suffix}'] = rectifier.get('faulty_modules')
+            row[f'Space for New Modules (No.) {suffix}'] = rectifier.get('space_for_new_modules')
+            row[f'Grounding of Rectifier (Y/N) {suffix}'] = rectifier.get('grounding_of_rectifier')
+            row[f'SPD in Rectifier (Y/N) {suffix}'] = rectifier.get('spd_in_rectifier')
+            row[f'SPD Model (V and A Rating) {suffix}'] = rectifier.get('spd_model')
+            row[f'Total Installed SPDs {suffix}'] = rectifier.get('total_installed_spds')
+            row[f'No of Faulty SPDs {suffix}'] = rectifier.get('no_of_faulty_spds')
+
+        # DGs (up to 3 entries: A, B, C)
+        dgs = exchange.dgs if exchange.dgs else []
+        for idx, dg in enumerate(dgs[:3]):
+            suffix = chr(65 + idx)  # A, B, C
+            row[f'Installed DGs {suffix}'] = dg.installed_dg
+            row[f'Engine Make {suffix}'] = dg.engine_make
+            row[f'Installation Year {suffix}'] = dg.installation_year
+            row[f'DG Status {suffix}'] = dg.dg_status
+            row[f'DG Starting Battery {suffix}'] = dg.dg_starting_battery
+            row[f'Smart Switch Installed (Y/N) {suffix}'] = dg.smart_switch_installed
+            row[f'ATS Installed (Y/N) {suffix}'] = dg.ats_installed
+            row[f'ATS Capacity {suffix}'] = dg.ats_capacity
+            row[f'Name of Faulty ATS Parts (SS,Relays,Contactor etc) {suffix}'] = dg.name_of_faulty_ats_parts
+            row[f'No of Faulty ATS Parts {suffix}'] = dg.no_of_faulty_ats_parts
+            row[f'Load on DG P1 {suffix}'] = dg.load_on_dg_p1
+            row[f'Load on DG P2 {suffix}'] = dg.load_on_dg_p2
+            row[f'Load on DG P3 {suffix}'] = dg.load_on_dg_p3
+            row[f'Site Load Total {suffix}'] = dg.site_load_total
+            row[f'Site Load P1 {suffix}'] = dg.site_load_p1
+            row[f'Site Load P2 {suffix}'] = dg.site_load_p2
+            row[f'Site Load P3 {suffix}'] = dg.site_load_p3
+
+        # Battery Bank Information (up to 3 entries: A, B, C)
+        battery_banks = exchange.battery_banks if exchange.battery_banks else []
+        for idx, battery in enumerate(battery_banks[:3]):
+            suffix = chr(65 + idx)  # A, B, C
+            row[f'Make of Battery {suffix}'] = battery.make_of_battery
+            row[f'Battery Capacity (AH) {suffix}'] = battery.battery_capacity
+            row[f'Battery Type (2V/12V) {suffix}'] = battery.battery_type
+            row[f'No. of Cells/Bank {suffix}'] = battery.no_of_cells_bank
+            row[f'Date of Installation (Battery) {suffix}'] = battery.date_of_installation
+            row[f'Load on Battery Bank (A) {suffix}'] = battery.load_on_battery_bank
+            row[f'Practical Backup Time (Hrs) {suffix}'] = battery.practical_backup_time
+            row[f'Battery Installed New or Used {suffix}'] = battery.battery_installed_new_or_used
+            row[f'Battery Moved From (Incase Used Installed) {suffix}'] = battery.battery_moved_from
+
+        # AC Units Information (up to 3 entries: A, B, C)
+        ac_units = exchange.ac_units if exchange.ac_units else []
+        for idx, ac in enumerate(ac_units[:3]):
+            suffix = chr(65 + idx)  # A, B, C
+            row[f'Location of AC Unit {suffix}'] = ac.location_of_ac_unit
+            row[f'Working Status (AC) (Y/N) {suffix}'] = ac.working_status
+            row[f'AC Make {suffix}'] = ac.ac_make
+            row[f'Capacity (Tons) {suffix}'] = ac.capacity_tons
+            row[f'Type of AC {suffix}'] = ac.type_of_ac
+            row[f'Mount Type {suffix}'] = ac.mount_type
+            row[f'Date of Installation (AC) {suffix}'] = ac.date_of_installation
+            row[f'Sequence Controller Installed (Y/N) {suffix}'] = ac.sequence_controller_installed
+            row[f'AC Load {suffix}'] = ac.ac_load
+            row[f'Total AC Load {suffix}'] = ac.total_ac_load
+            row[f'Fault Nature of AC Unit {suffix}'] = ac.fault_nature_of_ac_unit
+            row[f'Estimate to Repair AC {suffix}'] = ac.estimate_to_repair_ac
+
+        # Installed Solar Information
+        solar_info = exchange.solar_info if exchange.solar_info else {}
+        row['Total Solar Size (KW)'] = solar_info.get('total_solar_size')
+        row['PV Solar Panel Capacity (W)'] = solar_info.get('pv_solar_panel_capacity')
+        row['No. of PV Panels Installed'] = solar_info.get('no_of_pv_panels_installed')
+        row['Make of PV Panels'] = solar_info.get('make_of_pv_panels')
+        row['Charge Controller Make'] = solar_info.get('charge_controller_make')
+        # Additional solar fields from the original sheet
+        row['No. of Charge Controllers'] = solar_info.get('no_of_charge_controllers')
+        row['Charge Controller Capacity (A)'] = solar_info.get('charge_controller_capacity')
+        row['Inverter Make'] = solar_info.get('inverter_make')
+        row['Inverter Capacity (KW)'] = solar_info.get('inverter_capacity')
+        row['No. of Inverters'] = solar_info.get('no_of_inverters')
+        row['On Grid/Hybrid?'] = solar_info.get('on_grid_hybrid')
+        row['Roof Top/Ground?'] = solar_info.get('roof_top_ground')
+
+        # Earthing
+        earthings = exchange.earthings if exchange.earthings else []
+        for idx, earthing in enumerate(earthings[:1]):  # Assuming one entry
+            row['Earthing Value'] = earthing.earthing_value
+            row['No. of Pits'] = earthing.no_of_pits
+
+        # Fire Extinguishers
+        fire_extinguishers = exchange.fire_extinguishers if exchange.fire_extinguishers else []
+        for idx, fe in enumerate(fire_extinguishers[:1]):  # Assuming one entry
+            row['FE Installed'] = fe.fe_installed
+            row['No. of FEs'] = fe.no_of_fes
+            row['Type of Gas'] = fe.type_of_gas
+            row['Date of Expiry'] = fe.date_of_expiry
+
+        # PMR Information
+        pmr_infos = exchange.pmr_infos if exchange.pmr_infos else []
+        for idx, pmr in enumerate(pmr_infos[:1]):  # Assuming one entry
+            row['PMR Performed (Y/N)'] = pmr.pmr_performed
+            row['Last Performed Date'] = pmr.last_performed_date
+
+        # Alarm Extension
+        alarms = exchange.alarms if exchange.alarms else []
+        for idx, alarm in enumerate(alarms[:1]):  # Assuming one entry
+            row['AC Main Failure (Y/N)'] = alarm.ac_main_failure
+            row['DC Low Voltages (Y/N)'] = alarm.dc_low_voltages
+            row['Rectifier Failure (Y/N)'] = alarm.rectifier_failure
+
+        # Colocation Information
+        colocation_info = exchange.colocation_info if exchange.colocation_info else {}
+        row['Colocation (Y/N)'] = colocation_info.get('colocation')
+        row['Name of Colocation Vendors'] = colocation_info.get('name_of_colocation_vendors')
+        row['Load of Each Vendor'] = colocation_info.get('load_of_each_vendor')
+        row['Total Load'] = colocation_info.get('total_load')
+
+        # Building Information
+        building_info = exchange.building_info if exchange.building_info else {}
+        row['Building Status (Good/Poor/Worst)'] = building_info.get('building_status')
+        row['Wall,Doors Condition'] = building_info.get('wall_doors_condition')
+
         table_data.append(row)
 
     logger.debug(f"Table data length: {len(table_data)}")
 
     # Handle export action
     if request.method == 'POST' and 'export_filtered' in request.form:
+        # Define section groups for labeling
+        section_groups = {
+            'Site Data': ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)', 'Type and Height of Tower'],
+            'Power Information': ['Wapda Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status (Y/N)', 'Name of NEs Connected with Rectifier', 'Load of Individual NE (A)'] + [col for col in list(table_data[0].keys()) if col.startswith(('Make of Rectifier', 'Rectifier Capacity', 'No. of Modules', 'Capacity of Each Module', 'Working Modules', 'Faulty Modules', 'Space for New Modules', 'Grounding of Rectifier', 'SPD in Rectifier', 'SPD Model', 'Total Installed SPDs', 'No of Faulty SPDs'))] + [col for col in list(table_data[0].keys()) if col.startswith(('Installed DGs', 'Engine Make', 'Installation Year', 'DG Status', 'DG Starting Battery', 'Smart Switch Installed', 'ATS Installed', 'ATS Capacity', 'Name of Faulty ATS Parts', 'No of Faulty ATS Parts', 'Load on DG P1', 'Load on DG P2', 'Load on DG P3', 'Site Load Total', 'Site Load P1', 'Site Load P2', 'Site Load P3'))],
+            'Battery Bank Information': [col for col in list(table_data[0].keys()) if col.startswith(('Make of Battery', 'Battery Capacity', 'Battery Type', 'No. of Cells/Bank', 'Date of Installation (Battery)', 'Load on Battery Bank', 'Practical Backup Time', 'Battery Installed New or Used', 'Battery Moved From'))],
+            'AC Units Information': [col for col in list(table_data[0].keys()) if col.startswith(('Location of AC Unit', 'Working Status (AC)', 'AC Make', 'Capacity (Tons)', 'Type of AC', 'Mount Type', 'Date of Installation (AC)', 'Sequence Controller Installed', 'AC Load', 'Total AC Load', 'Fault Nature of AC Unit', 'Estimate to Repair AC'))],
+            'Installed Solar Information': ['Total Solar Size (KW)', 'PV Solar Panel Capacity (W)', 'No. of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make', 'No. of Charge Controllers', 'Charge Controller Capacity (A)', 'Inverter Make', 'Inverter Capacity (KW)', 'No. of Inverters', 'On Grid/Hybrid?', 'Roof Top/Ground?'],
+            'Earthing': ['Earthing Value', 'No. of Pits'],
+            'Fire Extinguishers': ['FE Installed', 'No. of FEs', 'Type of Gas', 'Date of Expiry'],
+            'PMR Information': ['PMR Performed (Y/N)', 'Last Performed Date'],
+            'Alarm Extension': ['AC Main Failure (Y/N)', 'DC Low Voltages (Y/N)', 'Rectifier Failure (Y/N)'],
+            'Colocation Information': ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load'],
+            'Building Information': ['Building Status (Good/Poor/Worst)', 'Wall,Doors Condition']
+        }
+
+        # Create DataFrame with all columns
         df = pd.DataFrame(table_data)
+
+        # Reorder columns according to section groups
+        ordered_columns = []
+        for section, cols in section_groups.items():
+            ordered_columns.extend(cols)
+        df = df[ordered_columns]
+
+        # Create a list for section labels (to be inserted as a row)
+        section_labels = [''] * len(df.columns)
+        col_idx = 0
+        for section, cols in section_groups.items():
+            section_labels[col_idx] = section
+            col_idx += len(cols)
+
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='Filtered_Exchanges')
+            # Write section labels as the first row
+            pd.DataFrame([section_labels], columns=df.columns).to_excel(writer, sheet_name='Filtered_Exchanges', index=False, startrow=0)
+            # Write the actual data starting from the second row
+            df.to_excel(writer, sheet_name='Filtered_Exchanges', index=False, startrow=1)
+
             worksheet = writer.sheets['Filtered_Exchanges']
+            # Auto-adjust column widths
             for idx, col in enumerate(df.columns):
-                max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                max_len = max(
+                    df[col].astype(str).map(len).max() if not df[col].empty else 0,
+                    len(col),
+                    len(section_labels[idx])
+                ) + 2
                 worksheet.set_column(idx, idx, max_len)
+
+            # Optionally, apply formatting to section labels (e.g., bold)
+            workbook = writer.book
+            bold_format = workbook.add_format({'bold': True})
+            for col_idx, label in enumerate(section_labels):
+                if label:
+                    worksheet.write(0, col_idx, label, bold_format)
+
         output.seek(0)
         return send_file(
             output,
