@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Filters
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-8 text-white text-center bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-lg shadow-lg">
+        Filters
+    </h1>
+
+    <div class="bg-white shadow-xl rounded-lg overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-teal-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">SN</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Region</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Domain</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Site Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Site LIC</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">FLC</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Site Category</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">NEs Installed</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Latitude</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Longitude</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Tower Available</th>
+                    {% for i in range(1, (table_data|map(attribute='Towers')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Tower {{ i }} Type/Height</th>
+                    {% endfor %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">WAPDA Ref Number</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Transformer Capacity</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Transformer Earthing</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Working Status (Power)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Name of NEs Connected</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Load of Individual NE</th>
+                    {% for i in range(1, (table_data|map(attribute='Power Info')|map(attribute='Rectifiers')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Make</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Capacity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} No of Modules</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Capacity of Each Module</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Working Modules</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Faulty Modules</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Space for New Modules</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Grounding</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} SPD</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} SPD Model</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Total Installed SPDs</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} No of Faulty SPDs</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='DGs')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Installed DG</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Engine Make</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Installation Year</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} DG Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} DG Starting Battery</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Smart Switch Installed</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} ATS Installed</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} ATS Capacity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Name of Faulty ATS Parts</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} No of Faulty ATS Parts</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Load on DG P1</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Load on DG P2</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Load on DG P3</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Site Load Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Site Load P1</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Site Load P2</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">DG {{ i }} Site Load P3</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='Battery Banks')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Make</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Capacity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} No of Cells/Bank</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Date of Installation</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Load on Battery Bank</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Practical Backup Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Installed (New/Used)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Battery {{ i }} Moved From</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='AC Units')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Location</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Working Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Make</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Capacity (Tons)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Mount Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Date of Installation</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Sequence Controller Installed</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} AC Load</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Total AC Load</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Fault Nature</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">AC {{ i }} Estimate to Repair</th>
+                    {% endfor %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Total Solar Size</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">PV Solar Panel Capacity</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">No of PV Panels Installed</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Make of PV Panels</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Charge Controller Make</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Colocation</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Name of Colocation Vendors</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Load of Each Vendor</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Total Load</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Building Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Wall/Doors Condition</th>
+                    {% for i in range(1, (table_data|map(attribute='Alarms')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Alarm {{ i }} AC Main Failure</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Alarm {{ i }} DC Low Voltages</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Alarm {{ i }} Rectifier Failure</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='Earthings')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Earthing {{ i }} Value</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Earthing {{ i }} No of Pits</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='Fire Extinguishers')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">FE {{ i }} Installed</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">FE {{ i }} No of FEs</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">FE {{ i }} Type of Gas</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">FE {{ i }} Date of Expiry</th>
+                    {% endfor %}
+                    {% for i in range(1, (table_data|map(attribute='PMR Infos')|map('length')|max)|default(1) + 1) %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">PMR {{ i }} Performed</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">PMR {{ i }} Last Performed Date</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for row in table_data %}
+                <tr class="hover:bg-teal-50 transition duration-200">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.SN }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.Region }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.Domain }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Site Name'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Site LIC'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.FLC }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Site Category'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['NEs Installed'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.Latitude }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.Longitude }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Tower Available'] }}</td>
+                    {% for tower in row.Towers %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ tower }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.Towers|length), (table_data|map(attribute='Towers')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['WAPDA Ref Number'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Transformer Capacity'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Transformer Earthing'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Working Status'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Name of NEs Connected'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Load of Individual NE'] }}</td>
+                    {% for rectifier in row['Power Info']['Rectifiers'] %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.make_of_rectifier }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.rectifier_capacity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.no_of_modules }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.capacity_of_each_module }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.working_modules }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.faulty_modules }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.space_for_new_modules }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.grounding_of_rectifier }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.spd_in_rectifier }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.spd_model }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.total_installed_spds }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.no_of_faulty_spds }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['Power Info']['Rectifiers']|length), (table_data|map(attribute='Power Info')|map(attribute='Rectifiers')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    {% for dg in row.DGs %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Installed DG'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Engine Make'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Installation Year'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['DG Status'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['DG Starting Battery'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Smart Switch Installed'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['ATS Installed'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['ATS Capacity'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Name of Faulty ATS Parts'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['No of Faulty ATS Parts'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Load on DG P1'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Load on DG P2'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Load on DG P3'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Site Load Total'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Site Load P1'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Site Load P2'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Site Load P3'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.DGs|length), (table_data|map(attribute='DGs')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    {% for battery in row['Battery Banks'] %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Make of Battery'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Battery Capacity'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Battery Type'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['No of Cells/Bank'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Date of Installation'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Load on Battery Bank'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Practical Backup Time'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Battery Installed (New/Used)'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ battery['Battery Moved From'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['Battery Banks']|length), (table_data|map(attribute='Battery Banks')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    {% for ac in row['AC Units'] %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac.Location }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Working Status'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['AC Make'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Capacity (Tons)'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Type of AC'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Mount Type'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Date of Installation'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Sequence Controller Installed'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['AC Load'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Total AC Load'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Fault Nature of AC Unit'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ac['Estimate to Repair AC'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['AC Units']|length), (table_data|map(attribute='AC Units')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Solar Info']['Total Solar Size'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Solar Info']['PV Solar Panel Capacity'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Solar Info']['No of PV Panels Installed'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Solar Info']['Make of PV Panels'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Solar Info']['Charge Controller Make'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Colocation Info']['Colocation'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Colocation Info']['Name of Colocation Vendors'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Colocation Info']['Load of Each Vendor'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Colocation Info']['Total Load'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Building Info']['Building Status'] }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Building Info']['Wall/Doors Condition'] }}</td>
+                    {% for alarm in row.Alarms %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ alarm['AC Main Failure'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ alarm['DC Low Voltages'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ alarm['Rectifier Failure'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.Alarms|length), (table_data|map(attribute='Alarms')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    {% for earthing in row.Earthings %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ earthing['Earthing Value'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ earthing['No of Pits'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row.Earthings|length), (table_data|map(attribute='Earthings')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    {% for fe in row['Fire Extinguishers'] %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ fe.Installed }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ fe['No of FEs'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ fe['Type of Gas'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ fe['Date of Expiry'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['Fire Extinguishers']|length), (table_data|map(attribute='Fire Extinguishers')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                    {% for pmr in row['PMR Infos'] %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pmr['PMR Performed'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pmr['Last Performed Date'] }}</td>
+                    {% endfor %}
+                    {% for _ in range((row['PMR Infos']|length), (table_data|map(attribute='PMR Infos')|map('length')|max)|default(0)) %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
