@@ -1454,20 +1454,13 @@ def filters():
             row[f'Fault Nature of AC Unit {idx}'] = ac.fault_nature_of_ac_unit
             row[f'Estimate to Repair AC {idx}'] = ac.estimate_to_repair_ac
 
-        # Installed Solar Information
+        # Installed Solar Information (Updated to remove unwanted fields)
         solar_info = exchange.solar_info
         row['Total Solar Size (KW)'] = solar_info.total_solar_size if solar_info else None
         row['PV Solar Panel Capacity (W)'] = solar_info.pv_solar_panel_capacity if solar_info else None
         row['No. of PV Panels Installed'] = solar_info.no_of_pv_panels_installed if solar_info else None
         row['Make of PV Panels'] = solar_info.make_of_pv_panels if solar_info else None
         row['Charge Controller Make'] = solar_info.charge_controller_make if solar_info else None
-        row['No. of Charge Controllers'] = solar_info.no_of_charge_controllers if solar_info else None
-        row['Charge Controller Capacity (A)'] = solar_info.charge_controller_capacity if solar_info else None
-        row['Inverter Make'] = solar_info.inverter_make if solar_info else None
-        row['Inverter Capacity (KW)'] = solar_info.inverter_capacity if solar_info else None
-        row['No. of Inverters'] = solar_info.no_of_inverters if solar_info else None
-        row['On Grid/Hybrid?'] = solar_info.on_grid_hybrid if solar_info else None
-        row['Roof Top/Ground?'] = solar_info.roof_top_ground if solar_info else None
 
         # Earthing (all entries)
         earthings = exchange.earthings if exchange.earthings else []
@@ -1514,13 +1507,13 @@ def filters():
 
     # Handle export action
     if request.method == 'POST' and 'export_filtered' in request.form:
-        # Define section groups for labeling dynamically
+        # Define section groups for labeling dynamically (Updated to remove unwanted fields)
         section_groups = {
             'Site Data': ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)', 'Type and Height of Tower'],
             'Power Information': ['Wapda Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status (Y/N)', 'Name of NEs Connected with Rectifier', 'Load of Individual NE (A)'] + [col for col in list(table_data[0].keys()) if any(col.startswith(prefix) for prefix in ('Make of Rectifier', 'Rectifier Capacity', 'No. of Modules', 'Capacity of Each Module', 'Working Modules', 'Faulty Modules', 'Space for New Modules', 'Grounding of Rectifier', 'SPD in Rectifier', 'SPD Model', 'Total Installed SPDs', 'No of Faulty SPDs', 'Installed DGs', 'Engine Make', 'Installation Year', 'DG Status', 'DG Starting Battery', 'Smart Switch Installed', 'ATS Installed', 'ATS Capacity', 'Name of Faulty ATS Parts', 'No of Faulty ATS Parts', 'Load on DG P1', 'Load on DG P2', 'Load on DG P3', 'Site Load Total', 'Site Load P1', 'Site Load P2', 'Site Load P3'))],
             'Battery Bank Information': [col for col in list(table_data[0].keys()) if col.startswith(('Make of Battery', 'Battery Capacity', 'Battery Type', 'No. of Cells/Bank', 'Date of Installation (Battery)', 'Load on Battery Bank', 'Practical Backup Time', 'Battery Installed New or Used', 'Battery Moved From'))],
             'AC Units Information': [col for col in list(table_data[0].keys()) if col.startswith(('Location of AC Unit', 'Working Status (AC)', 'AC Make', 'Capacity (Tons)', 'Type of AC', 'Mount Type', 'Date of Installation (AC)', 'Sequence Controller Installed', 'AC Load', 'Total AC Load', 'Fault Nature of AC Unit', 'Estimate to Repair AC'))],
-            'Installed Solar Information': ['Total Solar Size (KW)', 'PV Solar Panel Capacity (W)', 'No. of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make', 'No. of Charge Controllers', 'Charge Controller Capacity (A)', 'Inverter Make', 'Inverter Capacity (KW)', 'No. of Inverters', 'On Grid/Hybrid?', 'Roof Top/Ground?'],
+            'Installed Solar Information': ['Total Solar Size (KW)', 'PV Solar Panel Capacity (W)', 'No. of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make'],
             'Earthing': [col for col in list(table_data[0].keys()) if col.startswith(('Earthing Value', 'No. of Pits'))],
             'Fire Extinguishers': [col for col in list(table_data[0].keys()) if col.startswith(('FE Installed', 'No. of FEs', 'Type of Gas', 'Date of Expiry'))],
             'PMR Information': [col for col in list(table_data[0].keys()) if col.startswith(('PMR Performed', 'Last Performed Date'))],
@@ -1578,7 +1571,7 @@ def filters():
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 
-    return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter)  
-
+    return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter)
+    
 if __name__ == '__main__':
     app.run(debug=True)
