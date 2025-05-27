@@ -42,6 +42,9 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s: %(message)s'
 )
 
+# Define logger for use throughout the app
+logger = logging.getLogger(__name__)
+
 # Supabase setup
 SUPABASE_URL = os.environ.get('SUPABASE_URL')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
