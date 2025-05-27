@@ -1306,14 +1306,27 @@ def view_exchanges():
         exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
     return render_template('view_exchanges.html', exchanges=exchanges)
     
-@app.route('/filters')
+@app.route('/filters', methods=['GET', 'POST'])
 @login_required
 def filters():
     user_region = session.get('region')
-    if user_region == "All":
-        exchanges = GeneralInformation.query.all()
-    else:
-        exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
+    # Get available filter options based on user's unlocked regions
+    available_domains = [d[0] for d in db.session.query(GeneralInformation.domain).filter_by(region=user_region).distinct().all()]
+    available_categories = [c[0] for c in db.session.query(GeneralInformation.site_category).filter_by(region=user_region).distinct().all()]
+
+    # Initialize filters from session or form
+    domain_filter = request.form.get('domain_filter') or session.get('domain_filter')
+    category_filter = request.form.get('category_filter') or session.get('category_filter')
+
+    # Apply filters
+    query = GeneralInformation.query.filter_by(region=user_region)
+    if domain_filter and domain_filter in available_domains:
+        query = query.filter_by(domain=domain_filter)
+        session['domain_filter'] = domain_filter
+    if category_filter and category_filter in available_categories:
+        query = query.filter_by(site_category=category_filter)
+        session['category_filter'] = category_filter
+    exchanges = query.all()
 
     # Prepare data for the table
     table_data = []
@@ -1423,7 +1436,30 @@ def filters():
         }
         table_data.append(row)
 
-    return render_template('filters.html', table_data=table_data)
+    # Handle form actions
+    if request.method == 'POST':
+        if 'clear_filters' in request.form:
+            session.pop('domain_filter', None)
+            session.pop('category_filter', None)
+            return redirect(url_for('filters'))
+        elif 'export_filtered' in request.form:
+            df = pd.DataFrame(table_data)
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df.to_excel(writer, index=False, sheet_name='Filtered_Exchanges')
+                worksheet = writer.sheets['Filtered_Exchanges']
+                for idx, col in enumerate(df.columns):
+                    max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                    worksheet.set_column(idx, idx, max_len)
+            output.seek(0)
+            return send_file(
+                output,
+                download_name='filtered_exchanges.xlsx',
+                as_attachment=True,
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+
+    return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter)
 
 if __name__ == '__main__':
     app.run(debug=True)

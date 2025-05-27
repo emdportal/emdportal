@@ -10,6 +10,55 @@
         Filters
     </h1>
 
+    <!-- Filter Form -->
+    <div class="mb-6 bg-gray-100 p-4 rounded-lg shadow-md">
+        <form method="POST" action="{{ url_for('filters') }}" class="flex flex-wrap gap-4 items-end">
+            <!-- Domain Filter -->
+            <div class="flex-1 min-w-[200px]">
+                <label for="domain_filter" class="block text-sm font-medium text-gray-700">Domain</label>
+                <select name="domain_filter" id="domain_filter" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">Select Domain</option>
+                    {% for domain in available_domains %}
+                        <option value="{{ domain }}" {% if domain == selected_domain %}selected{% endif %}>{{ domain }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Site Category Filter -->
+            <div class="flex-1 min-w-[200px]">
+                <label for="category_filter" class="block text-sm font-medium text-gray-700">Site Category</label>
+                <select name="category_filter" id="category_filter" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">Select Site Category</option>
+                    {% for category in available_categories %}
+                        <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Apply Filters Button -->
+            <div>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Apply Filters
+                </button>
+            </div>
+
+            <!-- Clear Filters Button -->
+            <div>
+                <button type="submit" name="clear_filters" value="clear" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Clear Filters
+                </button>
+            </div>
+
+            <!-- Export Filtered Data Button -->
+            <div>
+                <button type="submit" name="export_filtered" value="export" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Export Filtered Data
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
     <div class="bg-white shadow-xl rounded-lg overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-teal-50">
