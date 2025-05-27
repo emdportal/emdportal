@@ -1454,7 +1454,7 @@ def filters():
             row[f'Fault Nature of AC Unit {idx}'] = ac.fault_nature_of_ac_unit
             row[f'Estimate to Repair AC {idx}'] = ac.estimate_to_repair_ac
 
-        # Installed Solar Information (Updated to remove unwanted fields)
+        # Installed Solar Information
         solar_info = exchange.solar_info
         row['Total Solar Size (KW)'] = solar_info.total_solar_size if solar_info else None
         row['PV Solar Panel Capacity (W)'] = solar_info.pv_solar_panel_capacity if solar_info else None
@@ -1505,9 +1505,16 @@ def filters():
 
     logger.debug(f"Table data length: {len(table_data)}")
 
+    # Calculate the maximum number of rectifiers across all exchanges
+    max_rectifiers = 0
+    for exchange in exchanges:
+        rectifier_count = len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0
+        max_rectifiers = max(max_rectifiers, rectifier_count)
+    max_rectifiers = max(max_rectifiers, 1)  # Ensure at least 1 to avoid empty loops in the template
+
     # Handle export action
     if request.method == 'POST' and 'export_filtered' in request.form:
-        # Define section groups for labeling dynamically (Updated to remove unwanted fields)
+        # Define section groups for labeling dynamically
         section_groups = {
             'Site Data': ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)', 'Type and Height of Tower'],
             'Power Information': ['Wapda Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status (Y/N)', 'Name of NEs Connected with Rectifier', 'Load of Individual NE (A)'] + [col for col in list(table_data[0].keys()) if any(col.startswith(prefix) for prefix in ('Make of Rectifier', 'Rectifier Capacity', 'No. of Modules', 'Capacity of Each Module', 'Working Modules', 'Faulty Modules', 'Space for New Modules', 'Grounding of Rectifier', 'SPD in Rectifier', 'SPD Model', 'Total Installed SPDs', 'No of Faulty SPDs', 'Installed DGs', 'Engine Make', 'Installation Year', 'DG Status', 'DG Starting Battery', 'Smart Switch Installed', 'ATS Installed', 'ATS Capacity', 'Name of Faulty ATS Parts', 'No of Faulty ATS Parts', 'Load on DG P1', 'Load on DG P2', 'Load on DG P3', 'Site Load Total', 'Site Load P1', 'Site Load P2', 'Site Load P3'))],
@@ -1571,7 +1578,8 @@ def filters():
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 
-    return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter)
-    
+    # Pass max_rectifiers to the template
+    return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter, max_rectifiers=max_rectifiers)  
+
 if __name__ == '__main__':
     app.run(debug=True)
