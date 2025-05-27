@@ -44,6 +44,7 @@ logging.basicConfig(
 
 # Define logger for use throughout the app
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # Supabase setup
 SUPABASE_URL = os.environ.get('SUPABASE_URL')
