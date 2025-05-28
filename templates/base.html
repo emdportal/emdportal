@@ -20,6 +20,7 @@
             transition: background 0.2s, color 0.2s;
         }
         .sidebar-pill.active, .sidebar-pill:hover {
+            /* Sunset gradient: pink-500 to yellow-400 */
             background: linear-gradient(90deg, #ec4899 0%, #fbbf24 100%);
             color: #fff !important;
             box-shadow: 0 4px 16px rgba(236, 72, 153, 0.20);
@@ -66,6 +67,24 @@
                 font-size: 1.25rem;
                 color: #334155;
                 z-index: 1;
+            }
+        }
+        /* Desktop center EMD Portal header */
+        @media (min-width: 1024px) {
+            .desktop-header-center {
+                position: absolute;
+                left: 50%;
+                top: 0;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                transform: translateX(-50%);
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #111;
+                letter-spacing: 0.02em;
+                z-index: 20;
+                /* Matches the height of header (h-16) */
             }
         }
     </style>
@@ -213,8 +232,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <span class="font-bold text-xl text-[#334155] hidden lg:block">EMD Portal</span>
         </div>
+        <!-- Centered EMD Portal for desktop and mobile -->
+        <span class="desktop-header-center hidden lg:flex">EMD Portal</span>
         <span class="mobile-header-title lg:hidden">EMD Portal</span>
         <div class="flex items-center gap-3">
             <span class="hidden md:block text-gray-700 font-medium">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
