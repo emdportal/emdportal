@@ -1443,34 +1443,12 @@ def export():
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
 
-        # Create a list of sections with their headers and formats
-        sections = [
-            ("General Information", general_info_headers, general_info_format),
-            ("Power Information", power_headers, power_info_format),
-            ("Battery Bank Information", battery_headers, battery_format),
-            ("AC Units Information", ac_headers, ac_format),
-            ("Installed Solar Information", solar_headers, solar_format),
-            ("Earthing", earthing_headers, earthing_format),
-            ("Fire Extinguishers", fire_ext_headers, fire_ext_format),
-            ("PMR Information", pmr_headers, pmr_format),
-            ("Alarm Extension", alarm_headers, alarm_format),
-            ("Colocation Information", colocation_headers, colocation_format),
-            ("Building Information", building_headers, building_format)
-        ]
-
-        # Filter out sections with no headers to avoid empty merges
-        sections = [(title, headers, fmt) for title, headers, fmt in sections if headers]
-
-        all_headers = []
-        for _, headers, _ in sections:
-            all_headers.extend(headers)
-
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             workbook = writer.book
             worksheet = workbook.add_worksheet('Exchanges')
 
-            # Define formats
+            # Define formats before referencing them
             header_format = workbook.add_format({'bg_color': '#4BACC6', 'font_color': 'white', 'bold': True, 'border': 1})
             general_info_format = workbook.add_format({'bg_color': '#D3D3D3', 'border': 1})
             power_info_format = workbook.add_format({'bg_color': '#ADD8E6', 'border': 1})
@@ -1483,6 +1461,28 @@ def export():
             alarm_format = workbook.add_format({'bg_color': '#B0C4DE', 'border': 1})
             colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
             building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
+
+            # Create a list of sections with their headers and formats
+            sections = [
+                ("General Information", general_info_headers, general_info_format),
+                ("Power Information", power_headers, power_info_format),
+                ("Battery Bank Information", battery_headers, battery_format),
+                ("AC Units Information", ac_headers, ac_format),
+                ("Installed Solar Information", solar_headers, solar_format),
+                ("Earthing", earthing_headers, earthing_format),
+                ("Fire Extinguishers", fire_ext_headers, fire_ext_format),
+                ("PMR Information", pmr_headers, pmr_format),
+                ("Alarm Extension", alarm_headers, alarm_format),
+                ("Colocation Information", colocation_headers, colocation_format),
+                ("Building Information", building_headers, building_format)
+            ]
+
+            # Filter out sections with no headers to avoid empty merges
+            sections = [(title, headers, fmt) for title, headers, fmt in sections if headers]
+
+            all_headers = []
+            for _, headers, _ in sections:
+                all_headers.extend(headers)
 
             logging.info("Writing section headers to Excel...")
             # Write all headers in one row, using column offsets
