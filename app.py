@@ -1136,15 +1136,68 @@ def export():
         logging.info(f"Processing {len(exchanges)} exchanges for export.")
 
         # Determine the maximum number of entries for each related model
-        max_towers = max((len(exchange.towers) if exchange.towers else 0 for exchange in exchanges), default=0)
-        max_dgs = max((len(exchange.dgs) if exchange.dgs else 0 for exchange in exchanges), default=0)
-        max_batteries = max((len(exchange.battery_banks) if exchange.battery_banks else 0 for exchange in exchanges), default=0)
-        max_acs = max((len(exchange.ac_units) if exchange.ac_units else 0 for exchange in exchanges), default=0)
-        max_alarms = max((len(exchange.alarms) if exchange.alarms else 0 for exchange in exchanges), default=0)
-        max_earthings = max((len(exchange.earthings) if exchange.earthings else 0 for exchange in exchanges), default=0)
-        max_fire_extinguishers = max((len(exchange.fire_extinguishers) if exchange.fire_extinguishers else 0 for exchange in exchanges), default=0)
-        max_pmrs = max((len(exchange.pmr_infos) if exchange.pmr_infos else 0 for exchange in exchanges), default=0)
-        max_rectifiers = max((len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges), default=0)
+        try:
+            max_towers = max((len(exchange.towers or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_towers")
+        except ValueError as e:
+            logging.error(f"Error calculating max_towers: {str(e)}")
+            max_towers = 0
+
+        try:
+            max_dgs = max((len(exchange.dgs or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_dgs")
+        except ValueError as e:
+            logging.error(f"Error calculating max_dgs: {str(e)}")
+            max_dgs = 0
+
+        try:
+            max_batteries = max((len(exchange.battery_banks or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_batteries")
+        except ValueError as e:
+            logging.error(f"Error calculating max_batteries: {str(e)}")
+            max_batteries = 0
+
+        try:
+            max_acs = max((len(exchange.ac_units or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_acs")
+        except ValueError as e:
+            logging.error(f"Error calculating max_acs: {str(e)}")
+            max_acs = 0
+
+        try:
+            max_alarms = max((len(exchange.alarms or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_alarms")
+        except ValueError as e:
+            logging.error(f"Error calculating max_alarms: {str(e)}")
+            max_alarms = 0
+
+        try:
+            max_earthings = max((len(exchange.earthings or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_earthings")
+        except ValueError as e:
+            logging.error(f"Error calculating max_earthings: {str(e)}")
+            max_earthings = 0
+
+        try:
+            max_fire_extinguishers = max((len(exchange.fire_extinguishers or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_fire_extinguishers")
+        except ValueError as e:
+            logging.error(f"Error calculating max_fire_extinguishers: {str(e)}")
+            max_fire_extinguishers = 0
+
+        try:
+            max_pmrs = max((len(exchange.pmr_infos or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_pmrs")
+        except ValueError as e:
+            logging.error(f"Error calculating max_pmrs: {str(e)}")
+            max_pmrs = 0
+
+        try:
+            max_rectifiers = max((len((exchange.power_info.rectifiers if exchange.power_info and exchange.power_info.rectifiers else []) or []) for exchange in exchanges), default=0)
+            logging.debug("Successfully calculated max_rectifiers")
+        except ValueError as e:
+            logging.error(f"Error calculating max_rectifiers: {str(e)}")
+            max_rectifiers = 0
 
         logging.info(f"Max entries - Towers: {max_towers}, DGs: {max_dgs}, Batteries: {max_batteries}, ACs: {max_acs}, Alarms: {max_alarms}, Earthings: {max_earthings}, Fire Extinguishers: {max_fire_extinguishers}, PMRs: {max_pmrs}, Rectifiers: {max_rectifiers}")
 
@@ -1168,7 +1221,7 @@ def export():
                     'Tower Available (Y/N)': exchange.tower_available
                 })
                 for i in range(max_towers):
-                    tower = exchange.towers[i] if i < len(exchange.towers) else None
+                    tower = exchange.towers[i] if i < len(exchange.towers or []) else None
                     row[f'Type and Height of Tower {i+1}'] = tower.tower_type_height if tower else None
 
                 # Power Information
@@ -1180,7 +1233,7 @@ def export():
                         'Installed DGs': exchange.power_info.installed_dgs,
                     })
                     for i in range(max_dgs):
-                        dg = exchange.dgs[i] if i < len(exchange.dgs) else None
+                        dg = exchange.dgs[i] if i < len(exchange.dgs or []) else None
                         row.update({
                             f'Engine Make {i+1}': dg.engine_make if dg else None,
                             f'Installation Year {i+1}': dg.installation_year if dg else None,
@@ -1200,7 +1253,7 @@ def export():
                             f'Site Load P3 {i+1}': dg.site_load_p3 if dg else None
                         })
                     for i in range(max_rectifiers):
-                        rectifier = exchange.power_info.rectifiers[i] if i < len(exchange.power_info.rectifiers) else None
+                        rectifier = exchange.power_info.rectifiers[i] if i < len(exchange.power_info.rectifiers or []) else None
                         if rectifier:
                             row.update({
                                 f'Make of Rectifier {i+1}': rectifier.get('make_of_rectifier', ''),
@@ -1222,7 +1275,7 @@ def export():
 
                 # Battery Bank Information
                 for i in range(max_batteries):
-                    battery = exchange.battery_banks[i] if i < len(exchange.battery_banks) else None
+                    battery = exchange.battery_banks[i] if i < len(exchange.battery_banks or []) else None
                     row.update({
                         f'Make of Battery {i+1}': battery.make_of_battery if battery else None,
                         f'Battery Capacity {i+1} (AH)': battery.battery_capacity if battery else None,
@@ -1237,7 +1290,7 @@ def export():
 
                 # AC Units Information
                 for i in range(max_acs):
-                    ac = exchange.ac_units[i] if i < len(exchange.ac_units) else None
+                    ac = exchange.ac_units[i] if i < len(exchange.ac_units or []) else None
                     row.update({
                         f'Location of AC Unit {i+1}': ac.location_of_ac_unit if ac else None,
                         f'Working Status {i+1} (Y/N)': ac.working_status if ac else None,
@@ -1272,7 +1325,7 @@ def export():
 
                 # Earthing
                 for i in range(max_earthings):
-                    earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
+                    earthing = exchange.earthings[i] if i < len(exchange.earthings or []) else None
                     row.update({
                         f'Earthing Value {i+1}': earthing.earthing_value if earthing else None,
                         f'No. of Pits {i+1}': earthing.no_of_pits if earthing else None
@@ -1280,7 +1333,7 @@ def export():
 
                 # Fire Extinguishers
                 for i in range(max_fire_extinguishers):
-                    fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers) else None
+                    fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers or []) else None
                     row.update({
                         f'FE Installed {i+1}': fire_ext.fe_installed if fire_ext else None,
                         f'No. of FEs {i+1}': fire_ext.no_of_fes if fire_ext else None,
@@ -1290,7 +1343,7 @@ def export():
 
                 # PMR Information
                 for i in range(max_pmrs):
-                    pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
+                    pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos or []) else None
                     row.update({
                         f'PMR Performed {i+1} (Y/N)': pmr.pmr_performed if pmr else None,
                         f'Last Performed Date {i+1}': pmr.last_performed_date if pmr else None
@@ -1298,7 +1351,7 @@ def export():
 
                 # Alarm Extension
                 for i in range(max_alarms):
-                    alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
+                    alarm = exchange.alarms[i] if i < len(exchange.alarms or []) else None
                     row.update({
                         f'AC Main Failure {i+1} (Y/N)': alarm.ac_main_failure if alarm else None,
                         f'DC Low Voltages {i+1} (Y/N)': alarm.dc_low_voltages if alarm else None,
