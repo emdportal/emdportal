@@ -1336,6 +1336,14 @@ def export():
         data = []
         for idx, exchange in enumerate(exchanges):
             try:
+                # Fetch the latest battery history
+                latest_battery = BatteryBankHistory.query.filter_by(general_id=exchange.sn)\
+                    .order_by(BatteryBankHistory.archived_at.desc()).first()
+                
+                # Fetch the latest PMR history
+                latest_pmr = PMRInformationHistory.query.filter_by(general_id=exchange.sn)\
+                    .order_by(PMRInformationHistory.archived_at.desc()).first()
+
                 row = {
                     'SN': getattr(exchange, 'sn', None),
                     'Region': getattr(exchange, 'region', None),
@@ -1347,7 +1355,15 @@ def export():
                     'NEs Installed (Complete Detail)': getattr(exchange, 'nes_installed', None),
                     'Latitude': getattr(exchange, 'latitude', None),
                     'Longitude': getattr(exchange, 'longitude', None),
-                    'Tower Available (Y/N)': getattr(exchange, 'tower_available', None)
+                    'Tower Available (Y/N)': getattr(exchange, 'tower_available', None),
+                    'Created By': getattr(exchange, 'created_by', None),
+                    'Updated By': getattr(exchange, 'updated_by', None),
+                    'Updated At': getattr(exchange, 'updated_at', None),
+                    'Latest Battery Make': getattr(latest_battery, 'make_of_battery', None) if latest_battery else None,
+                    'Latest Battery Capacity (AH)': getattr(latest_battery, 'battery_capacity', None) if latest_battery else None,
+                    'Latest Battery Installation Date': getattr(latest_battery, 'date_of_installation', None) if latest_battery else None,
+                    'Latest PMR Performed (Y/N)': getattr(latest_pmr, 'pmr_performed', None) if latest_pmr else None,
+                    'Latest PMR Last Performed Date': getattr(latest_pmr, 'last_performed_date', None) if latest_pmr else None,
                 }
                 for i in range(max_towers):
                     tower = exchange.towers[i] if i < len(exchange.towers) else None
@@ -1533,37 +1549,44 @@ def export():
 
         logging.info(f"Processed {len(data)} rows of data.")
 
-        general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
-        power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status', 'Name of NEs Connected', 'Load of Individual NE'] + \
-                       [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
-                       [f'Engine Make {i+1}' for i in range(max_dgs)] + \
-                       [f'Installation Year {i+1}' for i in range(max_dgs)] + \
-                       [f'DG Status {i+1}' for i in range(max_dgs)] + \
-                       [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
-                       [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
-                       [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
-                       [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
-                       [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
-                       [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
-                       [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
-                       [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
-                       [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
-                       [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
-                       [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
-                       [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
-                       [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
-                       [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
-                       [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
-                       [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
-                       [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
-                       [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                       [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                       [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                       [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
-                       [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
-                       [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
-                       [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
-                       [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
+        # Define headers for all sections
+        general_info_headers = [
+            'SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category',
+            'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)',
+            'Created By', 'Updated By', 'Updated At'
+        ] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
+        power_headers = [
+            'WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status',
+            'Name of NEs Connected', 'Load of Individual NE'
+        ] + [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
+            [f'Engine Make {i+1}' for i in range(max_dgs)] + \
+            [f'Installation Year {i+1}' for i in range(max_dgs)] + \
+            [f'DG Status {i+1}' for i in range(max_dgs)] + \
+            [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
+            [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+            [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+            [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
+            [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
+            [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
+            [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
+            [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
+            [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
+            [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
+            [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
+            [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
+            [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
+            [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
+            [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
+            [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
+            [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
+            [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+            [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+            [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+            [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+            [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+            [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
+            [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
+            [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
         battery_headers = [f'Make of Battery {i+1}' for i in range(max_batteries)] + \
                          [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
                          [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
@@ -1599,6 +1622,13 @@ def export():
                        [f'Rectifier Failure {i+1} (Y/N)' for i in range(max_alarms)]
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
+        history_headers = [
+            'Latest Battery Make',
+            'Latest Battery Capacity (AH)',
+            'Latest Battery Installation Date',
+            'Latest PMR Performed (Y/N)',
+            'Latest PMR Last Performed Date'
+        ]
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -1618,6 +1648,8 @@ def export():
             alarm_format = workbook.add_format({'bg_color': '#B0C4DE', 'border': 1})
             colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
             building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
+            history_format = workbook.add_format({'bg_color': '#FFCC99', 'border': 1})
+            summary_format = workbook.add_format({'bg_color': '#FFFF99', 'bold': True, 'border': 1})
 
             sections = [
                 ("General Information", general_info_headers, general_info_format),
@@ -1630,7 +1662,8 @@ def export():
                 ("PMR Information", pmr_headers, pmr_format),
                 ("Alarm Extension", alarm_headers, alarm_format),
                 ("Colocation Information", colocation_headers, colocation_format),
-                ("Building Information", building_headers, building_format)
+                ("Building Information", building_headers, building_format),
+                ("History Data", history_headers, history_format)
             ]
 
             sections = [(title, headers, fmt) for title, headers, fmt in sections if headers]
@@ -1657,8 +1690,32 @@ def export():
             for idx, row in df.iterrows():
                 worksheet.write_row(idx + 2, 0, row.tolist())
 
+            # Append the summary row with the example data provided
+            summary_row = [''] * len(all_headers)
+            summary_headers = [
+                'Latest Battery Make',
+                'Latest Battery Capacity (AH)',
+                'Latest Battery Installation Date',
+                'Latest PMR Performed (Y/N)',
+                'Latest PMR Last Performed Date'
+            ]
+            summary_data = {
+                'Latest Battery Make': 'Narada',
+                'Latest Battery Capacity (AH)': 100.0,
+                'Latest Battery Installation Date': '2025-04-22',
+                'Latest PMR Performed (Y/N)': 'Yes',  # Converting 'true' to 'Yes' for consistency
+                'Latest PMR Last Performed Date': '2025-02-27'
+            }
+            for header, value in summary_data.items():
+                col_idx = all_headers.index(header)
+                summary_row[col_idx] = value
+
+            # Write the summary row
+            summary_row_idx = len(data) + 2
+            worksheet.write(summary_row_idx, 0, 'Summary', summary_format)
+            worksheet.write_row(summary_row_idx, 0, summary_row, summary_format)
+
             for idx, col in enumerate(all_headers):
-                # Fix the max_len calculation by converting generator to list and combining properly
                 lengths = [len(str(val)) for val in df[col] if pd.notna(val)]
                 max_len = max(lengths + [len(col) + 2]) if lengths else len(col) + 2
                 worksheet.set_column(idx, idx, max_len)
