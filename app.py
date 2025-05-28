@@ -29,6 +29,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
+# Define a custom datetime filter
+@app.template_filter('datetime')
+def format_datetime(value):
+    if value is None:
+        return "N/A"
+    if isinstance(value, datetime):
+        return value.strftime('%Y-%m-%d %H:%M:%S')  # Customize the format as needed
+    return str(value)
+
 # Initialize database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
