@@ -1119,7 +1119,7 @@ def export():
         logging.info("Starting export process...")
         user_region = session.get('region')
         if user_region == "All":
-            exchanges = GeneralInformation.query.limit(500).all()  # Reduced limit to test memory issues
+            exchanges = GeneralInformation.query.limit(500).all()
         else:
             exchanges = GeneralInformation.query.filter_by(domain=user_region).limit(500).all()
 
@@ -1262,7 +1262,7 @@ def export():
                         f'Sequence Controller Installed {i+1} (Y/N)': ac.sequence_controller_installed if ac else None,
                         f'AC Load {i+1}': ac.ac_load if ac else None,
                         f'Total AC Load {i+1}': ac.total_ac_load if ac else None,
-                        f'Fault Nature of AC Unit {i+1}': ac.fault_nature_of_ac_unit if ac else None,
+                        f'Fault Nature of AC Unit {i+1}': ac.fault_nature if ac else None,
                         f'Estimate to Repair AC {i+1}': ac.estimate_to_repair_ac if ac else None
                     })
 
@@ -1270,18 +1270,30 @@ def export():
                 if exchange.solar_info:
                     row.update({
                         'Total Solar Size (KW)': exchange.solar_info.total_solar_size,
+                        'PV Solar Size (KW)',
                         'PV Solar Panel Capacity (W)': exchange.solar_info.pv_solar_panel_capacity,
                         'No. of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed,
                         'Make of PV Panels': exchange.solar_info.make_of_pv_panels,
                         'Charge Controller Make': exchange.solar_info.charge_controller_make,
+                        'No. of Charge Controllers': {exchange.solar_info.no_of_charge_controllers},
+                        'Inverter Make': '',
+                        'No. of Inverters',
+                        'Total Inverter Capacity (KW)',
+                        'Total Solar Capacity (KW)',
                     })
                 else:
                     row.update({
                         'Total Solar Size (KW)': None,
+                        'PV Solar Size (KW)': None,
                         'PV Solar Panel Capacity (W)': None,
-                        'No. of PV Panels Installed': None,
+                        'No. of PVs': None,
                         'Make of PV Panels': None,
                         'Charge Controller Make': None,
+                        'No. of Charge Controllers': None,
+                        'Inverter Make': None,
+                        'No. of Inverters': None,
+                        'Total Inverter Capacity (KW)': None,
+                        'Total Solar Capacity (KW)': None,
                     })
 
                 # Earthing
@@ -1289,7 +1301,7 @@ def export():
                     earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
                     row.update({
                         f'Earthing Value {i+1}': earthing.earthing_value if earthing else None,
-                        f'No. of Pits {i+1}': earthing.no_of_pits if earthing else None
+                        f'No. of Pits {i+1}'': earthing.no_of_pits if earthing else None
                     })
 
                 # Fire Extinguishers
@@ -1306,23 +1318,23 @@ def export():
                 for i in range(max_pmrs):
                     pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
                     row.update({
-                        f'PMR Performed {i+1} (Y/N)': pmr.pmr_performed if pmr else None,
-                        f'Last Performed Date {i+1}': pmr.last_performed_date if pmr else None
-                    })
+                        f'PMR Performed {i+1} (Y/N)': pmr.ppmr_performed if pmr else None,
+                        f'Last Performed Date {i+1}'': pmr.last_performed_date if pmr else None
+                            })
 
                 # Alarm Extension
                 for i in range(max_alarms):
                     alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
                     row.update({
-                        f'AC Main Failure {i+1} (Y/N)': alarm.ac_main_failure if alarm else None,
-                        f'DC Low Voltages {i+1} (Y/N)': alarm.dc_low_voltages if alarm else None,
-                        f'Rectifier Failure {i+1} (Y/N)': alarm.rectifier_failure if alarm else None
+                        f'AC Main Failure {i+1} (Y/N)': alarm.ac_main_failure if alarm al else None,
+                        f'DC Low Voltages {i+1}'': alarm.dc_low_voltages if al else None,
+                        f'Rectifier Failure {i+1} (Y/N)'}: alarm.rectifier_failure if al else None
                     })
 
                 # Colocation Information
                 if exchange.colocation_info:
                     row.update({
-                        'Colocation (Y/N)': exchange.colocation_info.colocation,
+                        'Colocation (Y/N)'': exchange.colocation_info.colocation,
                         'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors,
                         'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor,
                         'Total Load': exchange.colocation_info.total_load
@@ -1331,15 +1343,15 @@ def export():
                     row.update({
                         'Colocation (Y/N)': None,
                         'Name of Colocation Vendors': None,
-                        'Load of Each Vendor': None,
+                        'Load of Each VE': None,
                         'Total Load': None
                     })
 
                 # Building Information
                 if exchange.building_info:
                     row.update({
-                        'Building Status (Good/Poor/Worst)': exchange.building_info.building_status,
-                        'Wall/Doors Condition': exchange.building_info.wall_doors_condition
+                        'Building Status (Good/Poor/Worst)'': exchange.building_info.building_status,
+                        'Wall/Doors Condition': exchange.building_info.wall_doors_condition'
                     })
                 else:
                     row.update({
@@ -1354,52 +1366,52 @@ def export():
 
         if not data:
             flash('No data available to export after processing.')
-            logging.warning("No data available to export after processing.")
+            logging.warning("No data available to export after processing.')
             return redirect(url_for('index'))
 
         logging.info(f"Processed {len(data)} rows of data.")
 
         # Define headers for each section
-        general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
+        general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site', 'Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
         power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status', 'Name of NEs Connected', 'Load of Individual NE'] + \
                         [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
                         [f'Engine Make {i+1}' for i in range(max_dgs)] + \
                         [f'Installation Year {i+1}' for i in range(max_dgs)] + \
                         [f'DG Status {i+1}' for i in range(max_dgs)] + \
                         [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
-                        [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
-                        [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
-                        [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
-                        [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
+                        [f'Smart Switch Installed {i+}1 (Y/N)' for i in range(max_dgs)] + \
+                        [f'ATS Installed {i+}1} (Y/N)' for i in range(max_dgs)] + \
+                        [f'ATS Capacity {i+}1}' for i in range(max_dgs)] + \
+                        [f'Name of Faulty ATS Parts {i+}1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
                         [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
                         [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
-                        [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
+                        [f'Load on DG P2 {i+}1}' for i in range(max_dgs)] + \
                         [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
+                        [f'Site Load Total {i+} {1}' for i in range(max_dgs)] + \
+                        [f'Site Load P1 {i+}1}' for i in range(max_dgs)] + \
                         [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
                         [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
-                        [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
-                        [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
-                        [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
-                        [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
-                        [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                        [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                        [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                        [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
-                        [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
-                        [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
-                        [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
-                        [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
-        battery_headers = [f'Make of Battery {i+1}' for i in range(max_batteries)] + \
-                          [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
-                          [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
-                          [f'No. of Cells/Bank {i+1}' for i in range(max_batteries)] + \
-                          [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
-                          [f'Load on Battery Bank {i+1} (A)' for i in range(max_batteries)] + \
-                          [f'Practical Backup Time {i+1} (Hrs)' for i in range(max_batteries)] + \
-                          [f'Battery Installed {i+1} New or Used' for i in range(max_batteries)] + \
-                          [f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
+                        [f'Make of Rectifier {i+}1}' for i in range(max_rectifiers)] + \
+                        [f'Rectifier Capacity {i+}1 (A)' for i in range(max_rectifiers)] + \
+                        [f'No of Modules {i+}1' for i in range(max_rectifiers)] + \
+                        [f'Capacity of Each Module {i+}1} (A)' for i in range(max_rectifiers)] + \
+                        [f'Working Modules {i+}1} (No)' for i in range(max_rectifiers)] + \
+                        [f'Faulty Modules {i+}1} (No)' for i in range(max_rectifiers)] + \
+                        [f'Space for New Modules {i+1} (No)' for i in range(max_rectifiers)] + \
+                        [f'Grounding of Rectifier {i+}1} (Y/N)' for i in range(max_rectifiers)] + \
+                        [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_dgs)] + \
+                        [f'SPD Model {i+}1} (V and A Rating)' for i in range(max_dgs)] + \
+                            [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
+                            [f'No of Faulty SPDs {i+1}' for i in range(max_dgs)]
+        battery_headers = [f'[f'Make of Battery {i+1}' for i in range(max_batteries)] + \
+                           [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
+                           [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
+                           [f'No of Cells/Bank {i+}1}' for i in range(max_batteries)] + \
+                           [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
+                           [f'Load on Battery Bank {i+}1} (A)' for i in range(max_batteries)] + \
+                           [f'Practical Backup Time {i+}1} (Hrs)' for i in range(max_batteries)] + \
+                           [f'Battery Installed {i+}1} New or Used' for i in range(max_batteries)] + \
+                           [f'Battery Moved From {i+}1} (Incase Used Installed)' for i in range(max_batteries)]
         ac_headers = [f'Location of AC Unit {i+1}' for i in range(max_acs)] + \
                      [f'Working Status of AC {i+1} (Working/Faulty/Spare)' for i in range(max_acs)] + \
                      [f'AC Make {i+1}' for i in range(max_acs)] + \
@@ -1427,118 +1439,113 @@ def export():
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
 
-        all_headers = general_info_headers + power_headers + battery_headers + ac_headers + solar_headers + earthing_headers + fire_ext_headers + pmr_headers + alarm_headers + colocation_headers + building_headers
+        all_headers = general_info_headers + power_headers + battery_headers + ac_headers + battery_headers + solar_headers + ac_headers + earthing_headers + fire_ext_headers + pmr_headers + alarm_headers + colocation_headers + building_headers
 
         output = io.BytesIO()
-        try:
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                workbook = writer.book
-                worksheet = workbook.add_worksheet('Exchanges')
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            workbook = writer.book
+            worksheet = workbook.add_worksheet('Exchanges')
 
-                # Define colors based on the original Excel sheet
-                header_format = workbook.add_format({'bg_color': '#4BACC6', 'font_color': 'white', 'bold': True, 'border': 1})
-                general_info_format = workbook.add_format({'bg_color': '#D3D3D3', 'border': 1})
-                power_info_format = workbook.add_format({'bg_color': '#ADD8E6', 'border': 1})
-                battery_format = workbook.add_format({'bg_color': '#90EE90', 'border': 1})
-                ac_format = workbook.add_format({'bg_color': '#FFB6C1', 'border': 1})
-                solar_format = workbook.add_format({'bg_color': '#FFD700', 'border': 1})
-                earthing_format = workbook.add_format({'bg_color': '#DDA0DD', 'border': 1})
-                fire_ext_format = workbook.add_format({'bg_color': '#FFA07A', 'border': 1})
-                pmr_format = workbook.add_format({'bg_color': '#98FB98', 'border': 1})
-                alarm_format = workbook.add_format({'bg_color': '#B0C4DE', 'border': 1})
-                colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
-                building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
+            # Define colors based on the original excel sheet
+            header_format = workbook.add_format({'bg_color': '#4BACC6', 'font_color': 'white', 'bold': True, 'border': 1})
+            general_info_format = workbook.add_format({'bg_color': '#D3D3D3', 'border': 1})
+            power_info_format = workbook.add_format({'bg_color': '#ADD8E6', 'border': 1})
+            battery_format = workbook.add_format({'bg_color': '#90EE90', 'border': 1})
+            ac_format = workbook.add_format({'bg_color': '#FFB6C1', 'border': 1})
+            solar_format = workbook.add_format({'bg_color': '#FFB300', 'border': 1})
+            earthing_format = workbook.add_format({'bg_color': '#DDA0DD', 'border': 1})
+            fire_ext_format = workbook.add_format({'bg_color': '#FFA07A', 'border': 1})
+            pmr_format = workbook.add_format({'bg_color': '#98FB98', 'border': 1})
+            alarm_format = workbook.add_format({'bg_color': '#B0C4DE', 'border': 1})
+            colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
+            building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
 
-                logging.info("Writing section headers to Excel...")
+            logging.info("Writing section headers to Excel...")
+            # Write section headers
+            row = 0
+            col = 0
+            worksheet.merge_range(row, col, col, col + len(general_info_headers) - 1, 'General Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, general_info_headers, general_info_format)
+            row += 1
 
-                # Write section headers
-                row = 0
-                col = 0
-                worksheet.merge_range(row, col, row, col + len(general_info_headers) - 1, 'General Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, general_info_headers, general_info_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(power_headers) - 1, 'Power Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, power_headers, power_info_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(power_headers) - 1, 'Power Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, power_headers, power_info_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(battery_headers) - 1, 'Battery Bank Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, battery_headers, battery_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(battery_headers) - 1, 'Battery Bank Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, battery_headers, battery_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(ac_headers) - 1, 'AC Units Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, ac_headers, ac_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(ac_headers) - 1, 'AC Units Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, ac_headers, ac_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(solar_headers) - 1, 'Installed Solar Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, solar_headers, solar_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(solar_headers) - 1, 'Installed Solar Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, solar_headers, solar_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(earthing_headers) - 1, 'Earthing', header_format)
+            row += 1
+            worksheet.write_row(row, col, earthing_headers, earthing_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(earthing_headers) - 1, 'Earthing', header_format)
-                row += 1
-                worksheet.write_row(row, col, earthing_headers, earthing_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(fire_ext_headers) - 1, 'Fire Extinguishers', header_format)
+            row += 1
+            worksheet.write_row(row, col, fire_ext_headers, fire_ext_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(fire_ext_headers) - 1, 'Fire Extinguishers', header_format)
-                row += 1
-                worksheet.write_row(row, col, fire_ext_headers, fire_ext_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(pmr_headers) - 1, 'PMR Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, pmr_headers, pmr_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(pmr_headers) - 1, 'PMR Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, pmr_headers, pmr_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(alarm_headers) - 1, 'Alarm Extension', header_format)
+            row += 1
+            worksheet.write_row(row, col, alarm_headers, alarm_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(alarm_headers) - 1, 'Alarm Extension', header_format)
-                row += 1
-                worksheet.write_row(row, col, alarm_headers, alarm_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(colocation_headers) - 1, 'Colocation Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, colocation_headers, colocation_format)
+            row += 1
 
-                worksheet.merge_range(row, col, row, col + len(colocation_headers) - 1, 'Colocation Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, colocation_headers, colocation_format)
-                row += 1
+            worksheet.merge_range(row, col, row, col + len(building_headers) - 1, 'Building Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, building_headers, building_format)
+            row += 2  # Skip a row before data
 
-                worksheet.merge_range(row, col, row, col + len(building_headers) - 1, 'Building Information', header_format)
-                row += 1
-                worksheet.write_row(row, col, building_headers, building_format)
-                row += 2  # Skip a row before data
+            logging.info("Writing data rows to Excel...")
+            # Write data
+            for idx, exchange_data in enumerate(data):
+                try:
+                    current_row = row + idx
+                    worksheet.write_row(current_row, col, [exchange_data.get(header, '') for header in all_headers])
+                except Exception as e:
+                    logging.error(f"Error writing row {idx + 1} to Excel: {str(e)}")
+                    continue
 
-                logging.info("Writing data rows to Excel...")
+            logging.info("Adjusting column widths...")
+            # Auto-adjust column widths
+            for idx, header in enumerate(all_headers):
+                max_len = max(len(str(exchange_data.get(header, ''))) for exchange_data in data) + 2
+                max_len = max(max_len, len(header) + 2)
+                worksheet.set_column(idx, idx, max_len)
 
-                # Write data
-                for idx, exchange_data in enumerate(data):
-                    try:
-                        current_row = row + idx
-                        worksheet.write_row(current_row, col, [exchange_data.get(header, '') for header in all_headers])
-                    except Exception as e:
-                        logging.error(f"Error writing row {idx + 1} to Excel: {str(e)}")
-                        continue
+        logging.info("Excel file generated successfully.")
 
-                logging.info("Adjusting column widths...")
+        output.seek(0)
+        return send_file(
+            output,
+            download_name='exchanges.xlsx',
+            as_attachment=True,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
-                # Auto-adjust column widths
-                for idx, header in enumerate(all_headers):
-                    max_len = max(len(str(exchange_data.get(header, ''))) for exchange_data in data) + 2
-                    max_len = max(max_len, len(header) + 2)
-                    worksheet.set_column(idx, idx, max_len)
-
-            logging.info("Excel file generated successfully.")
-
-            output.seek(0)
-            return send_file(
-                output,
-                download_name='exchanges.xlsx',
-                as_attachment=True,
-                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-        finally:
-            output.close()
     except ImportError as e:
         flash(f'Export failed: Missing dependency - {str(e)}. Please ensure "xlsxwriter" is installed.')
         logging.error(f"Export failed due to missing dependency: {str(e)}")
@@ -1547,7 +1554,6 @@ def export():
         flash(f'Error exporting data: {str(e)}')
         logging.error(f"Error exporting data: {str(e)}", exc_info=True)
         return redirect(url_for('index'))
-        
         
 @app.route('/view_exchanges')
 @login_required
