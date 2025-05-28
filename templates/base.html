@@ -19,9 +19,9 @@
             transition: background 0.2s, color 0.2s;
         }
         .sidebar-pill.active, .sidebar-pill:hover {
-            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            background: linear-gradient(90deg, #06b6d4 0%, #10b981 100%);
             color: #fff;
-            box-shadow: 0 4px 16px rgba(75, 108, 183, 0.07);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.07);
         }
         .sidebar-pill .icon {
             min-width: 22px;
@@ -53,14 +53,14 @@
     <aside class="sidebar-bg fixed top-0 left-0 h-full w-64 px-6 py-7 flex flex-col z-40 hidden lg:flex">
         <div class="mb-8 flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
-            <span class="font-bold text-lg text-[#192a56]">EMD Portal</span>
+            <span class="font-bold text-lg text-[#134e4a]">EMD Portal</span>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#4b6cb7] to-[#182848] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#06b6d4] to-[#10b981] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <div class="text-base text-[#223] font-semibold">{{ session.get('username', 'User') }}</div>
-            <div class="text-xs text-[#8392AB]">{{ session.get('region', 'Unknown') }}</div>
+            <div class="text-base text-[#134e4a] font-semibold">{{ session.get('username', 'User') }}</div>
+            <div class="text-xs text-[#67e8f9]">{{ session.get('region', 'Unknown') }}</div>
         </div>
         <nav class="flex-1 flex flex-col gap-2">
             <a href="{{ url_for('index') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('index') else '' }}">
@@ -83,7 +83,7 @@
                 <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
                 <span>Export Data</span>
             </a>
-            <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#f87171] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
+            <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#ef4444] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
                 <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></span>
                 <span>Logout</span>
             </a>
@@ -94,14 +94,14 @@
     <div id="mobileSidebar" class="mobile-sidebar closed fixed top-0 left-0 h-full w-64 px-6 py-7 bg-white z-50 flex flex-col lg:hidden sidebar-bg">
         <div class="mb-8 flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
-            <span class="font-bold text-lg text-[#192a56]">EMD Portal</span>
+            <span class="font-bold text-lg text-[#134e4a]">EMD Portal</span>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#4b6cb7] to-[#182848] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#06b6d4] to-[#10b981] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <div class="text-base text-[#223] font-semibold">{{ session.get('username', 'User') }}</div>
-            <div class="text-xs text-[#8392AB]">{{ session.get('region', 'Unknown') }}</div>
+            <div class="text-base text-[#134e4a] font-semibold">{{ session.get('username', 'User') }}</div>
+            <div class="text-xs text-[#67e8f9]">{{ session.get('region', 'Unknown') }}</div>
         </div>
         <nav class="flex-1 flex flex-col gap-2">
             <!-- repeat menu as above -->
@@ -125,7 +125,7 @@
                 <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
                 <span>Export Data</span>
             </a>
-            <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#f87171] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
+            <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#ef4444] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
                 <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></span>
                 <span>Logout</span>
             </a>
@@ -141,11 +141,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <span class="font-bold text-xl text-[#192a56] hidden lg:block">EMD Portal</span>
+            <span class="font-bold text-xl text-[#134e4a] hidden lg:block">EMD Portal</span>
         </div>
         <div class="flex items-center gap-3">
             <span class="hidden md:block text-gray-700 font-medium">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
         </div>
@@ -165,6 +165,16 @@
         {% endif %}
     {% endwith %}
     {% block content %}
+    {# 
+        If this is your dashboard page (index.html), 
+        make sure you include your chart/graph HTML and JS here!
+        Example:
+        <canvas id="myChart"></canvas>
+        <script>
+          var ctx = document.getElementById('myChart').getContext('2d');
+          // Chart.js initialization...
+        </script>
+    #}
     {% endblock %}
     </main>
 
