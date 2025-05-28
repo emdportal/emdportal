@@ -1149,15 +1149,30 @@
 
     // Event Delegation for Remove Buttons
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-tower')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-rectifier')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-dg')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-battery')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-ac')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-alarm')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-earthing')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-fire-extinguisher')) e.target.parentElement.remove();
-        if (e.target.classList.contains('remove-pmr')) e.target.parentElement.remove();
+        if (e.target.classList.contains('remove-tower')) {
+        e.target.closest('.tower_entry').remove(); // Remove the entire .tower_entry
+    }
+        if (e.target.classList.contains('remove-rectifier')) {
+        e.target.closest('.rectifier_entry').remove(); // Remove the entire .rectifier_entry
+    }
+        if (e.target.classList.contains('remove-dg')) {
+        e.target.closest('.dg_entry').remove(); // Remove the entire .dg_entry
+    }
+        if (e.target.classList.contains('remove-battery')) {
+        e.target.closest('.battery_entry').remove(); // Remove the entire .battery_entry
+    }
+        if (e.target.classList.contains('remove-ac')) {
+        e.target.closest('.ac_entry').remove(); // Remove the entire .ac_entry
+    }
+        if (e.target.classList.contains('remove-alarm')) {
+        e.target.closest('.alarm_entry').remove(); // Remove the entire .alarm_entry
+    }
+        if (e.target.classList.contains('remove-earthing')) {
+        e.target.closest('.earthing_entry').remove(); // Remove the entire .earthing_entry
+    }
+        if (e.target.classList.contains('remove-fire-extinguisher')) {
+        e.target.closest('.fire_extinguisher_entry').remove(); // Remove the entire .fire_extinguisher_entry
+    }
     });
 
     // Handle MSAG site type, Tower Available, and Colocation logic
