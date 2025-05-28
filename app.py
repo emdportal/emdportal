@@ -340,6 +340,16 @@ def index():
             if status in ac_status_counts:
                 ac_status_counts[status] += 1
 
+        # Additional data for new charts
+        battery_capacity_by_region = {}
+        solar_sites_by_region = {}
+        fe_count_by_region = {}
+        for region in region_labels:
+            region_exchanges = GeneralInformation.query.filter_by(domain=region).all()
+            battery_capacity_by_region[region] = db.session.query(db.func.coalesce(db.func.sum(BatteryBank.battery_capacity), 0)).join(GeneralInformation).filter(GeneralInformation.domain == region).scalar()
+            solar_sites_by_region[region] = db.session.query(GeneralInformation.sn).join(SolarInformation).filter(SolarInformation.total_solar_size.isnot(None), GeneralInformation.domain == region).distinct().count()
+            fe_count_by_region[region] = db.session.query(db.func.coalesce(db.func.sum(FireExtinguisher.no_of_fes), 0)).join(GeneralInformation).filter(GeneralInformation.domain == region).scalar()
+
         return render_template('index.html',
                              exchanges=exchanges,
                              region_labels=region_labels,
@@ -352,7 +362,10 @@ def index():
                              total_solar_sites=total_solar_sites,
                              total_battery_cells=total_battery_cells,
                              total_fire_extinguishers=total_fire_extinguishers,
-                             ac_status_counts=ac_status_counts)
+                             ac_status_counts=ac_status_counts,
+                             battery_capacity_by_region=battery_capacity_by_region,
+                             solar_sites_by_region=solar_sites_by_region,
+                             fe_count_by_region=fe_count_by_region)
     except Exception as e:
         logging.error(f"Error in index route: {str(e)}")
         flash(f"Error: {str(e)}")

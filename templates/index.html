@@ -111,17 +111,41 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4">Year Wise Total Exchanges Installed</h2>
-            <div class="relative">
-                <canvas id="yearChart"></canvas>
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Region Wise Exchanges Count</h2>
+            <div class="relative h-64">
+                <canvas id="regionChart"></canvas>
             </div>
         </div>
         <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4">Region Wise Exchanges Count</h2>
-            <div class="relative">
-                <canvas id="regionChart"></canvas>
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">DG Status Distribution</h2>
+            <div class="relative h-64">
+                <canvas id="dgStatusChart"></canvas>
+            </div>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">AC Status Distribution</h2>
+            <div class="relative h-64">
+                <canvas id="acStatusChart"></canvas>
+            </div>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Battery Capacity by Region</h2>
+            <div class="relative h-64">
+                <canvas id="batteryCapacityChart"></canvas>
+            </div>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Solar Sites by Region</h2>
+            <div class="relative h-64">
+                <canvas id="solarSitesChart"></canvas>
+            </div>
+        </div>
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Fire Extinguisher Count by Region</h2>
+            <div class="relative h-64">
+                <canvas id="feCountChart"></canvas>
             </div>
         </div>
     </div>
@@ -156,63 +180,26 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Debug data with fallback
-        const yearLabels = {{ year_labels|tojson|safe }} || ['2024', '2025'];
-        const yearCounts = {{ year_counts|tojson|safe }} || [0, 0];
         const regionLabels = {{ region_labels|tojson|safe }} || ['No Region'];
         const regionCounts = {{ region_counts|tojson|safe }} || [0];
+        const dgStatusCounts = {{ dg_status_counts|tojson|safe }} || {'Working': 0, 'Faulty': 0, 'Spare': 0};
+        const acStatusCounts = {{ ac_status_counts|tojson|safe }} || {'Working': 0, 'Faulty': 0, 'Spare': 0};
+        const batteryCapacityByRegion = {{ battery_capacity_by_region|tojson|safe }} || { 'Region1': 0, 'Region2': 0 };
+        const solarSitesByRegion = {{ solar_sites_by_region|tojson|safe }} || { 'Region1': 0, 'Region2': 0 };
+        const feCountByRegion = {{ fe_count_by_region|tojson|safe }} || { 'Region1': 0, 'Region2': 0 };
 
-        console.log('Year Labels:', yearLabels);
-        console.log('Year Counts:', yearCounts);
         console.log('Region Labels:', regionLabels);
         console.log('Region Counts:', regionCounts);
+        console.log('DG Status Counts:', dgStatusCounts);
+        console.log('AC Status Counts:', acStatusCounts);
+        console.log('Battery Capacity by Region:', batteryCapacityByRegion);
+        console.log('Solar Sites by Region:', solarSitesByRegion);
+        console.log('FE Count by Region:', feCountByRegion);
 
         // Validate data lengths
-        if (yearLabels.length !== yearCounts.length) {
-            console.error('Year chart data mismatch: Labels length:', yearLabels.length, 'Counts length:', yearCounts.length);
-            return;
-        }
         if (regionLabels.length !== regionCounts.length) {
             console.error('Region chart data mismatch: Labels length:', regionLabels.length, 'Counts length:', regionCounts.length);
             return;
-        }
-
-        // Year-wise Pie Chart
-        try {
-            const yearCtx = document.getElementById('yearChart').getContext('2d');
-            new Chart(yearCtx, {
-                type: 'pie',
-                data: {
-                    labels: yearLabels,
-                    datasets: [{
-                        data: yearCounts,
-                        backgroundColor: ['#a855f7', '#3b82f6', '#f97316', '#22c55e'],
-                        borderColor: '#fff',
-                        borderWidth: 2,
-                        hoverOffset: 15
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { 
-                            position: 'top', 
-                            labels: { 
-                                color: '#4a5568',
-                                font: { size: 14 }
-                            }
-                        },
-                        title: { 
-                            display: true, 
-                            text: 'Distribution by Year', 
-                            color: '#2d3748', 
-                            font: { size: 16 }
-                        }
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error rendering Year Chart:', error);
         }
 
         // Region-wise Bar Chart
@@ -238,18 +225,10 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { 
-                                color: '#4a5568' 
-                            },
-                            grid: { 
-                                color: '#e2e8f0' 
-                            }
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' }
                         },
-                        x: { 
-                            ticks: { 
-                                color: '#4a5568' 
-                            }
-                        }
+                        x: { ticks: { color: '#4a5568' } }
                     },
                     plugins: {
                         legend: { display: false },
@@ -264,6 +243,176 @@
             });
         } catch (error) {
             console.error('Error rendering Region Chart:', error);
+        }
+
+        // DG Status Pie Chart
+        try {
+            const dgStatusCtx = document.getElementById('dgStatusChart').getContext('2d');
+            new Chart(dgStatusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(dgStatusCounts),
+                    datasets: [{
+                        data: Object.values(dgStatusCounts),
+                        backgroundColor: ['#22c55e', '#ef4444', '#facc15'],
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#4a5568', font: { size: 14 } } },
+                        title: { display: true, text: 'DG Status Distribution', color: '#2d3748', font: { size: 16 } }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering DG Status Chart:', error);
+        }
+
+        // AC Status Pie Chart
+        try {
+            const acStatusCtx = document.getElementById('acStatusChart').getContext('2d');
+            new Chart(acStatusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(acStatusCounts),
+                    datasets: [{
+                        data: Object.values(acStatusCounts),
+                        backgroundColor: ['#22c55e', '#ef4444', '#facc15'],
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: '#4a5568', font: { size: 14 } } },
+                        title: { display: true, text: 'AC Status Distribution', color: '#2d3748', font: { size: 16 } }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering AC Status Chart:', error);
+        }
+
+        // Battery Capacity by Region Bar Chart
+        try {
+            const batteryCapacityCtx = document.getElementById('batteryCapacityChart').getContext('2d');
+            new Chart(batteryCapacityCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(batteryCapacityByRegion),
+                    datasets: [{
+                        label: 'Battery Capacity',
+                        data: Object.values(batteryCapacityByRegion),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' }
+                        },
+                        x: { ticks: { color: '#4a5568' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Battery Capacity by Region', color: '#2d3748', font: { size: 16 } }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering Battery Capacity Chart:', error);
+        }
+
+        // Solar Sites by Region Bar Chart
+        try {
+            const solarSitesCtx = document.getElementById('solarSitesChart').getContext('2d');
+            new Chart(solarSitesCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(solarSitesByRegion),
+                    datasets: [{
+                        label: 'Solar Sites',
+                        data: Object.values(solarSitesByRegion),
+                        backgroundColor: 'rgba(234, 88, 12, 0.8)',
+                        borderColor: '#ea580c',
+                        borderWidth: 1,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' }
+                        },
+                        x: { ticks: { color: '#4a5568' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Solar Sites by Region', color: '#2d3748', font: { size: 16 } }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering Solar Sites Chart:', error);
+        }
+
+        // Fire Extinguisher Count by Region Bar Chart
+        try {
+            const feCountCtx = document.getElementById('feCountChart').getContext('2d');
+            new Chart(feCountCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(feCountByRegion),
+                    datasets: [{
+                        label: 'Fire Extinguishers',
+                        data: Object.values(feCountByRegion),
+                        backgroundColor: 'rgba(202, 138, 4, 0.8)',
+                        borderColor: '#ca8a04',
+                        borderWidth: 1,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#4a5568' },
+                            grid: { color: '#e2e8f0' }
+                        },
+                        x: { ticks: { color: '#4a5568' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Fire Extinguisher Count by Region', color: '#2d3748', font: { size: 16 } }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering FE Count Chart:', error);
         }
 
         // Mobile Menu Toggle
