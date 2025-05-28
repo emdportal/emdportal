@@ -14,6 +14,7 @@ from html import escape
 import logging
 import traceback
 from flask_wtf.csrf import generate_csrf
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -83,6 +84,9 @@ class GeneralInformation(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     tower_available = db.Column(db.String(10))
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
     towers = db.relationship('Tower', backref='general_info', lazy=True, cascade="all, delete-orphan")
     power_info = db.relationship('PowerInformation', backref='general_info', uselist=False, cascade="all, delete-orphan")
     dgs = db.relationship('DGInformation', backref='general_info', lazy=True, cascade="all, delete-orphan")
@@ -101,6 +105,9 @@ class Tower(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     tower_type_height = db.Column(db.String(50))
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class PowerInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -112,6 +119,9 @@ class PowerInformation(db.Model):
     load_of_individual_ne = db.Column(db.Float, nullable=True)
     name_of_nes_connected = db.Column(db.Text)
     rectifiers = db.Column(db.JSON, nullable=True)  # JSONB in PostgreSQL
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class DGInformation(db.Model):
     __tablename__ = 'dg'
@@ -134,6 +144,9 @@ class DGInformation(db.Model):
     site_load_p1 = db.Column(db.Float, nullable=True)
     site_load_p2 = db.Column(db.Float, nullable=True)
     site_load_p3 = db.Column(db.Float, nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class BatteryBank(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -147,6 +160,28 @@ class BatteryBank(db.Model):
     practical_backup_time = db.Column(db.Float, nullable=True)
     battery_installed_new_or_used = db.Column(db.String(20))  # New/Regenerated/Locally Arranged
     battery_moved_from = db.Column(db.String(100))
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
+
+class BatteryBankHistory(db.Model):
+    __tablename__ = 'battery_bank_history'
+    history_id = db.Column(db.Integer, primary_key=True)
+    original_id = db.Column(db.Integer, nullable=False)
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
+    make_of_battery = db.Column(db.String(50))
+    battery_capacity = db.Column(db.Float, nullable=True)
+    battery_type = db.Column(db.String(10))
+    no_of_cells_bank = db.Column(db.Integer, nullable=True)
+    date_of_installation = db.Column(db.String(50))
+    load_on_battery_bank = db.Column(db.Float, nullable=True)
+    practical_backup_time = db.Column(db.Float, nullable=True)
+    battery_installed_new_or_used = db.Column(db.String(20))
+    battery_moved_from = db.Column(db.String(100))
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
+    archived_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ACUnit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -163,6 +198,9 @@ class ACUnit(db.Model):
     total_ac_load = db.Column(db.Float, nullable=True)
     fault_nature_of_ac_unit = db.Column(db.String(100))
     estimate_to_repair_ac = db.Column(db.Float, nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class SolarInformation(db.Model):
     __tablename__ = 'installed_solar_information'
@@ -173,6 +211,9 @@ class SolarInformation(db.Model):
     no_of_pv_panels_installed = db.Column(db.Integer, nullable=True)
     make_of_pv_panels = db.Column(db.String(50))
     charge_controller_make = db.Column(db.String(50))
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class ColocationInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -181,12 +222,18 @@ class ColocationInformation(db.Model):
     name_of_colocation_vendors = db.Column(db.Text)
     load_of_each_vendor = db.Column(db.Float, nullable=True)
     total_load = db.Column(db.Float, nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class BuildingInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     building_status = db.Column(db.String(100))
     wall_doors_condition = db.Column(db.String(100))
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class AlarmExtension(db.Model):
     __tablename__ = 'alarm_extension'
@@ -195,6 +242,9 @@ class AlarmExtension(db.Model):
     ac_main_failure = db.Column(db.String(10), nullable=True)  # Yes/No
     dc_low_voltages = db.Column(db.String(10), nullable=True)  # Yes/No
     rectifier_failure = db.Column(db.String(10), nullable=True)  # Yes/No
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class Earthing(db.Model):
     __tablename__ = 'earthing'
@@ -202,6 +252,9 @@ class Earthing(db.Model):
     general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     earthing_value = db.Column(db.Float, nullable=True)
     no_of_pits = db.Column(db.Integer, nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class FireExtinguisher(db.Model):
     __tablename__ = 'fire_extinguisher'
@@ -211,6 +264,9 @@ class FireExtinguisher(db.Model):
     no_of_fes = db.Column(db.Integer, nullable=True)
     type_of_gas = db.Column(db.String(50), nullable=True)
     date_of_expiry = db.Column(db.String(50), nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
 
 class PMRInformation(db.Model):
     __tablename__ = 'pmr_information'
@@ -218,6 +274,21 @@ class PMRInformation(db.Model):
     general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
     pmr_performed = db.Column(db.String(10), nullable=True)  # Yes/No
     last_performed_date = db.Column(db.String(50), nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
+
+class PMRInformationHistory(db.Model):
+    __tablename__ = 'pmr_information_history'
+    history_id = db.Column(db.Integer, primary_key=True)
+    original_id = db.Column(db.Integer, nullable=False)
+    general_id = db.Column(db.Integer, db.ForeignKey('general_information.sn', ondelete='CASCADE'))
+    pmr_performed = db.Column(db.String(10), nullable=True)
+    last_performed_date = db.Column(db.String(50), nullable=True)
+    created_by = db.Column(db.String(50))
+    updated_by = db.Column(db.String(50))
+    updated_at = db.Column(db.DateTime)
+    archived_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Custom login required decorator
 def login_required(f):
@@ -376,12 +447,15 @@ def index():
 def add():
     if request.method == 'POST':
         try:
-            # Define validation lists at the start
+            # Define validation lists
             valid_yes_no = ['Yes', 'No']
             valid_working_status = ['Working', 'Faulty', 'Spare']
             valid_dg_status = ['Working', 'Faulty', 'Spare']
             valid_battery_types = ['2V', '12V', '48V']
             valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
+
+            # Get the logged-in user
+            username = session.get('username', 'unknown_user')
 
             # General Information
             region = request.form.get('region')
@@ -404,7 +478,7 @@ def add():
             max_sn = db.session.query(db.func.max(GeneralInformation.sn)).scalar() or 0
             new_sn = max_sn + 1
 
-            # Create GeneralInformation instance with the new sn
+            # Create GeneralInformation instance with tracking fields
             general = GeneralInformation(
                 sn=new_sn,
                 region=region,
@@ -418,21 +492,28 @@ def add():
                 latitude=latitude,
                 longitude=longitude,
                 tower_available=tower_available,
+                created_by=username,
+                updated_by=username,
+                updated_at=datetime.utcnow()
             )
 
-            # Add GeneralInformation to the session
             db.session.add(general)
 
             # Tower Information
             tower_types = request.form.getlist('tower_type_height[]')
             for tower_type in tower_types:
                 if tower_type.strip():
-                    tower = Tower(general_id=general.sn, tower_type_height=tower_type)
+                    tower = Tower(
+                        general_id=general.sn,
+                        tower_type_height=tower_type,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
+                    )
                     db.session.add(tower)
 
             # Power Information with Rectifiers
             make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
-            logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
                 no_of_modules = request.form.getlist('no_of_modules[]')
@@ -446,14 +527,7 @@ def add():
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
 
-                logging.info(f"Rectifier lists lengths: make={len(make_of_rectifiers)}, capacity={len(rectifier_capacities)}, "
-                             f"modules={len(no_of_modules)}, capacity_each={len(capacity_of_each_module)}, "
-                             f"working={len(working_modules)}, faulty={len(faulty_modules)}, "
-                             f"space={len(space_for_new_modules)}, grounding={len(grounding_of_rectifiers)}, "
-                             f"spd={len(spd_in_rectifiers)}, spd_model={len(spd_models)}, "
-                             f"total_spds={len(total_installed_spds)}, faulty_spds={len(no_of_faulty_spds)}")
-
-                # Ensure all lists have the same length
+                # Validate lengths of rectifier-related lists
                 expected_length = len(make_of_rectifiers)
                 lists_to_check = [
                     (rectifier_capacities, 'rectifier_capacity[]'),
@@ -502,7 +576,10 @@ def add():
                     working_status=request.form.get('working_status_power') or None,
                     name_of_nes_connected=request.form.get('name_of_nes_connected') or None,
                     load_of_individual_ne=safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None,
-                    rectifiers=rectifiers_data if rectifiers_data else None
+                    rectifiers=rectifiers_data if rectifiers_data else None,
+                    created_by=username,
+                    updated_by=username,
+                    updated_at=datetime.utcnow()
                 )
             else:
                 power_info = PowerInformation(
@@ -513,7 +590,10 @@ def add():
                     working_status=request.form.get('working_status_power') or None,
                     name_of_nes_connected=request.form.get('name_of_nes_connected') or None,
                     load_of_individual_ne=safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None,
-                    rectifiers=None
+                    rectifiers=None,
+                    created_by=username,
+                    updated_by=username,
+                    updated_at=datetime.utcnow()
                 )
             db.session.add(power_info)
 
@@ -561,7 +641,10 @@ def add():
                         site_load_total=safe_float(site_load_totals[i], 'site_load_total') if site_load_totals[i].strip() else None,
                         site_load_p1=safe_float(site_load_p1s[i], 'site_load_p1') if site_load_p1s[i].strip() else None,
                         site_load_p2=safe_float(site_load_p2s[i], 'site_load_p2') if site_load_p2s[i].strip() else None,
-                        site_load_p3=safe_float(site_load_p3s[i], 'site_load_p3') if site_load_p3s[i].strip() else None
+                        site_load_p3=safe_float(site_load_p3s[i], 'site_load_p3') if site_load_p3s[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(dg)
 
@@ -592,12 +675,15 @@ def add():
                         load_on_battery_bank=safe_float(load_on_battery_banks[i], 'load_on_battery_bank') if load_on_battery_banks[i].strip() else None,
                         practical_backup_time=safe_float(practical_backup_times[i], 'practical_backup_time') if practical_backup_times[i].strip() else None,
                         battery_installed_new_or_used=battery_installation,
-                        battery_moved_from=battery_moved_froms[i] if battery_moved_froms[i].strip() else None
+                        battery_moved_from=battery_moved_froms[i] if battery_moved_froms[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(battery)
 
             # AC Unit Information
-            with db.session.no_autoflush:  # Prevent premature flushing
+            with db.session.no_autoflush:
                 location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
                 if location_of_ac_units and location_of_ac_units[0].strip():
                     working_status_acs = request.form.getlist('working_status_ac[]')
@@ -630,7 +716,10 @@ def add():
                             ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
                             total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
                             fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
-                            estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
+                            estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None,
+                            created_by=username,
+                            updated_by=username,
+                            updated_at=datetime.utcnow()
                         )
                         db.session.add(ac_unit)
 
@@ -641,7 +730,10 @@ def add():
                 pv_solar_panel_capacity=safe_float(request.form.get('pv_solar_panel_capacity'), 'pv_solar_panel_capacity') if request.form.get('pv_solar_panel_capacity') else None,
                 no_of_pv_panels_installed=safe_int(request.form.get('no_of_pv_panels_installed'), 'no_of_pv_panels_installed') if request.form.get('no_of_pv_panels_installed') else None,
                 make_of_pv_panels=request.form.get('make_of_pv_panels') or None,
-                charge_controller_make=request.form.get('charge_controller_make') or None
+                charge_controller_make=request.form.get('charge_controller_make') or None,
+                created_by=username,
+                updated_by=username,
+                updated_at=datetime.utcnow()
             )
             db.session.add(solar_info)
 
@@ -652,7 +744,10 @@ def add():
                 colocation=colocation,
                 name_of_colocation_vendors=request.form.get('name_of_colocation_vendors') or None,
                 load_of_each_vendor=safe_float(request.form.get('load_of_each_vendor'), 'load_of_each_vendor') if request.form.get('load_of_each_vendor') else None,
-                total_load=safe_float(request.form.get('total_load'), 'total_load') if request.form.get('total_load') else None
+                total_load=safe_float(request.form.get('total_load'), 'total_load') if request.form.get('total_load') else None,
+                created_by=username,
+                updated_by=username,
+                updated_at=datetime.utcnow()
             )
             db.session.add(colocation_info)
 
@@ -660,7 +755,10 @@ def add():
             building_info = BuildingInformation(
                 general_id=general.sn,
                 building_status=request.form.get('building_status') or None,
-                wall_doors_condition=request.form.get('wall_doors_condition') or None
+                wall_doors_condition=request.form.get('wall_doors_condition') or None,
+                created_by=username,
+                updated_by=username,
+                updated_at=datetime.utcnow()
             )
             db.session.add(building_info)
 
@@ -679,7 +777,10 @@ def add():
                         general_id=general.sn,
                         ac_main_failure=ac_main_failure,
                         dc_low_voltages=dc_low_voltage,
-                        rectifier_failure=rectifier_failure
+                        rectifier_failure=rectifier_failure,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(alarm)
 
@@ -693,7 +794,10 @@ def add():
                     earthing = Earthing(
                         general_id=general.sn,
                         earthing_value=safe_float(earthing_values[i], 'earthing_value') if earthing_values[i].strip() else None,
-                        no_of_pits=safe_int(no_of_pits[i], 'no_of_pits') if no_of_pits[i].strip() else None
+                        no_of_pits=safe_int(no_of_pits[i], 'no_of_pits') if no_of_pits[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(earthing)
 
@@ -712,7 +816,10 @@ def add():
                         fe_installed=fe_installed,
                         no_of_fes=safe_int(no_of_fes[i], 'no_of_fes') if no_of_fes[i].strip() else None,
                         type_of_gas=type_of_gases[i] if type_of_gases[i].strip() else None,
-                        date_of_expiry=date_of_expiries[i] if date_of_expiries[i].strip() else None
+                        date_of_expiry=date_of_expiries[i] if date_of_expiries[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(fire_ext)
 
@@ -725,18 +832,22 @@ def add():
                 pmr = PMRInformation(
                     general_id=general.sn,
                     pmr_performed=pmr_performed,
-                    last_performed_date=last_performed_date
+                    last_performed_date=last_performed_date,
+                    created_by=username,
+                    updated_by=username,
+                    updated_at=datetime.utcnow()
                 )
                 db.session.add(pmr)
 
-            # Final commit for all related objects
             db.session.commit()
             flash('Exchange added successfully!', 'success')
+            logging.info(f"User {username} added exchange SN {general.sn}")
             return redirect(url_for('index'))
 
         except ValueError as e:
             db.session.rollback()
             flash(str(e), 'error')
+            logging.error(f"Validation error adding exchange by {username}: {str(e)}")
         except Exception as e:
             db.session.rollback()
             error_msg = f"Error adding exchange: {str(e)}\nTraceback: {traceback.format_exc()}"
@@ -751,12 +862,15 @@ def edit(sn):
     general = GeneralInformation.query.get_or_404(sn)
     if request.method == 'POST':
         try:
-            # Define validation lists at the start
+            # Define validation lists
             valid_yes_no = ['Yes', 'No']
             valid_working_status = ['Working', 'Faulty', 'Spare']
             valid_dg_status = ['Working', 'Faulty', 'Spare']
             valid_battery_types = ['2V', '12V', '48V']
             valid_battery_installation = ['New', 'Regenerated', 'Locally Arranged']
+
+            # Get the logged-in user
+            username = session.get('username', 'unknown_user')
 
             # General Information
             general.region = request.form.get('region')
@@ -770,6 +884,8 @@ def edit(sn):
             general.latitude = float(request.form.get('latitude')) if request.form.get('latitude') else None
             general.longitude = float(request.form.get('longitude')) if request.form.get('longitude') else None
             general.tower_available = request.form.get('tower_available')
+            general.updated_by = username
+            general.updated_at = datetime.utcnow()
 
             # Validate required fields
             if not all([general.domain, general.site_name, general.site_type, general.site_category]):
@@ -780,17 +896,20 @@ def edit(sn):
             tower_types = request.form.getlist('tower_type_height[]')
             for tower_type in tower_types:
                 if tower_type.strip():
-                    tower = Tower(tower_type_height=tower_type, general_id=general.sn)
+                    tower = Tower(
+                        tower_type_height=tower_type,
+                        general_id=general.sn,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
+                    )
                     db.session.add(tower)
 
             # Power Information with Rectifiers
             if not general.power_info:
                 general.power_info = PowerInformation(general_id=general.sn)
 
-            # Collect rectifier data
             make_of_rectifiers = request.form.getlist('make_of_rectifier[]')
-            logging.info(f"make_of_rectifiers: {make_of_rectifiers}")
-            
             if make_of_rectifiers and any(m.strip() for m in make_of_rectifiers):
                 rectifier_capacities = request.form.getlist('rectifier_capacity[]')
                 no_of_modules = request.form.getlist('no_of_modules[]')
@@ -803,14 +922,6 @@ def edit(sn):
                 spd_models = request.form.getlist('spd_model[]')
                 total_installed_spds = request.form.getlist('total_installed_spds[]')
                 no_of_faulty_spds = request.form.getlist('no_of_faulty_spds[]')
-
-                logging.info(f"Rectifier lists lengths: make={len(make_of_rectifiers)}, "
-                             f"capacity={len(rectifier_capacities)}, modules={len(no_of_modules)}, "
-                             f"capacity_each={len(capacity_of_each_module)}, working={len(working_modules)}, "
-                             f"faulty={len(faulty_modules)}, space={len(space_for_new_modules)}, "
-                             f"grounding={len(grounding_of_rectifiers)}, spd={len(spd_in_rectifiers)}, "
-                             f"spd_model={len(spd_models)}, total_spds={len(total_installed_spds)}, "
-                             f"faulty_spds={len(no_of_faulty_spds)}")
 
                 expected_length = len(make_of_rectifiers)
                 lists_to_check = [
@@ -867,6 +978,8 @@ def edit(sn):
                 general.power_info.name_of_nes_connected = request.form.get('name_of_nes_connected') or None
                 general.power_info.load_of_individual_ne = safe_float(request.form.get('load_of_individual_ne'), 'load_of_individual_ne') if request.form.get('load_of_individual_ne') else None
                 general.power_info.rectifiers = None
+            general.power_info.updated_by = username
+            general.power_info.updated_at = datetime.utcnow()
 
             # DG Information
             DGInformation.query.filter_by(general_id=general.sn).delete()
@@ -913,12 +1026,37 @@ def edit(sn):
                         site_load_total=safe_float(site_load_totals[i], 'site_load_total') if site_load_totals[i].strip() else None,
                         site_load_p1=safe_float(site_load_p1s[i], 'site_load_p1') if site_load_p1s[i].strip() else None,
                         site_load_p2=safe_float(site_load_p2s[i], 'site_load_p2') if site_load_p2s[i].strip() else None,
-                        site_load_p3=safe_float(site_load_p3s[i], 'site_load_p3') if site_load_p3s[i].strip() else None
+                        site_load_p3=safe_float(site_load_p3s[i], 'site_load_p3') if site_load_p3s[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(dg)
 
             # Battery Bank Information
+            # Archive existing battery banks before deleting
+            existing_batteries = BatteryBank.query.filter_by(general_id=general.sn).all()
+            for battery in existing_batteries:
+                history_entry = BatteryBankHistory(
+                    original_id=battery.id,
+                    general_id=battery.general_id,
+                    make_of_battery=battery.make_of_battery,
+                    battery_capacity=battery.battery_capacity,
+                    battery_type=battery.battery_type,
+                    no_of_cells_bank=battery.no_of_cells_bank,
+                    date_of_installation=battery.date_of_installation,
+                    load_on_battery_bank=battery.load_on_battery_bank,
+                    practical_backup_time=battery.practical_backup_time,
+                    battery_installed_new_or_used=battery.battery_installed_new_or_used,
+                    battery_moved_from=battery.battery_moved_from,
+                    created_by=battery.created_by,
+                    updated_by=username,
+                    updated_at=battery.updated_at,
+                    archived_at=datetime.utcnow()
+                )
+                db.session.add(history_entry)
             BatteryBank.query.filter_by(general_id=general.sn).delete()
+
             make_of_batteries = request.form.getlist('make_of_battery[]')
             if make_of_batteries and make_of_batteries[0].strip():
                 battery_capacities = request.form.getlist('battery_capacity[]')
@@ -945,12 +1083,15 @@ def edit(sn):
                         load_on_battery_bank=safe_float(load_on_battery_banks[i], 'load_on_battery_bank') if load_on_battery_banks[i].strip() else None,
                         practical_backup_time=safe_float(practical_backup_times[i], 'practical_backup_time') if practical_backup_times[i].strip() else None,
                         battery_installed_new_or_used=battery_installation,
-                        battery_moved_from=battery_moved_froms[i] if battery_moved_froms[i].strip() else None
+                        battery_moved_from=battery_moved_froms[i] if battery_moved_froms[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(battery)
 
             # AC Unit Information
-            with db.session.no_autoflush:  # Prevent premature flushing
+            with db.session.no_autoflush:
                 ACUnit.query.filter_by(general_id=general.sn).delete()
                 location_of_ac_units = request.form.getlist('location_of_ac_unit[]')
                 if location_of_ac_units and location_of_ac_units[0].strip():
@@ -984,7 +1125,10 @@ def edit(sn):
                             ac_load=safe_float(ac_loads[i], 'ac_load') if ac_loads[i].strip() else None,
                             total_ac_load=safe_float(total_ac_loads[i], 'total_ac_load') if total_ac_loads[i].strip() else None,
                             fault_nature_of_ac_unit=fault_nature_of_ac_units[i] if fault_nature_of_ac_units[i].strip() else None,
-                            estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None
+                            estimate_to_repair_ac=safe_float(estimate_to_repair_acs[i], 'estimate_to_repair_ac') if estimate_to_repair_acs[i].strip() else None,
+                            created_by=username,
+                            updated_by=username,
+                            updated_at=datetime.utcnow()
                         )
                         db.session.add(ac_unit)
 
@@ -996,6 +1140,8 @@ def edit(sn):
             general.solar_info.no_of_pv_panels_installed = safe_int(request.form.get('no_of_pv_panels_installed'), 'no_of_pv_panels_installed') if request.form.get('no_of_pv_panels_installed') else None
             general.solar_info.make_of_pv_panels = request.form.get('make_of_pv_panels') or None
             general.solar_info.charge_controller_make = request.form.get('charge_controller_make') or None
+            general.solar_info.updated_by = username
+            general.solar_info.updated_at = datetime.utcnow()
 
             # Colocation Information
             if not general.colocation_info:
@@ -1005,12 +1151,16 @@ def edit(sn):
             general.colocation_info.name_of_colocation_vendors = request.form.get('name_of_colocation_vendors') or None
             general.colocation_info.load_of_each_vendor = safe_float(request.form.get('load_of_each_vendor'), 'load_of_each_vendor') if request.form.get('load_of_each_vendor') else None
             general.colocation_info.total_load = safe_float(request.form.get('total_load'), 'total_load') if request.form.get('total_load') else None
+            general.colocation_info.updated_by = username
+            general.colocation_info.updated_at = datetime.utcnow()
 
             # Building Information
             if not general.building_info:
                 general.building_info = BuildingInformation(general_id=general.sn)
             general.building_info.building_status = request.form.get('building_status') or None
             general.building_info.wall_doors_condition = request.form.get('wall_doors_condition') or None
+            general.building_info.updated_by = username
+            general.building_info.updated_at = datetime.utcnow()
 
             # Alarm Extension
             AlarmExtension.query.filter_by(general_id=general.sn).delete()
@@ -1028,7 +1178,10 @@ def edit(sn):
                         general_id=general.sn,
                         ac_main_failure=ac_main_failure,
                         dc_low_voltages=dc_low_voltage,
-                        rectifier_failure=rectifier_failure
+                        rectifier_failure=rectifier_failure,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(alarm)
 
@@ -1043,7 +1196,10 @@ def edit(sn):
                     earthing = Earthing(
                         general_id=general.sn,
                         earthing_value=safe_float(earthing_values[i], 'earthing_value') if earthing_values[i].strip() else None,
-                        no_of_pits=safe_int(no_of_pits[i], 'no_of_pits') if no_of_pits[i].strip() else None
+                        no_of_pits=safe_int(no_of_pits[i], 'no_of_pits') if no_of_pits[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(earthing)
 
@@ -1063,12 +1219,30 @@ def edit(sn):
                         fe_installed=fe_installed,
                         no_of_fes=safe_int(no_of_fes[i], 'no_of_fes') if no_of_fes[i].strip() else None,
                         type_of_gas=type_of_gases[i] if type_of_gases[i].strip() else None,
-                        date_of_expiry=date_of_expiries[i] if date_of_expiries[i].strip() else None
+                        date_of_expiry=date_of_expiries[i] if date_of_expiries[i].strip() else None,
+                        created_by=username,
+                        updated_by=username,
+                        updated_at=datetime.utcnow()
                     )
                     db.session.add(fire_ext)
 
             # PMR Information
+            # Archive existing PMR entries before deleting
+            existing_pmrs = PMRInformation.query.filter_by(general_id=general.sn).all()
+            for pmr in existing_pmrs:
+                history_entry = PMRInformationHistory(
+                    original_id=pmr.id,
+                    general_id=pmr.general_id,
+                    pmr_performed=pmr.pmr_performed,
+                    last_performed_date=pmr.last_performed_date,
+                    created_by=pmr.created_by,
+                    updated_by=username,
+                    updated_at=pmr.updated_at,
+                    archived_at=datetime.utcnow()
+                )
+                db.session.add(history_entry)
             PMRInformation.query.filter_by(general_id=general.sn).delete()
+
             pmr_performed = request.form.get('pmr_performed')
             last_performed_date = request.form.get('last_performed_date') or None
             if pmr_performed and pmr_performed.strip():
@@ -1077,21 +1251,26 @@ def edit(sn):
                 pmr = PMRInformation(
                     general_id=general.sn,
                     pmr_performed=pmr_performed,
-                    last_performed_date=last_performed_date
+                    last_performed_date=last_performed_date,
+                    created_by=username,
+                    updated_by=username,
+                    updated_at=datetime.utcnow()
                 )
                 db.session.add(pmr)
 
             db.session.commit()
             flash('Exchange updated successfully!', 'success')
+            logging.info(f"User {username} updated exchange SN {sn}")
             return redirect(url_for('index'))
 
         except ValueError as e:
             db.session.rollback()
             flash(str(e), 'error')
+            logging.error(f"Validation error updating exchange SN {sn} by {username}: {str(e)}")
         except Exception as e:
             db.session.rollback()
             flash(f"Error updating exchange: {str(e)}", 'error')
-            logging.error(f"Error updating exchange SN {sn}: {str(e)}")
+            logging.error(f"Error updating exchange SN {sn} by {username}: {str(e)}")
 
     return render_template('add.html', general=general)
 
@@ -1275,7 +1454,7 @@ def export():
                         f'Sequence Controller Installed {i+1} (Y/N)': getattr(ac, 'sequence_controller_installed', None) if ac else None,
                         f'AC Load {i+1}': getattr(ac, 'ac_load', None) if ac else None,
                         f'Total AC Load {i+1}': getattr(ac, 'total_ac_load', None) if ac else None,
-                        f'Fault Nature of AC Unit {i+1}': getattr(ac, 'fault_nature', None) if ac else None,
+                        f'Fault Nature of AC Unit {i+1}': getattr(ac, 'fault_nature_of_ac_unit', None) if ac else None,
                         f'Estimate to Repair AC {i+1}': getattr(ac, 'estimate_to_repair_ac', None) if ac else None,
                     })
 
@@ -1378,68 +1557,68 @@ def export():
         # Define headers for each section
         general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
         power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status', 'Name of NEs Connected', 'Load of Individual NE'] + \
-                        [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
-                        [f'Engine Make {i+1}' for i in range(max_dgs)] + \
-                        [f'Installation Year {i+1}' for i in range(max_dgs)] + \
-                        [f'DG Status {i+1}' for i in range(max_dgs)] + \
-                        [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
-                        [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
-                        [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
-                        [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
-                        [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
-                        [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
-                        [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
-                        [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
-                        [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
-                        [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
-                        [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
-                        [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
-                        [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
-                        [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                        [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                        [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
-                        [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
-                        [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
-                        [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
-                        [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
-                        [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
+                       [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
+                       [f'Engine Make {i+1}' for i in range(max_dgs)] + \
+                       [f'Installation Year {i+1}' for i in range(max_dgs)] + \
+                       [f'DG Status {i+1}' for i in range(max_dgs)] + \
+                       [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
+                       [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+                       [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+                       [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
+                       [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
+                       [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
+                       [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
+                       [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
+                       [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
+                       [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
+                       [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
+                       [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
+                       [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
+                       [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
+                       [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
+                       [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
+                       [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
+                       [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                       [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                       [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                       [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                       [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                       [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
+                       [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
+                       [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
         battery_headers = [f'Make of Battery {i+1}' for i in range(max_batteries)] + \
-                          [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
-                          [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
-                          [f'No. of Cells/Bank {i+1}' for i in range(max_batteries)] + \
-                          [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
-                          [f'Load on Battery Bank {i+1} (A)' for i in range(max_batteries)] + \
-                          [f'Practical Backup Time {i+1} (Hrs)' for i in range(max_batteries)] + \
-                          [f'Battery Installed {i+1} New or Used' for i in range(max_batteries)] + \
-                          [f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
+                         [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
+                         [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
+                         [f'No. of Cells/Bank {i+1}' for i in range(max_batteries)] + \
+                         [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
+                         [f'Load on Battery Bank {i+1} (A)' for i in range(max_batteries)] + \
+                         [f'Practical Backup Time {i+1} (Hrs)' for i in range(max_batteries)] + \
+                         [f'Battery Installed {i+1} New or Used' for i in range(max_batteries)] + \
+                         [f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
         ac_headers = [f'Location of AC Unit {i+1}' for i in range(max_acs)] + \
-                     [f'Working Status of AC {i+1} (Working/Faulty/Spare)' for i in range(max_acs)] + \
-                     [f'AC Make {i+1}' for i in range(max_acs)] + \
-                     [f'Capacity {i+1} (Tons)' for i in range(max_acs)] + \
-                     [f'Type of AC {i+1}' for i in range(max_acs)] + \
-                     [f'Mount Type {i+1}' for i in range(max_acs)] + \
-                     [f'Date of Installation AC {i+1}' for i in range(max_acs)] + \
-                     [f'Sequence Controller Installed {i+1} (Y/N)' for i in range(max_acs)] + \
-                     [f'AC Load {i+1}' for i in range(max_acs)] + \
-                     [f'Total AC Load {i+1}' for i in range(max_acs)] + \
-                     [f'Fault Nature of AC Unit {i+1}' for i in range(max_acs)] + \
-                     [f'Estimate to Repair AC {i+1}' for i in range(max_acs)]
+                    [f'Working Status of AC {i+1} (Working/Faulty/Spare)' for i in range(max_acs)] + \
+                    [f'AC Make {i+1}' for i in range(max_acs)] + \
+                    [f'Capacity {i+1} (Tons)' for i in range(max_acs)] + \
+                    [f'Type of AC {i+1}' for i in range(max_acs)] + \
+                    [f'Mount Type {i+1}' for i in range(max_acs)] + \
+                    [f'Date of Installation AC {i+1}' for i in range(max_acs)] + \
+                    [f'Sequence Controller Installed {i+1} (Y/N)' for i in range(max_acs)] + \
+                    [f'AC Load {i+1}' for i in range(max_acs)] + \
+                    [f'Total AC Load {i+1}' for i in range(max_acs)] + \
+                    [f'Fault Nature of AC Unit {i+1}' for i in range(max_acs)] + \
+                    [f'Estimate to Repair AC {i+1}' for i in range(max_acs)]
         solar_headers = ['Total Solar Size (KW)', 'PV Solar Panel Capacity (W)', 'No. of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make']
         earthing_headers = [f'Earthing Value {i+1}' for i in range(max_earthings)] + \
-                           [f'No. of Pits {i+1}' for i in range(max_earthings)]
+                          [f'No. of Pits {i+1}' for i in range(max_earthings)]
         fire_ext_headers = [f'FE Installed {i+1}' for i in range(max_fire_extinguishers)] + \
-                           [f'No. of FEs {i+1}' for i in range(max_fire_extinguishers)] + \
-                           [f'Type of Gas {i+1}' for i in range(max_fire_extinguishers)] + \
-                           [f'Date of Expiry {i+1}' for i in range(max_fire_extinguishers)]
+                          [f'No. of FEs {i+1}' for i in range(max_fire_extinguishers)] + \
+                          [f'Type of Gas {i+1}' for i in range(max_fire_extinguishers)] + \
+                          [f'Date of Expiry {i+1}' for i in range(max_fire_extinguishers)]
         pmr_headers = [f'PMR Performed {i+1} (Y/N)' for i in range(max_pmrs)] + \
-                      [f'Last Performed Date {i+1}' for i in range(max_pmrs)]
+                     [f'Last Performed Date {i+1}' for i in range(max_pmrs)]
         alarm_headers = [f'AC Main Failure {i+1} (Y/N)' for i in range(max_alarms)] + \
-                        [f'DC Low Voltages {i+1} (Y/N)' for i in range(max_alarms)] + \
-                        [f'Rectifier Failure {i+1} (Y/N)' for i in range(max_alarms)]
+                       [f'DC Low Voltages {i+1} (Y/N)' for i in range(max_alarms)] + \
+                       [f'Rectifier Failure {i+1} (Y/N)' for i in range(max_alarms)]
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
 
@@ -1499,17 +1678,15 @@ def export():
                 col = end_col + 1  # Move to the next column after this section
 
             logging.info("Writing data rows to Excel...")
-            # Write data starting from row 2
-            for idx, exchange_data in enumerate(data):
-                try:
-                    worksheet.write_row(idx + 2, 0, [exchange_data.get(header, '') for header in all_headers])
-                except Exception as e:
-                    logging.error(f"Error writing row {idx + 1} to Excel: {str(e)}")
-                    continue
+            # Convert data to DataFrame and write to Excel
+            df = pd.DataFrame(data)
+            df = df[all_headers]  # Reorder columns to match all_headers
+            for idx, row in df.iterrows():
+                worksheet.write_row(idx + 2, 0, row.tolist())
 
             logging.info("Adjusting column widths...")
             for idx, header in enumerate(all_headers):
-                max_len = max((len(str(exchange_data.get(header, ''))) for exchange_data in data), default=len(header) + 2)
+                max_len = max((len(str(df[header].iloc[i])) for i in range(len(df)) if pd.notna(df[header].iloc[i])) + [len(header) + 2])
                 worksheet.set_column(idx, idx, max_len)
 
         logging.info("Excel file generated successfully.")
