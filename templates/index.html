@@ -111,40 +111,40 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-bounce-in">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Region Wise Exchanges Count</h2>
-            <div class="relative h-64">
+            <div class="relative h-96">
                 <canvas id="regionChart"></canvas>
             </div>
         </div>
-        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-bounce-in">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">DG Status Distribution</h2>
-            <div class="relative h-64">
+            <div class="relative h-96">
                 <canvas id="dgStatusChart"></canvas>
             </div>
         </div>
-        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-bounce-in">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">AC Status Distribution</h2>
-            <div class="relative h-64">
+            <div class="relative h-96">
                 <canvas id="acStatusChart"></canvas>
             </div>
         </div>
-        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-bounce-in">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Battery Capacity by Region</h2>
-            <div class="relative h-64">
+            <div class="relative h-96">
                 <canvas id="batteryCapacityChart"></canvas>
             </div>
         </div>
-        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-left">
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-bounce-in">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Solar Sites by Region</h2>
-            <div class="relative h-64">
+            <div class="relative h-96">
                 <canvas id="solarSitesChart"></canvas>
             </div>
         </div>
-        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-slide-in-right">
+        <div class="backdrop-blur-md bg-white/30 rounded-xl p-6 shadow-lg animate-bounce-in">
             <h2 class="text-lg font-semibold text-gray-700 mb-4">Fire Extinguisher Count by Region</h2>
-            <div class="relative h-64">
+            <div class="relative h-96">
                 <canvas id="feCountChart"></canvas>
             </div>
         </div>
@@ -159,22 +159,17 @@
         from { opacity: 0; }
         to { opacity: 1; }
     }
-    @keyframes slideInLeft {
-        from { transform: translateX(-20px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideInRight {
-        from { transform: translateX(20px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+    @keyframes bounceIn {
+        0% { transform: scale(0.9); opacity: 0; }
+        50% { transform: scale(1.05); opacity: 0.7; }
+        70% { transform: scale(0.95); }
+        100% { transform: scale(1); opacity: 1; }
     }
     .animate-fade-in {
         animation: fadeIn 0.8s ease-in-out;
     }
-    .animate-slide-in-left {
-        animation: slideInLeft 0.8s ease-in-out;
-    }
-    .animate-slide-in-right {
-        animation: slideInRight 0.8s ease-in-out;
+    .animate-bounce-in {
+        animation: bounceIn 0.8s ease-out;
     }
 </style>
 <script>
