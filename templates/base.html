@@ -10,6 +10,8 @@
     <style>
         body { 
             font-family: 'Poppins', sans-serif; 
+            margin: 0;
+            padding: 0;
         }
         .sidebar { 
             background-color: #111827; 
@@ -22,6 +24,7 @@
             overflow-y: auto; 
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
             z-index: 50;
+            transition: transform 0.3s ease;
         }
         .sidebar a:hover {
             background-color: #374151;
@@ -30,12 +33,13 @@
         .content { 
             margin-left: 250px; 
             padding: 20px; 
-            min-height: calc(100vh - 60px); /* Adjusted for header height */
+            min-height: calc(100vh - 60px); 
+            transition: margin-left 0.3s ease;
         }
         .header {
             position: fixed;
             top: 0;
-            left: 250px;
+            left: 0;
             right: 0;
             height: 60px;
             background-color: #ffffff;
@@ -46,24 +50,68 @@
             justify-content: space-between;
             padding: 0 20px;
         }
+        .header .title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 50%;
+        }
+        .mobile-menu {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 250px;
+            height: calc(100% - 60px);
+            background-color: #111827;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 60;
+            padding: 20px;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 55;
+        }
+        .overlay.open {
+            display: block;
+        }
         @media (max-width: 768px) {
             .sidebar { 
-                width: 200px; 
                 transform: translateX(-100%); 
-                transition: transform 0.3s ease; 
             }
             .sidebar.open { transform: translateX(0); }
+            .content { margin-left: 0; padding-top: 80px; }
             .header {
-                left: 0;
                 padding: 0 10px;
             }
-            .content { margin-left: 0; }
+            .header .title {
+                max-width: 40%;
+                font-size: 1rem;
+            }
+            .mobile-menu a {
+                display: block;
+                padding: 10px;
+                color: white;
+                text-decoration: none;
+            }
+            .mobile-menu a:hover {
+                background-color: #374151;
+            }
         }
     </style>
 </head>
 <body>
     {% if request.path != '/login' %}
-    <div class="sidebar flex flex-col">
+    <div class="sidebar flex flex-col" id="sidebar">
         <div class="p-4">
             <h2 class="text-2xl font-bold">Exchanges Dashboard</h2>
         </div>
@@ -80,8 +128,8 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 View Exchanges
             </a>
-			<a href="{{ url_for('filters') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <a href="{{ url_for('filters') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Filters
             </a>
             <a href="{{ url_for('export') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
@@ -91,13 +139,23 @@
         </nav>
     </div>
 
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="{{ url_for('index') }}">Dashboard</a>
+        <a href="{{ url_for('add') }}">Add Exchange</a>
+        <a href="{{ url_for('view_exchanges') }}">View Exchanges</a>
+        <a href="{{ url_for('filters') }}">Filters</a>
+        <a href="{{ url_for('export') }}">Export Data</a>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
     <header class="header flex items-center justify-between">
         <div class="flex items-center">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 mr-4">
-            <h1 class="text-xl font-semibold text-gray-800">Exchanges Master Database</h1>
+            <h1 class="title text-xl font-semibold text-gray-800 md:text-2xl">Exchanges Master Database</h1>
         </div>
-        <div class="flex items-center space-x-6">
-            <span class="text-gray-600">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
+        <div class="flex items-center space-x-4">
+            <span class="text-gray-600 text-sm md:text-base hidden md:inline">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
@@ -106,7 +164,7 @@
             </button>
         </div>
     </header>
-    <main class="content mt-16"> <!-- Adjusted margin to account for fixed header -->
+    <main class="content mt-16 md:mt-0"> <!-- Adjusted margin for mobile header -->
     {% else %}
     <main class="min-h-screen">
     {% endif %}
@@ -127,7 +185,22 @@
     <script>
         // Sidebar Toggle for Mobile
         document.getElementById('menu-toggle')?.addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('open');
+            const sidebar = document.getElementById('sidebar');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+
+        // Close mobile menu when clicking overlay
+        document.getElementById('overlay')?.addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('open');
+            mobileMenu.classList.remove('open');
+            overlay.classList.remove('open');
         });
     </script>
     {% block scripts %}
