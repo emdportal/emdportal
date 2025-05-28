@@ -20,7 +20,6 @@
             transition: background 0.2s, color 0.2s;
         }
         .sidebar-pill.active, .sidebar-pill:hover {
-            /* Sunset gradient: pink-500 to yellow-400 */
             background: linear-gradient(90deg, #ec4899 0%, #fbbf24 100%);
             color: #fff !important;
             box-shadow: 0 4px 16px rgba(236, 72, 153, 0.20);
@@ -32,6 +31,16 @@
         .sidebar-bg .sidebar-pill {
             color: #fff;
             font-weight: 500;
+        }
+        .menu-avatar {
+            background: linear-gradient(135deg, #fbbf24 0%, #ec4899 100%);
+        }
+        .header-avatar {
+            background: linear-gradient(135deg, #ec4899 0%, #fbbf24 100%);
+        }
+        .menu-avatar, .header-avatar {
+            transition: box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(236,72,153,0.13);
         }
         .mobile-sidebar {
             transition: left 0.3s;
@@ -65,11 +74,10 @@
                 pointer-events: none;
                 font-weight: 700;
                 font-size: 1.25rem;
-                color: #334155;
+                color: #111;
                 z-index: 1;
             }
         }
-        /* Desktop center EMD Portal header */
         @media (min-width: 1024px) {
             .desktop-header-center {
                 position: absolute;
@@ -84,9 +92,15 @@
                 color: #111;
                 letter-spacing: 0.02em;
                 z-index: 20;
-                /* Matches the height of header (h-16) */
             }
         }
+        .emdb-link {
+            color: #111;
+            font-weight: 700;
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .emdb-link:hover { opacity: 0.83; }
     </style>
 </head>
 <body class="relative min-h-screen">
@@ -96,10 +110,10 @@
     <aside class="sidebar-bg fixed top-0 left-0 h-full w-64 px-6 py-7 flex flex-col z-40 hidden lg:flex">
         <div class="mb-8 flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
-            <span class="font-bold text-lg text-white drop-shadow">EMD Portal</span>
+            <a href="{{ url_for('index') }}" class="font-bold text-lg text-white drop-shadow emdb-link" style="color:#fff;">EMD Portal</a>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-500 to-teal-700 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full menu-avatar flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
             <div class="text-base text-white font-semibold">{{ session.get('username', 'User') }}</div>
@@ -161,10 +175,10 @@
     <div id="mobileSidebar" class="mobile-sidebar closed fixed top-0 left-0 h-full w-64 px-6 py-7 z-50 flex flex-col lg:hidden sidebar-bg">
         <div class="mb-8 flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
-            <span class="font-bold text-lg text-white drop-shadow">EMD Portal</span>
+            <a href="{{ url_for('index') }}" class="font-bold text-lg text-white drop-shadow emdb-link" style="color:#fff;">EMD Portal</a>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-500 to-teal-700 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full menu-avatar flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
             <div class="text-base text-white font-semibold">{{ session.get('username', 'User') }}</div>
@@ -233,12 +247,12 @@
                 </svg>
             </button>
         </div>
-        <!-- Centered EMD Portal for desktop and mobile -->
-        <span class="desktop-header-center hidden lg:flex">EMD Portal</span>
-        <span class="mobile-header-title lg:hidden">EMD Portal</span>
+        <!-- Centered EMD Portal for desktop and mobile, clickable -->
+        <a href="{{ url_for('index') }}" class="desktop-header-center hidden lg:flex emdb-link">EMD Portal</a>
+        <a href="{{ url_for('index') }}" class="mobile-header-title lg:hidden emdb-link">EMD Portal</a>
         <div class="flex items-center gap-3">
             <span class="hidden md:block text-gray-700 font-medium">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
+            <div class="w-10 h-10 rounded-full header-avatar flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
         </div>
