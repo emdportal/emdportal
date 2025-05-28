@@ -5,287 +5,188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7fa;
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
         }
-        .sidebar { 
-            background: linear-gradient(135deg, #4b6cb7, #182848);
-            color: white; 
-            height: 100vh; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 250px; 
-            overflow-y: auto; 
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 50;
-            padding: 20px 0;
+        .sidebar-bg {
+            background: #fff;
+            box-shadow: 2px 0 16px rgba(44, 62, 80, .06);
         }
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.3s;
-            border-left: 4px solid transparent;
+        .sidebar-pill {
+            transition: background 0.2s, color 0.2s;
         }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-left-color: #60a5fa; /* Blue highlight for hover/active */
+        .sidebar-pill.active, .sidebar-pill:hover {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(75, 108, 183, 0.07);
         }
-        .content { 
-            margin-left: 250px; 
-            padding: 20px; 
-            min-height: calc(100vh - 60px);
+        .sidebar-pill .icon {
+            min-width: 22px;
+            margin-right: .8em;
         }
-        .header {
-            position: fixed;
-            top: 0;
-            left: 250px;
-            right: 0;
-            height: 60px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 40;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
+        .mobile-sidebar {
+            transition: left 0.3s;
         }
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            left: -250px;
-            width: 250px;
-            height: 100vh;
-            background: linear-gradient(135deg, #4b6cb7, #182848);
-            transition: left 0.3s ease;
-            z-index: 60;
-            padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        .mobile-sidebar.closed {
+            left: -100%;
         }
-        .mobile-menu.open {
+        .mobile-sidebar.open {
             left: 0;
         }
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 55;
-        }
-        .overlay.open {
-            display: block;
-        }
-        .profile-section {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .menu-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            color: white;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            border-left: 4px solid transparent;
-        }
-        .menu-item:hover, .menu-item.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-left-color: #60a5fa; /* Blue highlight for hover/active */
-        }
-        .menu-item.logout {
-            color: #f87171; /* Red accent for logout */
-        }
-        .menu-item.logout:hover, .menu-item.logout.active {
-            background-color: rgba(248, 113, 113, 0.1);
-            border-left-color: #f87171; /* Red highlight for logout hover/active */
-        }
-        .menu-item svg {
-            margin-right: 12px;
-            width: 20px;
-            height: 20px;
-        }
-        @media (max-width: 768px) {
-            .sidebar { 
-                display: none; 
-            }
-            .header {
-                left: 0;
-                padding: 0 10px;
-            }
-            .header h1 {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 40%;
-                font-size: 1rem;
-            }
-            .header .user-info {
+        @media (max-width: 1024px) {
+            .sidebar-bg {
                 display: none;
             }
-            .content { 
-                margin-left: 0; 
-                padding-top: 60px; 
-            }
-            .header .logo {
-                display: none;
-            }
-            .header .mobile-title {
-                display: block;
-            }
-            .mobile-menu {
-                display: block;
-            }
-        }
-        @media (min-width: 769px) {
-            .header .mobile-title {
-                display: none;
+            .main-content {
+                margin-left: 0;
             }
         }
     </style>
 </head>
-<body>
-    {% if request.path != '/login' %}
-    <div class="sidebar flex flex-col">
-        <div class="profile-section">
-            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold mb-2">
+<body class="relative min-h-screen">
+
+{% if request.path != '/login' %}
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar-bg fixed top-0 left-0 h-full w-64 px-6 py-7 flex flex-col z-40 hidden lg:flex">
+        <div class="mb-8 flex items-center gap-3">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
+            <span class="font-bold text-lg text-[#192a56]">EMD Portal</span>
+        </div>
+        <div class="mb-8 flex flex-col items-center">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#4b6cb7] to-[#182848] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <p class="text-sm">{{ session.get('username', 'User') }}</p>
-            <p class="text-xs text-gray-300">{{ session.get('region', 'Unknown') }}</p>
+            <div class="text-base text-[#223] font-semibold">{{ session.get('username', 'User') }}</div>
+            <div class="text-xs text-[#8392AB]">{{ session.get('region', 'Unknown') }}</div>
         </div>
-        <nav class="flex-1 mt-4">
-            <a href="{{ url_for('index') }}" class="menu-item {{ 'active' if request.path == url_for('index') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Dashboard
+        <nav class="flex-1 flex flex-col gap-2">
+            <a href="{{ url_for('index') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('index') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></span>
+                <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('add') }}" class="menu-item {{ 'active' if request.path == url_for('add') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Add Exchange
+            <a href="{{ url_for('add') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('add') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></span>
+                <span>Add Exchange</span>
             </a>
-            <a href="{{ url_for('view_exchanges') }}" class="menu-item {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                View Exchanges
+            <a href="{{ url_for('view_exchanges') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
+                <span>View Exchanges</span>
             </a>
-            <a href="{{ url_for('filters') }}" class="menu-item {{ 'active' if request.path == url_for('filters') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Filters
+            <a href="{{ url_for('filters') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('filters') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span>Filters</span>
             </a>
-            <a href="{{ url_for('export') }}" class="menu-item {{ 'active' if request.path == url_for('export') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Export Data
+            <a href="{{ url_for('export') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('export') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span>Export Data</span>
             </a>
-            <a href="{{ url_for('logout') }}" class="menu-item logout {{ 'active' if request.path == url_for('logout') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Logout
+            <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#f87171] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></span>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile Sidebar (Drawer) -->
+    <div id="mobileSidebar" class="mobile-sidebar closed fixed top-0 left-0 h-full w-64 px-6 py-7 bg-white z-50 flex flex-col lg:hidden sidebar-bg">
+        <div class="mb-8 flex items-center gap-3">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
+            <span class="font-bold text-lg text-[#192a56]">EMD Portal</span>
+        </div>
+        <div class="mb-8 flex flex-col items-center">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#4b6cb7] to-[#182848] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+                {{ session.get('username', 'User')|first|upper }}
+            </div>
+            <div class="text-base text-[#223] font-semibold">{{ session.get('username', 'User') }}</div>
+            <div class="text-xs text-[#8392AB]">{{ session.get('region', 'Unknown') }}</div>
+        </div>
+        <nav class="flex-1 flex flex-col gap-2">
+            <!-- repeat menu as above -->
+            <a href="{{ url_for('index') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('index') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></span>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('add') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('add') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></span>
+                <span>Add Exchange</span>
+            </a>
+            <a href="{{ url_for('view_exchanges') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
+                <span>View Exchanges</span>
+            </a>
+            <a href="{{ url_for('filters') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('filters') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span>Filters</span>
+            </a>
+            <a href="{{ url_for('export') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('export') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span>Export Data</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#f87171] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
+                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></span>
+                <span>Logout</span>
             </a>
         </nav>
     </div>
+    <div id="mobileSidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-40 hidden"></div>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobile-menu">
-        <div class="profile-section">
-            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold mb-2">
-                {{ session.get('username', 'User')|first|upper }}
-            </div>
-            <p class="text-sm">{{ session.get('username', 'User') }}</p>
-            <p class="text-xs text-gray-300">{{ session.get('region', 'Unknown') }}</p>
-        </div>
-        <nav class="flex-1 mt-4">
-            <a href="{{ url_for('index') }}" class="menu-item {{ 'active' if request.path == url_for('index') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-6l2 2h-3m6 0a1 1 0 01-1 1m-6 0h6v4a1 1 0 01-1 1h4a1 1 0 01-1v-6"></path></svg>
-                Dashboard
-            </a>
-            <a href="{{ url_for('add') }}" class="menu-item {{ 'active' if request.path == url_for('add') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Add Exchange
-            </a>
-            <a href="{{ url_for('view_exchanges') }}" class="menu-item {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                View Exchanges
-            </a>
-            <a href="{{ url_for('filters') }}" class="menu-item {{ 'active' if request.path == url_for('filters') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Filters
-            </a>
-            <a href="{{ url_for('export') }}" class="menu-item {{ 'active' if request.path == url_for('export') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2-2z"></path></svg>
-                Export Data
-            </a>
-            <a href="{{ url_for('logout') }}" class="menu-item logout {{ 'active' if request.path == url_for('logout') else '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></path></svg>
-                Logout
-            </a>
-        </nav>
-    </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    <header class="header flex items-center justify-between">
+    <!-- Header -->
+    <header class="fixed left-0 lg:left-64 right-0 top-0 h-16 bg-white shadow flex items-center justify-between px-4 z-30">
         <div class="flex items-center">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 mr-4 logo">
-            <h1 class="text-xl font-semibold text-gray-800 mobile-title hidden">EMD Portal</h1>
+            <button id="mobileSidebarBtn" class="lg:hidden mr-3 p-2 rounded-md hover:bg-gray-100">
+                <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <span class="font-bold text-xl text-[#192a56] hidden lg:block">EMD Portal</span>
         </div>
-        <div class="flex items-center space-x-6">
-            <span class="text-gray-600 user-info">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
+        <div class="flex items-center gap-3">
+            <span class="hidden md:block text-gray-700 font-medium">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <button id="menu-toggle" class="md-hidden p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
         </div>
     </header>
-    <main class="content mt-16">
-    {% else %}
+    <main class="main-content pt-20 lg:ml-64 px-4">
+{% else %}
     <main class="min-h-screen">
-    {% endif %}
+{% endif %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-lg shadow-md" role="alert">
-                        <p class="menu-item">{{ message }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endwith %}
-        {% block content %}
-        {% endblock %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-lg shadow-md" role="alert">
+                    <p class="menu-item">{{ message }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}
+    {% endblock %}
     </main>
 
     <script>
-        // Mobile Menu Toggle
-        document.getElementById('menu-toggle')?.addEventListener('click', () => {
-            const mobileMenu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('overlay');
-            mobileMenu.classList.toggle('open');
-            overlay.classList.toggle('open');
-        });
-
-        // Close mobile menu when clicking on overlay
-        document.getElementById('overlay')?.addEventListener('click', () => {
-            const mobileMenu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('overlay');
-            mobileMenu.classList.remove('open');
-            overlay.classList.remove('open');
-        });
+        // Mobile sidebar open/close logic
+        const sidebarBtn = document.getElementById('mobileSidebarBtn');
+        const mobileSidebar = document.getElementById('mobileSidebar');
+        const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
+        if (sidebarBtn) {
+            sidebarBtn.addEventListener('click', () => {
+                mobileSidebar.classList.remove('closed');
+                mobileSidebar.classList.add('open');
+                mobileSidebarOverlay.classList.remove('hidden');
+            });
+        }
+        if (mobileSidebarOverlay) {
+            mobileSidebarOverlay.addEventListener('click', () => {
+                mobileSidebar.classList.remove('open');
+                mobileSidebar.classList.add('closed');
+                mobileSidebarOverlay.classList.add('hidden');
+            });
+        }
     </script>
     {% block scripts %}
     {% endblock %}
