@@ -30,13 +30,15 @@
         .sidebar a {
             color: white;
             text-decoration: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             transition: background-color 0.3s;
+            border-left: 4px solid transparent;
         }
-        .sidebar a:hover {
+        .sidebar a:hover, .sidebar a.active {
             background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: #60a5fa; /* Blue highlight for hover/active */
         }
         .content { 
             margin-left: 250px; 
@@ -58,21 +60,19 @@
             padding: 0 20px;
         }
         .mobile-menu {
-            display: none;
             position: fixed;
             top: 0;
             left: -250px;
             width: 250px;
             height: 100vh;
             background: linear-gradient(135deg, #4b6cb7, #182848);
-            transform: translateX(0);
-            transition: transform 0.3s ease;
+            transition: left 0.3s ease;
             z-index: 60;
             padding: 20px 0;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         }
         .mobile-menu.open {
-            transform: translateX(250px);
+            left: 0;
         }
         .overlay {
             display: none;
@@ -97,18 +97,29 @@
             text-align: center;
         }
         .menu-item {
-            padding: 10px 20px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             color: white;
             text-decoration: none;
             transition: background-color 0.3s;
+            border-left: 4px solid transparent;
         }
-        .menu-item:hover {
+        .menu-item:hover, .menu-item.active {
             background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: #60a5fa; /* Blue highlight for hover/active */
+        }
+        .menu-item.logout {
+            color: #f87171; /* Red accent for logout */
+        }
+        .menu-item.logout:hover, .menu-item.logout.active {
+            background-color: rgba(248, 113, 113, 0.1);
+            border-left-color: #f87171; /* Red highlight for logout hover/active */
         }
         .menu-item svg {
-            margin-right: 10px;
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
         }
         @media (max-width: 768px) {
             .sidebar { 
@@ -138,6 +149,9 @@
             .header .mobile-title {
                 display: block;
             }
+            .mobile-menu {
+                display: block;
+            }
         }
         @media (min-width: 769px) {
             .header .mobile-title {
@@ -157,27 +171,27 @@
             <p class="text-xs text-gray-300">{{ session.get('region', 'Unknown') }}</p>
         </div>
         <nav class="flex-1 mt-4">
-            <a href="{{ url_for('index') }}" class="menu-item" style="background: linear-gradient(135deg, #6b7280, #374151);">
+            <a href="{{ url_for('index') }}" class="menu-item {{ 'active' if request.path == url_for('index') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Dashboard
             </a>
-            <a href="{{ url_for('add') }}" class="menu-item" style="background: linear-gradient(135deg, #10b981, #065f46);">
+            <a href="{{ url_for('add') }}" class="menu-item {{ 'active' if request.path == url_for('add') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Exchange
             </a>
-            <a href="{{ url_for('view_exchanges') }}" class="menu-item" style="background: linear-gradient(135deg, #f97316, #ea580c);">
+            <a href="{{ url_for('view_exchanges') }}" class="menu-item {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 View Exchanges
             </a>
-            <a href="{{ url_for('filters') }}" class="menu-item" style="background: linear-gradient(135deg, #8b5cf6, #6b21a8);">
+            <a href="{{ url_for('filters') }}" class="menu-item {{ 'active' if request.path == url_for('filters') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Filters
             </a>
-            <a href="{{ url_for('export') }}" class="menu-item" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+            <a href="{{ url_for('export') }}" class="menu-item {{ 'active' if request.path == url_for('export') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Export Data
             </a>
-            <a href="{{ url_for('logout') }}" class="menu-item" style="background: linear-gradient(135deg, #f87171, #dc2626);">
+            <a href="{{ url_for('logout') }}" class="menu-item logout {{ 'active' if request.path == url_for('logout') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 Logout
             </a>
@@ -194,28 +208,28 @@
             <p class="text-xs text-gray-300">{{ session.get('region', 'Unknown') }}</p>
         </div>
         <nav class="flex-1 mt-4">
-            <a href="{{ url_for('index') }}" class="menu-item" style="background: linear-gradient(135deg, #6b7280, #374151);">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <a href="{{ url_for('index') }}" class="menu-item {{ 'active' if request.path == url_for('index') else '' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-6l2 2h-3m6 0a1 1 0 01-1 1m-6 0h6v4a1 1 0 01-1 1h4a1 1 0 01-1v-6"></path></svg>
                 Dashboard
             </a>
-            <a href="{{ url_for('add') }}" class="menu-item" style="background: linear-gradient(135deg, #10b981, #065f46);">
+            <a href="{{ url_for('add') }}" class="menu-item {{ 'active' if request.path == url_for('add') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Exchange
             </a>
-            <a href="{{ url_for('view_exchanges') }}" class="menu-item" style="background: linear-gradient(135deg, #f97316, #ea580c);">
+            <a href="{{ url_for('view_exchanges') }}" class="menu-item {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 View Exchanges
             </a>
-            <a href="{{ url_for('filters') }}" class="menu-item" style="background: linear-gradient(135deg, #8b5cf6, #6b21a8);">
+            <a href="{{ url_for('filters') }}" class="menu-item {{ 'active' if request.path == url_for('filters') else '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Filters
             </a>
-            <a href="{{ url_for('export') }}" class="menu-item" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <a href="{{ url_for('export') }}" class="menu-item {{ 'active' if request.path == url_for('export') else '' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2-2z"></path></svg>
                 Export Data
             </a>
-            <a href="{{ url_for('logout') }}" class="menu-item" style="background: linear-gradient(135deg, #f87171, #dc2626);">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <a href="{{ url_for('logout') }}" class="menu-item logout {{ 'active' if request.path == url_for('logout') else '' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></path></svg>
                 Logout
             </a>
         </nav>
@@ -233,7 +247,7 @@
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-semibold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <button id="menu-toggle" class="md:hidden p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors">
+            <button id="menu-toggle" class="md-hidden p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
@@ -247,10 +261,10 @@
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-lg shadow-md" role="alert">
-                        <p>{{ message }}</p>
+                        <p class="menu-item">{{ message }}</p>
                     </div>
                 {% endfor %}
-            {% endif %}
+            </div>
         {% endwith %}
         {% block content %}
         {% endblock %}
@@ -265,7 +279,7 @@
             overlay.classList.toggle('open');
         });
 
-        // Close mobile menu when clicking overlay
+        // Close mobile menu when clicking on overlay
         document.getElementById('overlay')?.addEventListener('click', () => {
             const mobileMenu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('overlay');
