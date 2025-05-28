@@ -1136,15 +1136,15 @@ def export():
         logging.info(f"Processing {len(exchanges)} exchanges for export.")
 
         # Determine the maximum number of entries for each related model
-        max_towers = max(len(exchange.towers) for exchange in exchanges) if exchanges else 0
-        max_dgs = max(len(exchange.dgs) for exchange in exchanges) if exchanges else 0
-        max_batteries = max(len(exchange.battery_banks) for exchange in exchanges) if exchanges else 0
-        max_acs = max(len(exchange.ac_units) for exchange in exchanges) if exchanges else 0
-        max_alarms = max(len(exchange.alarms) for exchange in exchanges) if exchanges else 0
-        max_earthings = max(len(exchange.earthings) for exchange in exchanges) if exchanges else 0
-        max_fire_extinguishers = max(len(exchange.fire_extinguishers) for exchange in exchanges) if exchanges else 0
-        max_pmrs = max(len(exchange.pmr_infos) for exchange in exchanges) if exchanges else 0
-        max_rectifiers = max(len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges) if exchanges else 0
+        max_towers = max((len(exchange.towers) for exchange in exchanges), default=0)
+        max_dgs = max((len(exchange.dgs) for exchange in exchanges), default=0)
+        max_batteries = max((len(exchange.battery_banks) for exchange in exchanges), default=0)
+        max_acs = max((len(exchange.ac_units) for exchange in exchanges), default=0)
+        max_alarms = max((len(exchange.alarms) for exchange in exchanges), default=0)
+        max_earthings = max((len(exchange.earthings) for exchange in exchanges), default=0)
+        max_fire_extinguishers = max((len(exchange.fire_extinguishers) for exchange in exchanges), default=0)
+        max_fire_extinguishers = max((len(exchange.fire_extinguishers) for exchange in exchanges), default=0)
+        max_rectifiers = max((len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges), default=0)
 
         logging.info(f"Max entries - Towers: {max_towers}, DGs: {max_dgs}, Batteries: {max_batteries}, ACs: {max_acs}, Alarms: {max_alarms}, Earthings: {max_earthings}, Fire Extinguishers: {max_fire_extinguishers}, PMRs: {max_pmrs}, Rectifiers: {max_rectifiers}")
 
