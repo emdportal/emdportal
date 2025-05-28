@@ -1443,9 +1443,27 @@ def export():
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
 
-        all_headers = (general_info_headers + power_headers + battery_headers + ac_headers + 
-                       solar_headers + earthing_headers + fire_ext_headers + pmr_headers + 
-                       alarm_headers + colocation_headers + building_headers)
+        # Create a list of sections with their headers and formats
+        sections = [
+            ("General Information", general_info_headers, general_info_format),
+            ("Power Information", power_headers, power_info_format),
+            ("Battery Bank Information", battery_headers, battery_format),
+            ("AC Units Information", ac_headers, ac_format),
+            ("Installed Solar Information", solar_headers, solar_format),
+            ("Earthing", earthing_headers, earthing_format),
+            ("Fire Extinguishers", fire_ext_headers, fire_ext_format),
+            ("PMR Information", pmr_headers, pmr_format),
+            ("Alarm Extension", alarm_headers, alarm_format),
+            ("Colocation Information", colocation_headers, colocation_format),
+            ("Building Information", building_headers, building_format)
+        ]
+
+        # Filter out sections with no headers to avoid empty merges
+        sections = [(title, headers, fmt) for title, headers, fmt in sections if headers]
+
+        all_headers = []
+        for _, headers, _ in sections:
+            all_headers.extend(headers)
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -1469,60 +1487,16 @@ def export():
             logging.info("Writing section headers to Excel...")
             # Write all headers in one row, using column offsets
             col = 0
-
-            # General Information
-            worksheet.merge_range(0, col, 0, col + len(general_info_headers) - 1, 'General Information', header_format)
-            worksheet.write_row(1, col, general_info_headers, general_info_format)
-            col += len(general_info_headers)
-
-            # Power Information
-            worksheet.merge_range(0, col, 0, col + len(power_headers) - 1, 'Power Information', header_format)
-            worksheet.write_row(1, col, power_headers, power_info_format)
-            col += len(power_headers)
-
-            # Battery Bank Information
-            worksheet.merge_range(0, col, 0, col + len(battery_headers) - 1, 'Battery Bank Information', header_format)
-            worksheet.write_row(1, col, battery_headers, battery_format)
-            col += len(battery_headers)
-
-            # AC Units Information
-            worksheet.merge_range(0, col, 0, col + len(ac_headers) - 1, 'AC Units Information', header_format)
-            worksheet.write_row(1, col, ac_headers, ac_format)
-            col += len(ac_headers)
-
-            # Installed Solar Information
-            worksheet.merge_range(0, col, 0, col + len(solar_headers) - 1, 'Installed Solar Information', header_format)
-            worksheet.write_row(1, col, solar_headers, solar_format)
-            col += len(solar_headers)
-
-            # Earthing
-            worksheet.merge_range(0, col, 0, col + len(earthing_headers) - 1, 'Earthing', header_format)
-            worksheet.write_row(1, col, earthing_headers, earthing_format)
-            col += len(earthing_headers)
-
-            # Fire Extinguishers
-            worksheet.merge_range(0, col, 0, col + len(fire_ext_headers) - 1, 'Fire Extinguishers', header_format)
-            worksheet.write_row(1, col, fire_ext_headers, fire_ext_format)
-            col += len(fire_ext_headers)
-
-            # PMR Information
-            worksheet.merge_range(0, col, 0, col + len(pmr_headers) - 1, 'PMR Information', header_format)
-            worksheet.write_row(1, col, pmr_headers, pmr_format)
-            col += len(pmr_headers)
-
-            # Alarm Extension
-            worksheet.merge_range(0, col, 0, col + len(alarm_headers) - 1, 'Alarm Extension', header_format)
-            worksheet.write_row(1, col, alarm_headers, alarm_format)
-            col += len(alarm_headers)
-
-            # Colocation Information
-            worksheet.merge_range(0, col, 0, col + len(colocation_headers) - 1, 'Colocation Information', header_format)
-            worksheet.write_row(1, col, colocation_headers, colocation_format)
-            col += len(colocation_headers)
-
-            # Building Information
-            worksheet.merge_range(0, col, 0, col + len(building_headers) - 1, 'Building Information', header_format)
-            worksheet.write_row(1, col, building_headers, building_format)
+            for section_title, section_headers, section_format in sections:
+                if not section_headers:  # Skip sections with no headers
+                    continue
+                # Merge section title in row 0
+                start_col = col
+                end_col = col + len(section_headers) - 1
+                worksheet.merge_range(0, start_col, 0, end_col, section_title, header_format)
+                # Write column headers in row 1
+                worksheet.write_row(1, col, section_headers, section_format)
+                col = end_col + 1  # Move to the next column after this section
 
             logging.info("Writing data rows to Excel...")
             # Write data starting from row 2
