@@ -1467,68 +1467,68 @@ def export():
             building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
 
             logging.info("Writing section headers to Excel...")
-            row = 0
+            # Write all headers in one row, using column offsets
             col = 0
-            worksheet.merge_range(row, col, row, col + len(general_info_headers) - 1, 'General Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, general_info_headers, general_info_format)
-            row += 1
 
-            worksheet.merge_range(row, col, row, col + len(power_headers) - 1, 'Power Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, power_headers, power_info_format)
-            row += 1
+            # General Information
+            worksheet.merge_range(0, col, 0, col + len(general_info_headers) - 1, 'General Information', header_format)
+            worksheet.write_row(1, col, general_info_headers, general_info_format)
+            col += len(general_info_headers)
 
-            worksheet.merge_range(row, col, row, col + len(battery_headers) - 1, 'Battery Bank Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, battery_headers, battery_format)
-            row += 1
+            # Power Information
+            worksheet.merge_range(0, col, 0, col + len(power_headers) - 1, 'Power Information', header_format)
+            worksheet.write_row(1, col, power_headers, power_info_format)
+            col += len(power_headers)
 
-            worksheet.merge_range(row, col, row, col + len(ac_headers) - 1, 'AC Units Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, ac_headers, ac_format)
-            row += 1
+            # Battery Bank Information
+            worksheet.merge_range(0, col, 0, col + len(battery_headers) - 1, 'Battery Bank Information', header_format)
+            worksheet.write_row(1, col, battery_headers, battery_format)
+            col += len(battery_headers)
 
-            worksheet.merge_range(row, col, row, col + len(solar_headers) - 1, 'Installed Solar Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, solar_headers, solar_format)
-            row += 1
+            # AC Units Information
+            worksheet.merge_range(0, col, 0, col + len(ac_headers) - 1, 'AC Units Information', header_format)
+            worksheet.write_row(1, col, ac_headers, ac_format)
+            col += len(ac_headers)
 
-            worksheet.merge_range(row, col, row, col + len(earthing_headers) - 1, 'Earthing', header_format)
-            row += 1
-            worksheet.write_row(row, col, earthing_headers, earthing_format)
-            row += 1
+            # Installed Solar Information
+            worksheet.merge_range(0, col, 0, col + len(solar_headers) - 1, 'Installed Solar Information', header_format)
+            worksheet.write_row(1, col, solar_headers, solar_format)
+            col += len(solar_headers)
 
-            worksheet.merge_range(row, col, row, col + len(fire_ext_headers) - 1, 'Fire Extinguishers', header_format)
-            row += 1
-            worksheet.write_row(row, col, fire_ext_headers, fire_ext_format)
-            row += 1
+            # Earthing
+            worksheet.merge_range(0, col, 0, col + len(earthing_headers) - 1, 'Earthing', header_format)
+            worksheet.write_row(1, col, earthing_headers, earthing_format)
+            col += len(earthing_headers)
 
-            worksheet.merge_range(row, col, row, col + len(pmr_headers) - 1, 'PMR Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, pmr_headers, pmr_format)
-            row += 1
+            # Fire Extinguishers
+            worksheet.merge_range(0, col, 0, col + len(fire_ext_headers) - 1, 'Fire Extinguishers', header_format)
+            worksheet.write_row(1, col, fire_ext_headers, fire_ext_format)
+            col += len(fire_ext_headers)
 
-            worksheet.merge_range(row, col, row, col + len(alarm_headers) - 1, 'Alarm Extension', header_format)
-            row += 1
-            worksheet.write_row(row, col, alarm_headers, alarm_format)
-            row += 1
+            # PMR Information
+            worksheet.merge_range(0, col, 0, col + len(pmr_headers) - 1, 'PMR Information', header_format)
+            worksheet.write_row(1, col, pmr_headers, pmr_format)
+            col += len(pmr_headers)
 
-            worksheet.merge_range(row, col, row, col + len(colocation_headers) - 1, 'Colocation Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, colocation_headers, colocation_format)
-            row += 1
+            # Alarm Extension
+            worksheet.merge_range(0, col, 0, col + len(alarm_headers) - 1, 'Alarm Extension', header_format)
+            worksheet.write_row(1, col, alarm_headers, alarm_format)
+            col += len(alarm_headers)
 
-            worksheet.merge_range(row, col, row, col + len(building_headers) - 1, 'Building Information', header_format)
-            row += 1
-            worksheet.write_row(row, col, building_headers, building_format)
-            row += 2  # Skip a row before data
+            # Colocation Information
+            worksheet.merge_range(0, col, 0, col + len(colocation_headers) - 1, 'Colocation Information', header_format)
+            worksheet.write_row(1, col, colocation_headers, colocation_format)
+            col += len(colocation_headers)
+
+            # Building Information
+            worksheet.merge_range(0, col, 0, col + len(building_headers) - 1, 'Building Information', header_format)
+            worksheet.write_row(1, col, building_headers, building_format)
 
             logging.info("Writing data rows to Excel...")
+            # Write data starting from row 2
             for idx, exchange_data in enumerate(data):
                 try:
-                    current_row = row + idx
-                    worksheet.write_row(current_row, col, [exchange_data.get(header, '') for header in all_headers])
+                    worksheet.write_row(idx + 2, 0, [exchange_data.get(header, '') for header in all_headers])
                 except Exception as e:
                     logging.error(f"Error writing row {idx + 1} to Excel: {str(e)}")
                     continue
