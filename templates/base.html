@@ -55,11 +55,12 @@
             left: 0;
             width: 250px;
             height: calc(100% - 60px);
-            background-color: #111827;
+            background-color: #1f2937;
             transform: translateX(-100%);
             transition: transform 0.3s ease;
             z-index: 60;
             padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         }
         .mobile-menu.open {
             transform: translateX(0);
@@ -105,14 +106,8 @@
             .mobile-menu {
                 display: block; /* Show mobile menu on smaller screens */
             }
-            .mobile-menu a {
-                display: block;
-                padding: 10px;
-                color: white;
-                text-decoration: none;
-            }
-            .mobile-menu a:hover {
-                background-color: #374151;
+            .sidebar .title {
+                display: none; /* Hide sidebar title on mobile */
             }
         }
     </style>
@@ -120,7 +115,7 @@
 <body>
     {% if request.path != '/login' %}
     <div class="sidebar flex flex-col">
-        <div class="p-4">
+        <div class="p-4 title">
             <h2 class="text-2xl font-bold">Exchanges Dashboard</h2>
         </div>
         <nav class="flex-1">
@@ -149,11 +144,35 @@
 
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobile-menu">
-        <a href="{{ url_for('index') }}">Dashboard</a>
-        <a href="{{ url_for('add') }}">Add Exchange</a>
-        <a href="{{ url_for('view_exchanges') }}">View Exchanges</a>
-        <a href="{{ url_for('filters') }}">Filters</a>
-        <a href="{{ url_for('export') }}">Export Data</a>
+        <div class="p-4 border-b border-gray-700">
+            <h2 class="text-2xl font-bold text-white">EMD Portal</h2>
+        </div>
+        <nav class="mt-4 space-y-2">
+            <a href="{{ url_for('index') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Dashboard
+            </a>
+            <a href="{{ url_for('add') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Add Exchange
+            </a>
+            <a href="{{ url_for('view_exchanges') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                View Exchanges
+            </a>
+            <a href="{{ url_for('filters') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Filters
+            </a>
+            <a href="{{ url_for('export') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Export Data
+            </a>
+            <a href="{{ url_for('logout') }}" class="flex items-center p-2 text-red-400 hover:bg-gray-700 rounded-lg mt-4">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Logout
+            </a>
+        </nav>
     </div>
 
     <div class="overlay" id="overlay"></div>
@@ -161,7 +180,7 @@
     <header class="header flex items-center justify-between">
         <div class="flex items-center">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 mr-4">
-            <h1 class="text-xl font-semibold text-gray-800">Exchanges Master Database</h1>
+            <h1 class="text-xl font-semibold text-gray-800">EMD Portal</h1>
         </div>
         <div class="flex items-center space-x-6">
             <span class="text-gray-600 user-info">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
