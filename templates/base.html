@@ -12,9 +12,10 @@
             font-family: 'Poppins', sans-serif; 
             margin: 0;
             padding: 0;
+            background-color: #f4f7fa;
         }
         .sidebar { 
-            background-color: #111827; 
+            background: linear-gradient(135deg, #4b6cb7, #182848);
             color: white; 
             height: 100vh; 
             position: fixed; 
@@ -24,10 +25,18 @@
             overflow-y: auto; 
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
             z-index: 50;
+            padding: 20px 0;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
         }
         .sidebar a:hover {
-            background-color: #374151;
-            transition: background-color 0.3s;
+            background-color: rgba(255, 255, 255, 0.1);
         }
         .content { 
             margin-left: 250px; 
@@ -49,21 +58,21 @@
             padding: 0 20px;
         }
         .mobile-menu {
-            display: none; /* Hidden by default, only shown on mobile */
+            display: none;
             position: fixed;
-            top: 60px;
-            left: 0;
+            top: 0;
+            left: -250px;
             width: 250px;
-            height: calc(100% - 60px);
-            background-color: #1f2937;
-            transform: translateX(-100%);
+            height: 100vh;
+            background: linear-gradient(135deg, #4b6cb7, #182848);
+            transform: translateX(0);
             transition: transform 0.3s ease;
             z-index: 60;
-            padding: 20px;
+            padding: 20px 0;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
         }
         .mobile-menu.open {
-            transform: translateX(0);
+            transform: translateX(250px);
         }
         .overlay {
             display: none;
@@ -78,13 +87,28 @@
         .overlay.open {
             display: block;
         }
+        .profile-section {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .menu-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .menu-item svg {
+            margin-right: 10px;
+        }
         @media (max-width: 768px) {
             .sidebar { 
-                width: 200px; 
-                transform: translateX(-100%); 
-                transition: transform 0.3s ease; 
+                display: none; 
             }
-            .sidebar.open { transform: translateX(0); }
             .header {
                 left: 0;
                 padding: 0 10px;
@@ -97,17 +121,14 @@
                 font-size: 1rem;
             }
             .header .user-info {
-                display: none; /* Hide username/region on mobile to avoid overlap */
+                display: none;
             }
             .content { 
                 margin-left: 0; 
-                padding-top: 80px; /* Extra padding to account for header */
+                padding-top: 60px; 
             }
             .mobile-menu {
-                display: block; /* Show mobile menu on smaller screens */
-            }
-            .sidebar .title {
-                display: none; /* Hide sidebar title on mobile */
+                display: block;
             }
         }
     </style>
@@ -115,61 +136,73 @@
 <body>
     {% if request.path != '/login' %}
     <div class="sidebar flex flex-col">
-        <div class="p-4 title">
-            <h2 class="text-2xl font-bold">Exchanges Dashboard</h2>
+        <div class="profile-section">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold mb-2">
+                {{ session.get('username', 'User')|first|upper }}
+            </div>
+            <p class="text-sm">{{ session.get('username', 'User') }}</p>
+            <p class="text-xs text-gray-300">{{ session.get('region', 'Unknown') }}</p>
         </div>
-        <nav class="flex-1">
-            <a href="{{ url_for('index') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <nav class="flex-1 mt-4">
+            <a href="{{ url_for('index') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Dashboard
             </a>
-            <a href="{{ url_for('add') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <a href="{{ url_for('add') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Exchange
             </a>
-            <a href="{{ url_for('view_exchanges') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            <a href="{{ url_for('view_exchanges') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 View Exchanges
             </a>
-            <a href="{{ url_for('filters') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <a href="{{ url_for('filters') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Filters
             </a>
-            <a href="{{ url_for('export') }}" class="block py-2 px-4 hover:bg-gray-700 flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <a href="{{ url_for('export') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Export Data
+            </a>
+            <a href="{{ url_for('logout') }}" class="menu-item text-red-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Logout
             </a>
         </nav>
     </div>
 
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobile-menu">
-        <div class="p-4 border-b border-gray-700">
-            <h2 class="text-2xl font-bold text-white">EMD Portal</h2>
+        <div class="profile-section">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold mb-2">
+                {{ session.get('username', 'User')|first|upper }}
+            </div>
+            <p class="text-sm">{{ session.get('username', 'User') }}</p>
+            <p class="text-xs text-gray-300">{{ session.get('region', 'Unknown') }}</p>
         </div>
-        <nav class="mt-4 space-y-2">
-            <a href="{{ url_for('index') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <nav class="flex-1 mt-4">
+            <a href="{{ url_for('index') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Dashboard
             </a>
-            <a href="{{ url_for('add') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <a href="{{ url_for('add') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Exchange
             </a>
-            <a href="{{ url_for('view_exchanges') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            <a href="{{ url_for('view_exchanges') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 View Exchanges
             </a>
-            <a href="{{ url_for('filters') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <a href="{{ url_for('filters') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Filters
             </a>
-            <a href="{{ url_for('export') }}" class="flex items-center p-2 text-white hover:bg-gray-700 rounded-lg">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <a href="{{ url_for('export') }}" class="menu-item">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Export Data
             </a>
-            <a href="{{ url_for('logout') }}" class="flex items-center p-2 text-red-400 hover:bg-gray-700 rounded-lg mt-4">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <a href="{{ url_for('logout') }}" class="menu-item text-red-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                 Logout
             </a>
         </nav>
@@ -211,22 +244,18 @@
     </main>
 
     <script>
-        // Sidebar Toggle for Mobile
+        // Mobile Menu Toggle
         document.getElementById('menu-toggle')?.addEventListener('click', () => {
-            const sidebar = document.querySelector('.sidebar');
             const mobileMenu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('open');
             mobileMenu.classList.toggle('open');
             overlay.classList.toggle('open');
         });
 
         // Close mobile menu when clicking overlay
         document.getElementById('overlay')?.addEventListener('click', () => {
-            const sidebar = document.querySelector('.sidebar');
             const mobileMenu = document.getElementById('mobile-menu');
             const overlay = document.getElementById('overlay');
-            sidebar.classList.remove('open');
             mobileMenu.classList.remove('open');
             overlay.classList.remove('open');
         });
