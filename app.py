@@ -1314,33 +1314,15 @@ def export():
 
         logging.info(f"Processing {len(exchanges)} exchanges for export.")
 
-        # Safely determine maximum entries with error handling
-        max_towers = 0
-        max_dgs = 0
-        max_batteries = 0
-        max_acs = 0
-        max_alarms = 0
-        max_earthings = 0
-        max_fire_extinguishers = 0
-        max_pmrs = 0
-        max_rectifiers = 0
-
-        try:
-            if exchanges:
-                max_towers = max((len(exchange.towers) for exchange in exchanges if exchange.towers), default=0)
-                max_dgs = max((len(exchange.dgs) for exchange in exchanges if exchange.dgs), default=0)
-                max_batteries = max((len(exchange.battery_banks) for exchange in exchanges if exchange.battery_banks), default=0)
-                max_acs = max((len(exchange.ac_units) for exchange in exchanges if exchange.ac_units), default=0)
-                max_alarms = max((len(exchange.alarms) for exchange in exchanges if exchange.alarms), default=0)
-                max_earthings = max((len(exchange.earthings) for exchange in exchanges if exchange.earthings), default=0)
-                max_fire_extinguishers = max((len(exchange.fire_extinguishers) for exchange in exchanges if exchange.fire_extinguishers), default=0)
-                max_pmrs = max((len(exchange.pmr_infos) for exchange in exchanges if exchange.pmr_infos), default=0)
-                max_rectifiers = max((len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges), default=0)
-        except Exception as e:
-            logging.error(f"Error calculating max entries: {str(e)}")
-            max_towers = max_dgs = max_batteries = max_acs = max_alarms = max_earthings = max_fire_extinguishers = max_pmrs = max_rectifiers = 0
-
-        logging.info(f"Max entries - Towers: {max_towers}, DGs: {max_dgs}, Batteries: {max_batteries}, ACs: {max_acs}, Alarms: {max_alarms}, Earthings: {max_earthings}, Fire Extinguishers: {max_fire_extinguishers}, PMRs: {max_pmrs}, Rectifiers: {max_rectifiers}")
+        max_towers = max((len(exchange.towers) for exchange in exchanges if exchange.towers), default=0)
+        max_dgs = max((len(exchange.dgs) for exchange in exchanges if exchange.dgs), default=0)
+        max_batteries = max((len(exchange.battery_banks) for exchange in exchanges if exchange.battery_banks), default=0)
+        max_acs = max((len(exchange.ac_units) for exchange in exchanges if exchange.ac_units), default=0)
+        max_alarms = max((len(exchange.alarms) for exchange in exchanges if exchange.alarms), default=0)
+        max_earthings = max((len(exchange.earthings) for exchange in exchanges if exchange.earthings), default=0)
+        max_fire_extinguishers = max((len(exchange.fire_extinguishers) for exchange in exchanges if exchange.fire_extinguishers), default=0)
+        max_pmrs = max((len(exchange.pmr_infos) for exchange in exchanges if exchange.pmr_infos), default=0)
+        max_rectifiers = max((len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges), default=0)
 
         data = []
         for idx, exchange in enumerate(exchanges):
@@ -1362,7 +1344,6 @@ def export():
                     tower = exchange.towers[i] if i < len(exchange.towers) else None
                     row[f'Type and Height of Tower {i+1}'] = getattr(tower, 'tower_type_height', None) if tower else None
 
-                # Power Information
                 power_info = getattr(exchange, 'power_info', None)
                 if power_info:
                     row.update({
@@ -1383,7 +1364,6 @@ def export():
                         'Load of Individual NE': None,
                     })
 
-                # DG Information
                 for i in range(max_dgs):
                     dg = exchange.dgs[i] if i < len(exchange.dgs) else None
                     row.update({
@@ -1406,7 +1386,6 @@ def export():
                         f'Site Load P3 {i+1}': getattr(dg, 'site_load_p3', None) if dg else None,
                     })
 
-                # Rectifier Information
                 rectifiers = getattr(power_info, 'rectifiers', []) if power_info else []
                 for i in range(max_rectifiers):
                     rectifier = rectifiers[i] if i < len(rectifiers) else None
@@ -1425,7 +1404,6 @@ def export():
                         f'No of Faulty SPDs {i+1}': rectifier.get('no_of_faulty_spds') if rectifier else None,
                     })
 
-                # Battery Bank Information
                 for i in range(max_batteries):
                     battery = exchange.battery_banks[i] if i < len(exchange.battery_banks) else None
                     row.update({
@@ -1440,7 +1418,6 @@ def export():
                         f'Battery Moved From {i+1} (Incase Used Installed)': getattr(battery, 'battery_moved_from', None) if battery else None,
                     })
 
-                # AC Units Information
                 for i in range(max_acs):
                     ac = exchange.ac_units[i] if i < len(exchange.ac_units) else None
                     row.update({
@@ -1458,7 +1435,6 @@ def export():
                         f'Estimate to Repair AC {i+1}': getattr(ac, 'estimate_to_repair_ac', None) if ac else None,
                     })
 
-                # Installed Solar Information
                 solar_info = getattr(exchange, 'solar_info', None)
                 if solar_info:
                     row.update({
@@ -1477,7 +1453,6 @@ def export():
                         'Charge Controller Make': None,
                     })
 
-                # Earthing
                 for i in range(max_earthings):
                     earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
                     row.update({
@@ -1485,7 +1460,6 @@ def export():
                         f'No. of Pits {i+1}': getattr(earthing, 'no_of_pits', None) if earthing else None,
                     })
 
-                # Fire Extinguishers
                 for i in range(max_fire_extinguishers):
                     fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers) else None
                     row.update({
@@ -1495,7 +1469,6 @@ def export():
                         f'Date of Expiry {i+1}': getattr(fire_ext, 'date_of_expiry', None) if fire_ext else None,
                     })
 
-                # PMR Information
                 for i in range(max_pmrs):
                     pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
                     row.update({
@@ -1503,7 +1476,6 @@ def export():
                         f'Last Performed Date {i+1}': getattr(pmr, 'last_performed_date', None) if pmr else None,
                     })
 
-                # Alarm Extension
                 for i in range(max_alarms):
                     alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
                     row.update({
@@ -1512,7 +1484,6 @@ def export():
                         f'Rectifier Failure {i+1} (Y/N)': getattr(alarm, 'rectifier_failure', None) if alarm else None,
                     })
 
-                # Colocation Information
                 colocation_info = getattr(exchange, 'colocation_info', None)
                 if colocation_info:
                     row.update({
@@ -1529,7 +1500,6 @@ def export():
                         'Total Load': None,
                     })
 
-                # Building Information
                 building_info = getattr(exchange, 'building_info', None)
                 if building_info:
                     row.update({
@@ -1554,7 +1524,6 @@ def export():
 
         logging.info(f"Processed {len(data)} rows of data.")
 
-        # Define headers for each section
         general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
         power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status', 'Name of NEs Connected', 'Load of Individual NE'] + \
                        [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
@@ -1627,7 +1596,7 @@ def export():
             workbook = writer.book
             worksheet = workbook.add_worksheet('Exchanges')
 
-            # Define formats before referencing them
+            # Define formats
             header_format = workbook.add_format({'bg_color': '#4BACC6', 'font_color': 'white', 'bold': True, 'border': 1})
             general_info_format = workbook.add_format({'bg_color': '#D3D3D3', 'border': 1})
             power_info_format = workbook.add_format({'bg_color': '#ADD8E6', 'border': 1})
@@ -1641,7 +1610,6 @@ def export():
             colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
             building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
 
-            # Create a list of sections with their headers and formats
             sections = [
                 ("General Information", general_info_headers, general_info_format),
                 ("Power Information", power_headers, power_info_format),
@@ -1656,40 +1624,34 @@ def export():
                 ("Building Information", building_headers, building_format)
             ]
 
-            # Filter out sections with no headers to avoid empty merges
             sections = [(title, headers, fmt) for title, headers, fmt in sections if headers]
 
             all_headers = []
             for _, headers, _ in sections:
                 all_headers.extend(headers)
 
-            logging.info("Writing section headers to Excel...")
-            # Write all headers in one row, using column offsets
             col = 0
             for section_title, section_headers, section_format in sections:
-                if not section_headers:  # Skip sections with no headers
+                if not section_headers:
                     continue
-                # Merge section title in row 0
                 start_col = col
                 end_col = col + len(section_headers) - 1
                 worksheet.merge_range(0, start_col, 0, end_col, section_title, header_format)
-                # Write column headers in row 1
                 worksheet.write_row(1, col, section_headers, section_format)
-                col = end_col + 1  # Move to the next column after this section
+                col = end_col + 1
 
-            logging.info("Writing data rows to Excel...")
-            # Convert data to DataFrame and write to Excel
             df = pd.DataFrame(data)
-            df = df[all_headers]  # Reorder columns to match all_headers
+            df = df[all_headers]
+            # Replace NaN and inf with None to avoid xlsxwriter errors
+            df = df.replace([float('nan'), float('inf'), -float('inf')], None)
+
             for idx, row in df.iterrows():
                 worksheet.write_row(idx + 2, 0, row.tolist())
 
-            logging.info("Adjusting column widths...")
             for idx, header in enumerate(all_headers):
                 max_len = max((len(str(df[header].iloc[i])) for i in range(len(df)) if pd.notna(df[header].iloc[i])) + [len(header) + 2])
                 worksheet.set_column(idx, idx, max_len)
 
-        logging.info("Excel file generated successfully.")
         output.seek(0)
         return send_file(
             output,
@@ -1715,7 +1677,33 @@ def view_exchanges():
         exchanges = GeneralInformation.query.all()
     else:
         exchanges = GeneralInformation.query.filter_by(domain=user_region).all()
-    return render_template('view_exchanges.html', exchanges=exchanges)
+
+    # Prepare data for the template
+    exchange_data = []
+    for exchange in exchanges:
+        # Fetch the latest battery history
+        latest_battery = BatteryBankHistory.query.filter_by(general_id=exchange.sn)\
+            .order_by(BatteryBankHistory.archived_at.desc()).first()
+        
+        # Fetch the latest PMR history
+        latest_pmr = PMRInformationHistory.query.filter_by(general_id=exchange.sn)\
+            .order_by(PMRInformationHistory.archived_at.desc()).first()
+
+        # Create a dictionary with all necessary data
+        exchange_info = {
+            'sn': exchange.sn,
+            'region': exchange.region,
+            'domain': exchange.domain,
+            'site_name': exchange.site_name,
+            'created_by': exchange.created_by,
+            'updated_by': exchange.updated_by,
+            'updated_at': exchange.updated_at,
+            'latest_battery': latest_battery,
+            'latest_pmr': latest_pmr
+        }
+        exchange_data.append(exchange_info)
+
+    return render_template('view_exchanges.html', exchanges=exchange_data)
     
 @app.route('/filters', methods=['GET', 'POST'])
 @login_required
