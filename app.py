@@ -317,6 +317,29 @@ def index():
             solar_query = solar_query.filter(GeneralInformation.domain == user_region)
         total_solar_sites = solar_query.distinct().count()  # Count unique sites with solar data
 
+        # Calculate total battery cells from Battery Bank Information
+        battery_query = db.session.query(BatteryBank).join(GeneralInformation)
+        if user_region != "All":
+            battery_query = battery_query.filter(GeneralInformation.domain == user_region)
+        total_battery_cells = battery_query.with_entities(db.func.coalesce(db.func.sum(BatteryBank.no_of_cells_bank), 0)).scalar()
+
+        # Calculate total fire extinguishers from Fire Extinguisher
+        fe_query = db.session.query(FireExtinguisher).join(GeneralInformation)
+        if user_region != "All":
+            fe_query = fe_query.filter(GeneralInformation.domain == user_region)
+        total_fire_extinguishers = fe_query.with_entities(db.func.coalesce(db.func.sum(FireExtinguisher.no_of_fes), 0)).scalar()
+
+        # Calculate AC status counts from AC Unit Information
+        ac_query = db.session.query(ACUnit).join(GeneralInformation)
+        if user_region != "All":
+            ac_query = ac_query.filter(GeneralInformation.domain == user_region)
+        ac_units = ac_query.all()
+        ac_status_counts = {'Working': 0, 'Faulty': 0, 'Spare': 0}
+        for ac in ac_units:
+            status = ac.working_status
+            if status in ac_status_counts:
+                ac_status_counts[status] += 1
+
         return render_template('index.html',
                              exchanges=exchanges,
                              region_labels=region_labels,
@@ -326,7 +349,10 @@ def index():
                              total_exchanges=total_exchanges,
                              total_installed_dgs=total_installed_dgs,
                              dg_status_counts=dg_status_counts,
-                             total_solar_sites=total_solar_sites)
+                             total_solar_sites=total_solar_sites,
+                             total_battery_cells=total_battery_cells,
+                             total_fire_extinguishers=total_fire_extinguishers,
+                             ac_status_counts=ac_status_counts)
     except Exception as e:
         logging.error(f"Error in index route: {str(e)}")
         flash(f"Error: {str(e)}")
