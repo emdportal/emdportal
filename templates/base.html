@@ -13,7 +13,6 @@
             background-color: #f8fafc;
         }
         .sidebar-bg {
-            /* Indigo to purple (matches your View Exchanges header) */
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             box-shadow: 2px 0 16px rgba(44, 62, 80, .06);
         }
@@ -32,6 +31,15 @@
         .sidebar-bg .sidebar-pill {
             color: #fff;
             font-weight: 500;
+        }
+        .mobile-sidebar {
+            transition: left 0.3s;
+        }
+        .mobile-sidebar.closed {
+            left: -100%;
+        }
+        .mobile-sidebar.open {
+            left: 0;
         }
         @media (max-width: 1024px) {
             .sidebar-bg {
@@ -234,31 +242,33 @@
     </main>
 
     <script>
-        // Mobile sidebar open/close logic
-        const sidebarBtn = document.getElementById('mobileSidebarBtn');
-        const mobileSidebar = document.getElementById('mobileSidebar');
-        const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
-        // Ensure sidebar is closed on load
-        if (mobileSidebar && !mobileSidebar.classList.contains('closed')) {
-            mobileSidebar.classList.add('closed');
-        }
-        if (mobileSidebarOverlay && !mobileSidebarOverlay.classList.contains('hidden')) {
-            mobileSidebarOverlay.classList.add('hidden');
-        }
-        if (sidebarBtn) {
-            sidebarBtn.addEventListener('click', () => {
-                mobileSidebar.classList.remove('closed');
-                mobileSidebar.classList.add('open');
-                mobileSidebarOverlay.classList.remove('hidden');
-            });
-        }
-        if (mobileSidebarOverlay) {
-            mobileSidebarOverlay.addEventListener('click', () => {
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarBtn = document.getElementById('mobileSidebarBtn');
+            const mobileSidebar = document.getElementById('mobileSidebar');
+            const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
+            // Always start closed/hidden
+            if (mobileSidebar) {
                 mobileSidebar.classList.remove('open');
                 mobileSidebar.classList.add('closed');
+            }
+            if (mobileSidebarOverlay) {
                 mobileSidebarOverlay.classList.add('hidden');
-            });
-        }
+            }
+            if (sidebarBtn) {
+                sidebarBtn.addEventListener('click', function () {
+                    mobileSidebar.classList.remove('closed');
+                    mobileSidebar.classList.add('open');
+                    mobileSidebarOverlay.classList.remove('hidden');
+                });
+            }
+            if (mobileSidebarOverlay) {
+                mobileSidebarOverlay.addEventListener('click', function () {
+                    mobileSidebar.classList.remove('open');
+                    mobileSidebar.classList.add('closed');
+                    mobileSidebarOverlay.classList.add('hidden');
+                });
+            }
+        });
     </script>
     {% block scripts %}
     {% endblock %}
