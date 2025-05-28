@@ -1330,14 +1330,71 @@ def export():
 
         # Define headers for each section
         general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
-        power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Installed DGs'] + [f'Engine Make {i+1}', f'Installation Year {i+1}', f'DG Status {i+1}', f'DG Starting Battery {i+1}', f'Smart Switch Installed {i+1} (Y/N)', f'ATS Installed {i+1} (Y/N)', f'ATS Capacity {i+1}', f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)', f'No of Faulty ATS Parts {i+1}', f'Load on DG P1 {i+1}', f'Load on DG P2 {i+1}', f'Load on DG P3 {i+1}', f'Site Load Total {i+1}', f'Site Load P1 {i+1}', f'Site Load P2 {i+1}', f'Site Load P3 {i+1}' for i in range(max_dgs)] + [f'Make of Rectifier {i+1}', f'Working Status {i+1} (Y/N)', f'Rectifier Capacity {i+1} (A)', f'No. of Modules {i+1}', f'Capacity of Each Module {i+1} (A)', f'Working Modules {i+1} (No.)', f'Faulty Modules {i+1} (No.)', f'Space for New Modules {i+1} (No.)', f'Name of NEs Connected with Rectifier {i+1}', f'Load of Individual NE {i+1} (A)', f'Grounding of Rectifier {i+1} (Y/N)', f'SPD in Rectifier {i+1} (Y/N)', f'SPD Model {i+1} (V and A Rating)', f'Total Installed SPDs {i+1}', f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
-        battery_headers = [f'Make of Battery {i+1}', f'Battery Capacity {i+1} (AH)', f'Battery Type {i+1} (2V/12V)', f'No. of Cells/Bank {i+1}', f'Date of Installation {i+1}', f'Load on Battery Bank {i+1} (A)', f'Practical Backup Time {i+1} (Hrs)', f'Battery Installed {i+1} New or Used', f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
-        ac_headers = [f'Location of AC Unit {i+1}', f'Working Status {i+1} (Y/N)', f'AC Make {i+1}', f'Capacity {i+1} (Tons)', f'Type of AC {i+1}', f'Mount Type {i+1}', f'Date of Installation {i+1}', f'Sequence Controller Installed {i+1} (Y/N)', f'AC Load {i+1}', f'Total AC Load {i+1}', f'Fault Nature of AC Unit {i+1}', f'Estimate to Repair AC {i+1}' for i in range(max_acs)]
+        power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Installed DGs'] + \
+                        [f'Engine Make {i+1}' for i in range(max_dgs)] + \
+                        [f'Installation Year {i+1}' for i in range(max_dgs)] + \
+                        [f'DG Status {i+1}' for i in range(max_dgs)] + \
+                        [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
+                        [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+                        [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+                        [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
+                        [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
+                        [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
+                        [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
+                        [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
+                        [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
+                        [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
+                        [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
+                        [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
+                        [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
+                        [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
+                        [f'Working Status {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                        [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
+                        [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
+                        [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
+                        [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                        [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                        [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                        [f'Name of NEs Connected with Rectifier {i+1}' for i in range(max_rectifiers)] + \
+                        [f'Load of Individual NE {i+1} (A)' for i in range(max_rectifiers)] + \
+                        [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                        [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                        [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
+                        [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
+                        [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
+        battery_headers = [f'Make of Battery {i+1}' for i in range(max_batteries)] + \
+                          [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
+                          [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
+                          [f'No. of Cells/Bank {i+1}' for i in range(max_batteries)] + \
+                          [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
+                          [f'Load on Battery Bank {i+1} (A)' for i in range(max_batteries)] + \
+                          [f'Practical Backup Time {i+1} (Hrs)' for i in range(max_batteries)] + \
+                          [f'Battery Installed {i+1} New or Used' for i in range(max_batteries)] + \
+                          [f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
+        ac_headers = [f'Location of AC Unit {i+1}' for i in range(max_acs)] + \
+                     [f'Working Status {i+1} (Y/N)' for i in range(max_acs)] + \
+                     [f'AC Make {i+1}' for i in range(max_acs)] + \
+                     [f'Capacity {i+1} (Tons)' for i in range(max_acs)] + \
+                     [f'Type of AC {i+1}' for i in range(max_acs)] + \
+                     [f'Mount Type {i+1}' for i in range(max_acs)] + \
+                     [f'Date of Installation {i+1}' for i in range(max_acs)] + \
+                     [f'Sequence Controller Installed {i+1} (Y/N)' for i in range(max_acs)] + \
+                     [f'AC Load {i+1}' for i in range(max_acs)] + \
+                     [f'Total AC Load {i+1}' for i in range(max_acs)] + \
+                     [f'Fault Nature of AC Unit {i+1}' for i in range(max_acs)] + \
+                     [f'Estimate to Repair AC {i+1}' for i in range(max_acs)]
         solar_headers = ['Total Solar Size (KW)', 'PV Solar Panel Capacity (W)', 'No. of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make', 'No. of Charge Controllers', 'Charge Controller Capacity (A)', 'Inverter Make', 'Inverter Capacity (KW)', 'No. of Inverters', 'On Grid/Hybrid?', 'Roof Top/Ground?']
-        earthing_headers = [f'Earthing Value {i+1}', f'No. of Pits {i+1}' for i in range(max_earthings)]
-        fire_ext_headers = [f'FE Installed {i+1}', f'No. of FEs {i+1}', f'Type of Gas {i+1}', f'Date of Expiry {i+1}' for i in range(max_fire_extinguishers)]
-        pmr_headers = [f'PMR Performed {i+1} (Y/N)', f'Last Performed Date {i+1}' for i in range(max_pmrs)]
-        alarm_headers = [f'AC Main Failure {i+1} (Y/N)', f'DC Low Voltages {i+1} (Y/N)', f'Rectifier Failure {i+1} (Y/N)' for i in range(max_alarms)]
+        earthing_headers = [f'Earthing Value {i+1}' for i in range(max_earthings)] + \
+                           [f'No. of Pits {i+1}' for i in range(max_earthings)]
+        fire_ext_headers = [f'FE Installed {i+1}' for i in range(max_fire_extinguishers)] + \
+                           [f'No. of FEs {i+1}' for i in range(max_fire_extinguishers)] + \
+                           [f'Type of Gas {i+1}' for i in range(max_fire_extinguishers)] + \
+                           [f'Date of Expiry {i+1}' for i in range(max_fire_extinguishers)]
+        pmr_headers = [f'PMR Performed {i+1} (Y/N)' for i in range(max_pmrs)] + \
+                      [f'Last Performed Date {i+1}' for i in range(max_pmrs)]
+        alarm_headers = [f'AC Main Failure {i+1} (Y/N)' for i in range(max_alarms)] + \
+                        [f'DC Low Voltages {i+1} (Y/N)' for i in range(max_alarms)] + \
+                        [f'Rectifier Failure {i+1} (Y/N)' for i in range(max_alarms)]
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
 
