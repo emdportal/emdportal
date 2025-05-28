@@ -40,6 +40,7 @@
                         {% if exchange.latest_battery %}
                             Make: {{ exchange.latest_battery.make_of_battery }}<br>
                             Capacity: {{ exchange.latest_battery.battery_capacity }} AH<br>
+                            Installed: {{ exchange.latest_battery.date_of_installation|datetime }}<br>
                             Archived: {{ exchange.latest_battery.archived_at|datetime }}
                         {% else %}
                             No history available
