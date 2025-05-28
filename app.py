@@ -1306,6 +1306,9 @@ def export():
     try:
         logging.info("Starting export process...")
         user_region = session.get('region')
+        logging.info(f"User region: {user_region}")
+
+        # Fetch exchanges
         if user_region == "All":
             exchanges = GeneralInformation.query.limit(500).all()
         else:
@@ -1321,7 +1324,7 @@ def export():
             flash('Export limited to 500 records. Please contact support for a full export.')
             logging.info(f"Total exchanges: {total_exchanges}, limited to 500 for export.")
 
-        logging.info(f"Processing {len(exchanges)} exchanges for export.")
+        logging.info(f"Fetched {len(exchanges)} exchanges: {[exchange.sn for exchange in exchanges]}")
 
         max_towers = max((len(exchange.towers) for exchange in exchanges if exchange.towers), default=0)
         max_dgs = max((len(exchange.dgs) for exchange in exchanges if exchange.dgs), default=0)
@@ -1336,13 +1339,17 @@ def export():
         data = []
         for idx, exchange in enumerate(exchanges):
             try:
+                logging.info(f"Processing exchange SN: {exchange.sn}, Domain: {exchange.domain}")
+
                 # Fetch the latest battery history
                 latest_battery = BatteryBankHistory.query.filter_by(general_id=exchange.sn)\
                     .order_by(BatteryBankHistory.archived_at.desc()).first()
-                
+                logging.info(f"Latest battery for SN {exchange.sn}: {latest_battery}")
+
                 # Fetch the latest PMR history
                 latest_pmr = PMRInformationHistory.query.filter_by(general_id=exchange.sn)\
                     .order_by(PMRInformationHistory.archived_at.desc()).first()
+                logging.info(f"Latest PMR for SN {exchange.sn}: {latest_pmr}")
 
                 row = {
                     'SN': getattr(exchange, 'sn', None),
@@ -1539,7 +1546,7 @@ def export():
 
                 data.append(row)
             except Exception as e:
-                logging.error(f"Error processing exchange {idx + 1}: {str(e)}")
+                logging.error(f"Error processing exchange SN {exchange.sn}: {str(e)}")
                 continue
 
         if not data:
@@ -1547,7 +1554,7 @@ def export():
             logging.warning("No data available to export after processing.")
             return redirect(url_for('index'))
 
-        logging.info(f"Processed {len(data)} rows of data.")
+        logging.info(f"Processed {len(data)} rows of data: {[row['SN'] for row in data]}")
 
         # Define headers for all sections
         general_info_headers = [
