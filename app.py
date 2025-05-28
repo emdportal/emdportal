@@ -1135,51 +1135,64 @@ def export():
 
         logging.info(f"Processing {len(exchanges)} exchanges for export.")
 
-        # Determine the maximum number of entries for each related model, default to 0 if exchanges is empty
-        max_towers = max(len(exchange.towers) for exchange in exchanges) if exchanges and any(exchange.towers for exchange in exchanges) else 0
-        max_dgs = max(len(exchange.dgs) for exchange in exchanges) if exchanges and any(exchange.dgs for exchange in exchanges) else 0
-        max_batteries = max(len(exchange.battery_banks) for exchange in exchanges) if exchanges and any(exchange.battery_banks for exchange in exchanges) else 0
-        max_acs = max(len(exchange.ac_units) for exchange in exchanges) if exchanges and any(exchange.ac_units for exchange in exchanges) else 0
-        max_alarms = max(len(exchange.alarms) for exchange in exchanges) if exchanges and any(exchange.alarms for exchange in exchanges) else 0
-        max_earthings = max(len(exchange.earthings) for exchange in exchanges) if exchanges and any(exchange.earthings for exchange in exchanges) else 0
-        max_fire_extinguishers = max(len(exchange.fire_extinguishers) for exchange in exchanges) if exchanges and any(exchange.fire_extinguishers for exchange in exchanges) else 0
-        max_pmrs = max(len(exchange.pmr_infos) for exchange in exchanges) if exchanges and any(exchange.pmr_infos for exchange in exchanges) else 0
-        max_rectifiers = max(len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges) if exchanges and any(exchange.power_info for exchange in exchanges) else 0
+        # Safely determine maximum entries with error handling
+        max_towers = 0
+        max_dgs = 0
+        max_batteries = 0
+        max_acs = 0
+        max_alarms = 0
+        max_earthings = 0
+        max_fire_extinguishers = 0
+        max_pmrs = 0
+        max_rectifiers = 0
+
+        try:
+            if exchanges:
+                max_towers = max((len(exchange.towers) for exchange in exchanges if exchange.towers), default=0)
+                max_dgs = max((len(exchange.dgs) for exchange in exchanges if exchange.dgs), default=0)
+                max_batteries = max((len(exchange.battery_banks) for exchange in exchanges if exchange.battery_banks), default=0)
+                max_acs = max((len(exchange.ac_units) for exchange in exchanges if exchange.ac_units), default=0)
+                max_alarms = max((len(exchange.alarms) for exchange in exchanges if exchange.alarms), default=0)
+                max_earthings = max((len(exchange.earthings) for exchange in exchanges if exchange.earthings), default=0)
+                max_fire_extinguishers = max((len(exchange.fire_extinguishers) for exchange in exchanges if exchange.fire_extinguishers), default=0)
+                max_pmrs = max((len(exchange.pmr_infos) for exchange in exchanges if exchange.pmr_infos), default=0)
+                max_rectifiers = max((len(exchange.power_info.rectifiers) if exchange.power_info and exchange.power_info.rectifiers else 0 for exchange in exchanges), default=0)
+        except Exception as e:
+            logging.error(f"Error calculating max entries: {str(e)}")
+            max_towers = max_dgs = max_batteries = max_acs = max_alarms = max_earthings = max_fire_extinguishers = max_pmrs = max_rectifiers = 0
 
         logging.info(f"Max entries - Towers: {max_towers}, DGs: {max_dgs}, Batteries: {max_batteries}, ACs: {max_acs}, Alarms: {max_alarms}, Earthings: {max_earthings}, Fire Extinguishers: {max_fire_extinguishers}, PMRs: {max_pmrs}, Rectifiers: {max_rectifiers}")
 
         data = []
         for idx, exchange in enumerate(exchanges):
             try:
-                row = {}
-
-                # General Information
-                row.update({
-                    'SN': exchange.sn,
-                    'Region': exchange.region,
-                    'Domain': exchange.domain,
-                    'Exchange Name': exchange.site_name,
-                    'Exchange LIC': exchange.site_lic,
-                    'FLC': exchange.flc,
-                    'Site Category': exchange.site_category,
-                    'NEs Installed (Complete Detail)': exchange.nes_installed,
-                    'Latitude': exchange.latitude,
-                    'Longitude': exchange.longitude,
-                    'Tower Available (Y/N)': exchange.tower_available
-                })
+                row = {
+                    'SN': getattr(exchange, 'sn', None),
+                    'Region': getattr(exchange, 'region', None),
+                    'Domain': getattr(exchange, 'domain', None),
+                    'Exchange Name': getattr(exchange, 'site_name', None),
+                    'Exchange LIC': getattr(exchange, 'site_lic', None),
+                    'FLC': getattr(exchange, 'flc', None),
+                    'Site Category': getattr(exchange, 'site_category', None),
+                    'NEs Installed (Complete Detail)': getattr(exchange, 'nes_installed', None),
+                    'Latitude': getattr(exchange, 'latitude', None),
+                    'Longitude': getattr(exchange, 'longitude', None),
+                    'Tower Available (Y/N)': getattr(exchange, 'tower_available', None)
+                }
                 for i in range(max_towers):
                     tower = exchange.towers[i] if i < len(exchange.towers) else None
-                    row[f'Type and Height of Tower {i+1}'] = tower.tower_type_height if tower else None
+                    row[f'Type and Height of Tower {i+1}'] = getattr(tower, 'tower_type_height', None) if tower else None
 
                 # Power Information
-                if exchange.power_info:
+                power_info = getattr(exchange, 'power_info', None)
+                if power_info:
                     row.update({
-                        'WAPDA Ref Number': exchange.power_info.wapda_ref_number,
-                        'Transformer Capacity': exchange.power_info.transformer_capacity,
-                        'Transformer Earthing': exchange.power_info.transformer_earthing,
-                        'Working Status': exchange.power_info.working_status,
-                        'Name of NEs Connected': exchange.power_info.name_of_nes_connected,
-                        'Load of Individual NE': exchange.power_info.load_of_individual_ne,
+                        'WAPDA Ref Number': getattr(power_info, 'wapda_ref_number', None),
+                        'Transformer Capacity': getattr(power_info, 'transformer_capacity', None),
+                        'Transformer Earthing': getattr(power_info, 'transformer_earthing', None),
+                        'Working Status': getattr(power_info, 'working_status', None),
+                        'Name of NEs Connected': getattr(power_info, 'name_of_nes_connected', None),
+                        'Load of Individual NE': getattr(power_info, 'load_of_individual_ne', None),
                     })
                 else:
                     row.update({
@@ -1195,168 +1208,159 @@ def export():
                 for i in range(max_dgs):
                     dg = exchange.dgs[i] if i < len(exchange.dgs) else None
                     row.update({
-                        f'Installed DGs {i+1}': dg.installed_dg if dg else None,
-                        f'Engine Make {i+1}': dg.engine_make if dg else None,
-                        f'Installation Year {i+1}': dg.installation_year if dg else None,
-                        f'DG Status {i+1}': dg.dg_status if dg else None,
-                        f'DG Starting Battery {i+1}': dg.dg_starting_battery if dg else None,
-                        f'Smart Switch Installed {i+1} (Y/N)': dg.smart_switch_installed if dg else None,
-                        f'ATS Installed {i+1} (Y/N)': dg.ats_installed if dg else None,
-                        f'ATS Capacity {i+1}': dg.ats_capacity if dg else None,
-                        f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)': dg.name_of_faulty_ats_parts if dg else None,
-                        f'No of Faulty ATS Parts {i+1}': dg.no_of_faulty_ats_parts if dg else None,
-                        f'Load on DG P1 {i+1}': dg.load_on_dg_p1 if dg else None,
-                        f'Load on DG P2 {i+1}': dg.load_on_dg_p2 if dg else None,
-                        f'Load on DG P3 {i+1}': dg.load_on_dg_p3 if dg else None,
-                        f'Site Load Total {i+1}': dg.site_load_total if dg else None,
-                        f'Site Load P1 {i+1}': dg.site_load_p1 if dg else None,
-                        f'Site Load P2 {i+1}': dg.site_load_p2 if dg else None,
-                        f'Site Load P3 {i+1}': dg.site_load_p3 if dg else None
+                        f'Installed DGs {i+1}': getattr(dg, 'installed_dg', None) if dg else None,
+                        f'Engine Make {i+1}': getattr(dg, 'engine_make', None) if dg else None,
+                        f'Installation Year {i+1}': getattr(dg, 'installation_year', None) if dg else None,
+                        f'DG Status {i+1}': getattr(dg, 'dg_status', None) if dg else None,
+                        f'DG Starting Battery {i+1}': getattr(dg, 'dg_starting_battery', None) if dg else None,
+                        f'Smart Switch Installed {i+1} (Y/N)': getattr(dg, 'smart_switch_installed', None) if dg else None,
+                        f'ATS Installed {i+1} (Y/N)': getattr(dg, 'ats_installed', None) if dg else None,
+                        f'ATS Capacity {i+1}': getattr(dg, 'ats_capacity', None) if dg else None,
+                        f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)': getattr(dg, 'name_of_faulty_ats_parts', None) if dg else None,
+                        f'No of Faulty ATS Parts {i+1}': getattr(dg, 'no_of_faulty_ats_parts', None) if dg else None,
+                        f'Load on DG P1 {i+1}': getattr(dg, 'load_on_dg_p1', None) if dg else None,
+                        f'Load on DG P2 {i+1}': getattr(dg, 'load_on_dg_p2', None) if dg else None,
+                        f'Load on DG P3 {i+1}': getattr(dg, 'load_on_dg_p3', None) if dg else None,
+                        f'Site Load Total {i+1}': getattr(dg, 'site_load_total', None) if dg else None,
+                        f'Site Load P1 {i+1}': getattr(dg, 'site_load_p1', None) if dg else None,
+                        f'Site Load P2 {i+1}': getattr(dg, 'site_load_p2', None) if dg else None,
+                        f'Site Load P3 {i+1}': getattr(dg, 'site_load_p3', None) if dg else None,
                     })
 
                 # Rectifier Information
-                rectifiers = exchange.power_info.rectifiers if exchange.power_info and exchange.power_info.rectifiers else []
+                rectifiers = getattr(power_info, 'rectifiers', []) if power_info else []
                 for i in range(max_rectifiers):
                     rectifier = rectifiers[i] if i < len(rectifiers) else None
                     row.update({
-                        f'Make of Rectifier {i+1}': rectifier.get('make_of_rectifier', '') if rectifier else None,
-                        f'Rectifier Capacity {i+1} (A)': rectifier.get('rectifier_capacity', '') if rectifier else None,
-                        f'No. of Modules {i+1}': rectifier.get('no_of_modules', '') if rectifier else None,
-                        f'Capacity of Each Module {i+1} (A)': rectifier.get('capacity_of_each_module', '') if rectifier else None,
-                        f'Working Modules {i+1} (No.)': rectifier.get('working_modules', '') if rectifier else None,
-                        f'Faulty Modules {i+1} (No.)': rectifier.get('faulty_modules', '') if rectifier else None,
-                        f'Space for New Modules {i+1} (No.)': rectifier.get('space_for_new_modules', '') if rectifier else None,
-                        f'Grounding of Rectifier {i+1} (Y/N)': rectifier.get('grounding_of_rectifier', '') if rectifier else None,
-                        f'SPD in Rectifier {i+1} (Y/N)': rectifier.get('spd_in_rectifier', '') if rectifier else None,
-                        f'SPD Model {i+1} (V and A Rating)': rectifier.get('spd_model', '') if rectifier else None,
-                        f'Total Installed SPDs {i+1}': rectifier.get('total_installed_spds', '') if rectifier else None,
-                        f'No of Faulty SPDs {i+1}': rectifier.get('no_of_faulty_spds', '') if rectifier else None
+                        f'Make of Rectifier {i+1}': rectifier.get('make_of_rectifier') if rectifier else None,
+                        f'Rectifier Capacity {i+1} (A)': rectifier.get('rectifier_capacity') if rectifier else None,
+                        f'No. of Modules {i+1}': rectifier.get('no_of_modules') if rectifier else None,
+                        f'Capacity of Each Module {i+1} (A)': rectifier.get('capacity_of_each_module') if rectifier else None,
+                        f'Working Modules {i+1} (No.)': rectifier.get('working_modules') if rectifier else None,
+                        f'Faulty Modules {i+1} (No.)': rectifier.get('faulty_modules') if rectifier else None,
+                        f'Space for New Modules {i+1} (No.)': rectifier.get('space_for_new_modules') if rectifier else None,
+                        f'Grounding of Rectifier {i+1} (Y/N)': rectifier.get('grounding_of_rectifier') if rectifier else None,
+                        f'SPD in Rectifier {i+1} (Y/N)': rectifier.get('spd_in_rectifier') if rectifier else None,
+                        f'SPD Model {i+1} (V and A Rating)': rectifier.get('spd_model') if rectifier else None,
+                        f'Total Installed SPDs {i+1}': rectifier.get('total_installed_spds') if rectifier else None,
+                        f'No of Faulty SPDs {i+1}': rectifier.get('no_of_faulty_spds') if rectifier else None,
                     })
 
                 # Battery Bank Information
                 for i in range(max_batteries):
                     battery = exchange.battery_banks[i] if i < len(exchange.battery_banks) else None
                     row.update({
-                        f'Make of Battery {i+1}': battery.make_of_battery if battery else None,
-                        f'Battery Capacity {i+1} (AH)': battery.battery_capacity if battery else None,
-                        f'Battery Type {i+1} (2V/12V)': battery.battery_type if battery else None,
-                        f'No. of Cells/Bank {i+1}': battery.no_of_cells_bank if battery else None,
-                        f'Date of Installation {i+1}': battery.date_of_installation if battery else None,
-                        f'Load on Battery Bank {i+1} (A)': battery.load_on_battery_bank if battery else None,
-                        f'Practical Backup Time {i+1} (Hrs)': battery.practical_backup_time if battery else None,
-                        f'Battery Installed {i+1} New or Used': battery.battery_installed_new_or_used if battery else None,
-                        f'Battery Moved From {i+1} (Incase Used Installed)': battery.battery_moved_from if battery else None
+                        f'Make of Battery {i+1}': getattr(battery, 'make_of_battery', None) if battery else None,
+                        f'Battery Capacity {i+1} (AH)': getattr(battery, 'battery_capacity', None) if battery else None,
+                        f'Battery Type {i+1} (2V/12V)': getattr(battery, 'battery_type', None) if battery else None,
+                        f'No. of Cells/Bank {i+1}': getattr(battery, 'no_of_cells_bank', None) if battery else None,
+                        f'Date of Installation {i+1}': getattr(battery, 'date_of_installation', None) if battery else None,
+                        f'Load on Battery Bank {i+1} (A)': getattr(battery, 'load_on_battery_bank', None) if battery else None,
+                        f'Practical Backup Time {i+1} (Hrs)': getattr(battery, 'practical_backup_time', None) if battery else None,
+                        f'Battery Installed {i+1} New or Used': getattr(battery, 'battery_installed_new_or_used', None) if battery else None,
+                        f'Battery Moved From {i+1} (Incase Used Installed)': getattr(battery, 'battery_moved_from', None) if battery else None,
                     })
 
                 # AC Units Information
                 for i in range(max_acs):
                     ac = exchange.ac_units[i] if i < len(exchange.ac_units) else None
                     row.update({
-                        f'Location of AC Unit {i+1}': ac.location_of_ac_unit if ac else None,
-                        f'Working Status of AC {i+1} (Working/Faulty/Spare)': ac.working_status if ac else None,
-                        f'AC Make {i+1}': ac.ac_make if ac else None,
-                        f'Capacity {i+1} (Tons)': ac.capacity_tons if ac else None,
-                        f'Type of AC {i+1}': ac.type_of_ac if ac else None,
-                        f'Mount Type {i+1}': ac.mount_type if ac else None,
-                        f'Date of Installation AC {i+1}': ac.date_of_installation if ac else None,
-                        f'Sequence Controller Installed {i+1} (Y/N)': ac.sequence_controller_installed if ac else None,
-                        f'AC Load {i+1}': ac.ac_load if ac else None,
-                        f'Total AC Load {i+1}': ac.total_ac_load if ac else None,
-                        f'Fault Nature of AC Unit {i+1}': ac.fault_nature if ac else None,
-                        f'Estimate to Repair AC {i+1}': ac.estimate_to_repair_ac if ac else None
+                        f'Location of AC Unit {i+1}': getattr(ac, 'location_of_ac_unit', None) if ac else None,
+                        f'Working Status of AC {i+1} (Working/Faulty/Spare)': getattr(ac, 'working_status', None) if ac else None,
+                        f'AC Make {i+1}': getattr(ac, 'ac_make', None) if ac else None,
+                        f'Capacity {i+1} (Tons)': getattr(ac, 'capacity_tons', None) if ac else None,
+                        f'Type of AC {i+1}': getattr(ac, 'type_of_ac', None) if ac else None,
+                        f'Mount Type {i+1}': getattr(ac, 'mount_type', None) if ac else None,
+                        f'Date of Installation AC {i+1}': getattr(ac, 'date_of_installation', None) if ac else None,
+                        f'Sequence Controller Installed {i+1} (Y/N)': getattr(ac, 'sequence_controller_installed', None) if ac else None,
+                        f'AC Load {i+1}': getattr(ac, 'ac_load', None) if ac else None,
+                        f'Total AC Load {i+1}': getattr(ac, 'total_ac_load', None) if ac else None,
+                        f'Fault Nature of AC Unit {i+1}': getattr(ac, 'fault_nature', None) if ac else None,
+                        f'Estimate to Repair AC {i+1}': getattr(ac, 'estimate_to_repair_ac', None) if ac else None,
                     })
 
                 # Installed Solar Information
-                if exchange.solar_info:
+                solar_info = getattr(exchange, 'solar_info', None)
+                if solar_info:
                     row.update({
-                        'Total Solar Size (KW)': exchange.solar_info.total_solar_size,
-                        'PV Solar Size (KW)',
-                        'PV Solar Panel Capacity (W)': exchange.solar_info.pv_solar_panel_capacity,
-                        'No. of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed,
-                        'Make of PV Panels': exchange.solar_info.make_of_pv_panels,
-                        'Charge Controller Make': exchange.solar_info.charge_controller_make,
-                        'No. of Charge Controllers': {exchange.solar_info.no_of_charge_controllers},
-                        'Inverter Make': '',
-                        'No. of Inverters',
-                        'Total Inverter Capacity (KW)',
-                        'Total Solar Capacity (KW)',
+                        'Total Solar Size (KW)': getattr(solar_info, 'total_solar_size', None),
+                        'PV Solar Panel Capacity (W)': getattr(solar_info, 'pv_solar_panel_capacity', None),
+                        'No. of PV Panels Installed': getattr(solar_info, 'no_of_pv_panels_installed', None),
+                        'Make of PV Panels': getattr(solar_info, 'make_of_pv_panels', None),
+                        'Charge Controller Make': getattr(solar_info, 'charge_controller_make', None),
                     })
                 else:
                     row.update({
                         'Total Solar Size (KW)': None,
-                        'PV Solar Size (KW)': None,
                         'PV Solar Panel Capacity (W)': None,
-                        'No. of PVs': None,
+                        'No. of PV Panels Installed': None,
                         'Make of PV Panels': None,
                         'Charge Controller Make': None,
-                        'No. of Charge Controllers': None,
-                        'Inverter Make': None,
-                        'No. of Inverters': None,
-                        'Total Inverter Capacity (KW)': None,
-                        'Total Solar Capacity (KW)': None,
                     })
 
                 # Earthing
                 for i in range(max_earthings):
                     earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
                     row.update({
-                        f'Earthing Value {i+1}': earthing.earthing_value if earthing else None,
-                        f'No. of Pits {i+1}'': earthing.no_of_pits if earthing else None
+                        f'Earthing Value {i+1}': getattr(earthing, 'earthing_value', None) if earthing else None,
+                        f'No. of Pits {i+1}': getattr(earthing, 'no_of_pits', None) if earthing else None,
                     })
 
                 # Fire Extinguishers
                 for i in range(max_fire_extinguishers):
                     fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers) else None
                     row.update({
-                        f'FE Installed {i+1}': fire_ext.fe_installed if fire_ext else None,
-                        f'No. of FEs {i+1}': fire_ext.no_of_fes if fire_ext else None,
-                        f'Type of Gas {i+1}': fire_ext.type_of_gas if fire_ext else None,
-                        f'Date of Expiry {i+1}': fire_ext.date_of_expiry if fire_ext else None
+                        f'FE Installed {i+1}': getattr(fire_ext, 'fe_installed', None) if fire_ext else None,
+                        f'No. of FEs {i+1}': getattr(fire_ext, 'no_of_fes', None) if fire_ext else None,
+                        f'Type of Gas {i+1}': getattr(fire_ext, 'type_of_gas', None) if fire_ext else None,
+                        f'Date of Expiry {i+1}': getattr(fire_ext, 'date_of_expiry', None) if fire_ext else None,
                     })
 
                 # PMR Information
                 for i in range(max_pmrs):
                     pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
                     row.update({
-                        f'PMR Performed {i+1} (Y/N)': pmr.ppmr_performed if pmr else None,
-                        f'Last Performed Date {i+1}'': pmr.last_performed_date if pmr else None
-                            })
+                        f'PMR Performed {i+1} (Y/N)': getattr(pmr, 'pmr_performed', None) if pmr else None,
+                        f'Last Performed Date {i+1}': getattr(pmr, 'last_performed_date', None) if pmr else None,
+                    })
 
                 # Alarm Extension
                 for i in range(max_alarms):
                     alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
                     row.update({
-                        f'AC Main Failure {i+1} (Y/N)': alarm.ac_main_failure if alarm al else None,
-                        f'DC Low Voltages {i+1}'': alarm.dc_low_voltages if al else None,
-                        f'Rectifier Failure {i+1} (Y/N)'}: alarm.rectifier_failure if al else None
+                        f'AC Main Failure {i+1} (Y/N)': getattr(alarm, 'ac_main_failure', None) if alarm else None,
+                        f'DC Low Voltages {i+1} (Y/N)': getattr(alarm, 'dc_low_voltages', None) if alarm else None,
+                        f'Rectifier Failure {i+1} (Y/N)': getattr(alarm, 'rectifier_failure', None) if alarm else None,
                     })
 
                 # Colocation Information
-                if exchange.colocation_info:
+                colocation_info = getattr(exchange, 'colocation_info', None)
+                if colocation_info:
                     row.update({
-                        'Colocation (Y/N)'': exchange.colocation_info.colocation,
-                        'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors,
-                        'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor,
-                        'Total Load': exchange.colocation_info.total_load
+                        'Colocation (Y/N)': getattr(colocation_info, 'colocation', None),
+                        'Name of Colocation Vendors': getattr(colocation_info, 'name_of_colocation_vendors', None),
+                        'Load of Each Vendor': getattr(colocation_info, 'load_of_each_vendor', None),
+                        'Total Load': getattr(colocation_info, 'total_load', None),
                     })
                 else:
                     row.update({
                         'Colocation (Y/N)': None,
                         'Name of Colocation Vendors': None,
-                        'Load of Each VE': None,
-                        'Total Load': None
+                        'Load of Each Vendor': None,
+                        'Total Load': None,
                     })
 
                 # Building Information
-                if exchange.building_info:
+                building_info = getattr(exchange, 'building_info', None)
+                if building_info:
                     row.update({
-                        'Building Status (Good/Poor/Worst)'': exchange.building_info.building_status,
-                        'Wall/Doors Condition': exchange.building_info.wall_doors_condition'
+                        'Building Status (Good/Poor/Worst)': getattr(building_info, 'building_status', None),
+                        'Wall/Doors Condition': getattr(building_info, 'wall_doors_condition', None),
                     })
                 else:
                     row.update({
                         'Building Status (Good/Poor/Worst)': None,
-                        'Wall/Doors Condition': None
+                        'Wall/Doors Condition': None,
                     })
 
                 data.append(row)
@@ -1366,52 +1370,52 @@ def export():
 
         if not data:
             flash('No data available to export after processing.')
-            logging.warning("No data available to export after processing.')
+            logging.warning("No data available to export after processing.")
             return redirect(url_for('index'))
 
         logging.info(f"Processed {len(data)} rows of data.")
 
         # Define headers for each section
-        general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site', 'Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
+        general_info_headers = ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)]
         power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status', 'Name of NEs Connected', 'Load of Individual NE'] + \
                         [f'Installed DGs {i+1}' for i in range(max_dgs)] + \
                         [f'Engine Make {i+1}' for i in range(max_dgs)] + \
                         [f'Installation Year {i+1}' for i in range(max_dgs)] + \
                         [f'DG Status {i+1}' for i in range(max_dgs)] + \
                         [f'DG Starting Battery {i+1}' for i in range(max_dgs)] + \
-                        [f'Smart Switch Installed {i+}1 (Y/N)' for i in range(max_dgs)] + \
-                        [f'ATS Installed {i+}1} (Y/N)' for i in range(max_dgs)] + \
-                        [f'ATS Capacity {i+}1}' for i in range(max_dgs)] + \
-                        [f'Name of Faulty ATS Parts {i+}1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
+                        [f'Smart Switch Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+                        [f'ATS Installed {i+1} (Y/N)' for i in range(max_dgs)] + \
+                        [f'ATS Capacity {i+1}' for i in range(max_dgs)] + \
+                        [f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)' for i in range(max_dgs)] + \
                         [f'No of Faulty ATS Parts {i+1}' for i in range(max_dgs)] + \
                         [f'Load on DG P1 {i+1}' for i in range(max_dgs)] + \
-                        [f'Load on DG P2 {i+}1}' for i in range(max_dgs)] + \
+                        [f'Load on DG P2 {i+1}' for i in range(max_dgs)] + \
                         [f'Load on DG P3 {i+1}' for i in range(max_dgs)] + \
-                        [f'Site Load Total {i+} {1}' for i in range(max_dgs)] + \
-                        [f'Site Load P1 {i+}1}' for i in range(max_dgs)] + \
+                        [f'Site Load Total {i+1}' for i in range(max_dgs)] + \
+                        [f'Site Load P1 {i+1}' for i in range(max_dgs)] + \
                         [f'Site Load P2 {i+1}' for i in range(max_dgs)] + \
                         [f'Site Load P3 {i+1}' for i in range(max_dgs)] + \
-                        [f'Make of Rectifier {i+}1}' for i in range(max_rectifiers)] + \
-                        [f'Rectifier Capacity {i+}1 (A)' for i in range(max_rectifiers)] + \
-                        [f'No of Modules {i+}1' for i in range(max_rectifiers)] + \
-                        [f'Capacity of Each Module {i+}1} (A)' for i in range(max_rectifiers)] + \
-                        [f'Working Modules {i+}1} (No)' for i in range(max_rectifiers)] + \
-                        [f'Faulty Modules {i+}1} (No)' for i in range(max_rectifiers)] + \
-                        [f'Space for New Modules {i+1} (No)' for i in range(max_rectifiers)] + \
-                        [f'Grounding of Rectifier {i+}1} (Y/N)' for i in range(max_rectifiers)] + \
-                        [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_dgs)] + \
-                        [f'SPD Model {i+}1} (V and A Rating)' for i in range(max_dgs)] + \
-                            [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
-                            [f'No of Faulty SPDs {i+1}' for i in range(max_dgs)]
-        battery_headers = [f'[f'Make of Battery {i+1}' for i in range(max_batteries)] + \
-                           [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
-                           [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
-                           [f'No of Cells/Bank {i+}1}' for i in range(max_batteries)] + \
-                           [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
-                           [f'Load on Battery Bank {i+}1} (A)' for i in range(max_batteries)] + \
-                           [f'Practical Backup Time {i+}1} (Hrs)' for i in range(max_batteries)] + \
-                           [f'Battery Installed {i+}1} New or Used' for i in range(max_batteries)] + \
-                           [f'Battery Moved From {i+}1} (Incase Used Installed)' for i in range(max_batteries)]
+                        [f'Make of Rectifier {i+1}' for i in range(max_rectifiers)] + \
+                        [f'Rectifier Capacity {i+1} (A)' for i in range(max_rectifiers)] + \
+                        [f'No. of Modules {i+1}' for i in range(max_rectifiers)] + \
+                        [f'Capacity of Each Module {i+1} (A)' for i in range(max_rectifiers)] + \
+                        [f'Working Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                        [f'Faulty Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                        [f'Space for New Modules {i+1} (No.)' for i in range(max_rectifiers)] + \
+                        [f'Grounding of Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                        [f'SPD in Rectifier {i+1} (Y/N)' for i in range(max_rectifiers)] + \
+                        [f'SPD Model {i+1} (V and A Rating)' for i in range(max_rectifiers)] + \
+                        [f'Total Installed SPDs {i+1}' for i in range(max_rectifiers)] + \
+                        [f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
+        battery_headers = [f'Make of Battery {i+1}' for i in range(max_batteries)] + \
+                          [f'Battery Capacity {i+1} (AH)' for i in range(max_batteries)] + \
+                          [f'Battery Type {i+1} (2V/12V)' for i in range(max_batteries)] + \
+                          [f'No. of Cells/Bank {i+1}' for i in range(max_batteries)] + \
+                          [f'Date of Installation {i+1}' for i in range(max_batteries)] + \
+                          [f'Load on Battery Bank {i+1} (A)' for i in range(max_batteries)] + \
+                          [f'Practical Backup Time {i+1} (Hrs)' for i in range(max_batteries)] + \
+                          [f'Battery Installed {i+1} New or Used' for i in range(max_batteries)] + \
+                          [f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
         ac_headers = [f'Location of AC Unit {i+1}' for i in range(max_acs)] + \
                      [f'Working Status of AC {i+1} (Working/Faulty/Spare)' for i in range(max_acs)] + \
                      [f'AC Make {i+1}' for i in range(max_acs)] + \
@@ -1439,20 +1443,22 @@ def export():
         colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
         building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
 
-        all_headers = general_info_headers + power_headers + battery_headers + ac_headers + battery_headers + solar_headers + ac_headers + earthing_headers + fire_ext_headers + pmr_headers + alarm_headers + colocation_headers + building_headers
+        all_headers = (general_info_headers + power_headers + battery_headers + ac_headers + 
+                       solar_headers + earthing_headers + fire_ext_headers + pmr_headers + 
+                       alarm_headers + colocation_headers + building_headers)
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             workbook = writer.book
             worksheet = workbook.add_worksheet('Exchanges')
 
-            # Define colors based on the original excel sheet
+            # Define formats
             header_format = workbook.add_format({'bg_color': '#4BACC6', 'font_color': 'white', 'bold': True, 'border': 1})
             general_info_format = workbook.add_format({'bg_color': '#D3D3D3', 'border': 1})
             power_info_format = workbook.add_format({'bg_color': '#ADD8E6', 'border': 1})
             battery_format = workbook.add_format({'bg_color': '#90EE90', 'border': 1})
             ac_format = workbook.add_format({'bg_color': '#FFB6C1', 'border': 1})
-            solar_format = workbook.add_format({'bg_color': '#FFB300', 'border': 1})
+            solar_format = workbook.add_format({'bg_color': '#FFD700', 'border': 1})
             earthing_format = workbook.add_format({'bg_color': '#DDA0DD', 'border': 1})
             fire_ext_format = workbook.add_format({'bg_color': '#FFA07A', 'border': 1})
             pmr_format = workbook.add_format({'bg_color': '#98FB98', 'border': 1})
@@ -1461,10 +1467,9 @@ def export():
             building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
 
             logging.info("Writing section headers to Excel...")
-            # Write section headers
             row = 0
             col = 0
-            worksheet.merge_range(row, col, col, col + len(general_info_headers) - 1, 'General Information', header_format)
+            worksheet.merge_range(row, col, row, col + len(general_info_headers) - 1, 'General Information', header_format)
             row += 1
             worksheet.write_row(row, col, general_info_headers, general_info_format)
             row += 1
@@ -1520,7 +1525,6 @@ def export():
             row += 2  # Skip a row before data
 
             logging.info("Writing data rows to Excel...")
-            # Write data
             for idx, exchange_data in enumerate(data):
                 try:
                     current_row = row + idx
@@ -1530,14 +1534,11 @@ def export():
                     continue
 
             logging.info("Adjusting column widths...")
-            # Auto-adjust column widths
             for idx, header in enumerate(all_headers):
-                max_len = max(len(str(exchange_data.get(header, ''))) for exchange_data in data) + 2
-                max_len = max(max_len, len(header) + 2)
+                max_len = max((len(str(exchange_data.get(header, ''))) for exchange_data in data), default=len(header) + 2)
                 worksheet.set_column(idx, idx, max_len)
 
         logging.info("Excel file generated successfully.")
-
         output.seek(0)
         return send_file(
             output,
