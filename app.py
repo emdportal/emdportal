@@ -1460,31 +1460,235 @@ def filters():
     max_rectifiers = max(max_rectifiers, 1)  # Ensure at least 1 to avoid empty loops in the template
     logger.debug(f"Calculated max_rectifiers: {max_rectifiers}")
 
+    # Calculate maximum counts for other sections to ensure proper column alignment
+    max_dgs = max(len(row['DGs']) for row in table_data) if table_data else 0
+    max_dgs = max(max_dgs, 1)
+    max_battery_banks = max(len(row['Battery Banks']) for row in table_data) if table_data else 0
+    max_battery_banks = max(max_battery_banks, 1)
+    max_ac_units = max(len(row['AC Units']) for row in table_data) if table_data else 0
+    max_ac_units = max(max_ac_units, 1)
+    max_alarms = max(len(row['Alarms']) for row in table_data) if table_data else 0
+    max_alarms = max(max_alarms, 1)
+    max_earthings = max(len(row['Earthings']) for row in table_data) if table_data else 0
+    max_earthings = max(max_earthings, 1)
+    max_fire_extinguishers = max(len(row['Fire Extinguishers']) for row in table_data) if table_data else 0
+    max_fire_extinguishers = max(max_fire_extinguishers, 1)
+    max_pmr_infos = max(len(row['PMR Infos']) for row in table_data) if table_data else 0
+    max_pmr_infos = max(max_pmr_infos, 1)
+    max_towers = max(len(row['Towers']) for row in table_data) if table_data else 0
+    max_towers = max(max_towers, 1)
+
     # Handle export action
     if request.method == 'POST' and 'export_filtered' in request.form:
+        # Flatten the table_data for export
+        export_data = []
+        for row in table_data:
+            export_row = {}
+            # Flatten General Information
+            export_row['SN'] = row['SN']
+            export_row['Region'] = row['Region']
+            export_row['Domain'] = row['Domain']
+            export_row['Site Name'] = row['Site Name']
+            export_row['Site LIC'] = row['Site LIC']
+            export_row['FLC'] = row['FLC']
+            export_row['Site Category'] = row['Site Category']
+            export_row['NEs Installed'] = row['NEs Installed']
+            export_row['Latitude'] = row['Latitude']
+            export_row['Longitude'] = row['Longitude']
+            export_row['Tower Available'] = row['Tower Available']
+            for i in range(max_towers):
+                export_row[f'Tower {i+1} Type/Height'] = row['Towers'][i] if i < len(row['Towers']) else None
+
+            # Flatten Power Information
+            export_row['WAPDA Ref Number'] = row['Power Info']['WAPDA Ref Number']
+            export_row['Transformer Capacity'] = row['Power Info']['Transformer Capacity']
+            export_row['Transformer Earthing'] = row['Power Info']['Transformer Earthing']
+            export_row['Working Status (Power)'] = row['Power Info']['Working Status']
+            export_row['Name of NEs Connected'] = row['Power Info']['Name of NEs Connected']
+            export_row['Load of Individual NE'] = row['Power Info']['Load of Individual NE']
+            for i in range(max_rectifiers):
+                rectifier = row['Power Info']['Rectifiers'][i] if i < len(row['Power Info']['Rectifiers']) else None
+                export_row[f'Rectifier {i+1} Make'] = rectifier.make_of_rectifier if rectifier else None
+                export_row[f'Rectifier {i+1} Capacity'] = rectifier.rectifier_capacity if rectifier else None
+                export_row[f'Rectifier {i+1} No of Modules'] = rectifier.no_of_modules if rectifier else None
+                export_row[f'Rectifier {i+1} Capacity of Each Module'] = rectifier.capacity_of_each_module if rectifier else None
+                export_row[f'Rectifier {i+1} Working Modules'] = rectifier.working_modules if rectifier else None
+                export_row[f'Rectifier {i+1} Faulty Modules'] = rectifier.faulty_modules if rectifier else None
+                export_row[f'Rectifier {i+1} Space for New Modules'] = rectifier.space_for_new_modules if rectifier else None
+                export_row[f'Rectifier {i+1} Grounding'] = rectifier.grounding_of_rectifier if rectifier else None
+                export_row[f'Rectifier {i+1} SPD'] = rectifier.spd_in_rectifier if rectifier else None
+                export_row[f'Rectifier {i+1} SPD Model'] = rectifier.spd_model if rectifier else None
+                export_row[f'Rectifier {i+1} Total Installed SPDs'] = rectifier.total_installed_spds if rectifier else None
+                export_row[f'Rectifier {i+1} No of Faulty SPDs'] = rectifier.no_of_faulty_spds if rectifier else None
+
+            # Flatten DGs
+            for i in range(max_dgs):
+                dg = row['DGs'][i] if i < len(row['DGs']) else {}
+                export_row[f'DG {i+1} Installed DG'] = dg.get('Installed DG')
+                export_row[f'DG {i+1} Engine Make'] = dg.get('Engine Make')
+                export_row[f'DG {i+1} Installation Year'] = dg.get('Installation Year')
+                export_row[f'DG {i+1} DG Status'] = dg.get('DG Status')
+                export_row[f'DG {i+1} DG Starting Battery'] = dg.get('DG Starting Battery')
+                export_row[f'DG {i+1} Smart Switch Installed'] = dg.get('Smart Switch Installed')
+                export_row[f'DG {i+1} ATS Installed'] = dg.get('ATS Installed')
+                export_row[f'DG {i+1} ATS Capacity'] = dg.get('ATS Capacity')
+                export_row[f'DG {i+1} Name of Faulty ATS Parts'] = dg.get('Name of Faulty ATS Parts')
+                export_row[f'DG {i+1} No of Faulty ATS Parts'] = dg.get('No of Faulty ATS Parts')
+                export_row[f'DG {i+1} Load on DG P1'] = dg.get('Load on DG P1')
+                export_row[f'DG {i+1} Load on DG P2'] = dg.get('Load on DG P2')
+                export_row[f'DG {i+1} Load on DG P3'] = dg.get('Load on DG P3')
+                export_row[f'DG {i+1} Site Load Total'] = dg.get('Site Load Total')
+                export_row[f'DG {i+1} Site Load P1'] = dg.get('Site Load P1')
+                export_row[f'DG {i+1} Site Load P2'] = dg.get('Site Load P2')
+                export_row[f'DG {i+1} Site Load P3'] = dg.get('Site Load P3')
+
+            # Flatten Battery Banks
+            for i in range(max_battery_banks):
+                bb = row['Battery Banks'][i] if i < len(row['Battery Banks']) else {}
+                export_row[f'Battery {i+1} Make'] = bb.get('Make of Battery')
+                export_row[f'Battery {i+1} Capacity'] = bb.get('Battery Capacity')
+                export_row[f'Battery {i+1} Type'] = bb.get('Battery Type')
+                export_row[f'Battery {i+1} No of Cells/Bank'] = bb.get('No of Cells/Bank')
+                export_row[f'Battery {i+1} Date of Installation'] = bb.get('Date of Installation')
+                export_row[f'Battery {i+1} Load on Battery Bank'] = bb.get('Load on Battery Bank')
+                export_row[f'Battery {i+1} Practical Backup Time'] = bb.get('Practical Backup Time')
+                export_row[f'Battery {i+1} Installed (New/Used)'] = bb.get('Battery Installed (New/Used)')
+                export_row[f'Battery {i+1} Moved From'] = bb.get('Battery Moved From')
+
+            # Flatten AC Units
+            for i in range(max_ac_units):
+                ac = row['AC Units'][i] if i < len(row['AC Units']) else {}
+                export_row[f'AC {i+1} Location'] = ac.get('Location')
+                export_row[f'AC {i+1} Working Status'] = ac.get('Working Status')
+                export_row[f'AC {i+1} Make'] = ac.get('AC Make')
+                export_row[f'AC {i+1} Capacity (Tons)'] = ac.get('Capacity (Tons)')
+                export_row[f'AC {i+1} Type'] = ac.get('Type of AC')
+                export_row[f'AC {i+1} Mount Type'] = ac.get('Mount Type')
+                export_row[f'AC {i+1} Date of Installation'] = ac.get('Date of Installation')
+                export_row[f'AC {i+1} Sequence Controller Installed'] = ac.get('Sequence Controller Installed')
+                export_row[f'AC {i+1} AC Load'] = ac.get('AC Load')
+                export_row[f'AC {i+1} Total AC Load'] = ac.get('Total AC Load')
+                export_row[f'AC {i+1} Fault Nature'] = ac.get('Fault Nature of AC Unit')
+                export_row[f'AC {i+1} Estimate to Repair'] = ac.get('Estimate to Repair AC')
+
+            # Flatten Solar Info
+            export_row['Total Solar Size'] = row['Solar Info'].get('Total Solar Size')
+            export_row['PV Solar Panel Capacity'] = row['Solar Info'].get('PV Solar Panel Capacity')
+            export_row['No of PV Panels Installed'] = row['Solar Info'].get('No of PV Panels Installed')
+            export_row['Make of PV Panels'] = row['Solar Info'].get('Make of PV Panels')
+            export_row['Charge Controller Make'] = row['Solar Info'].get('Charge Controller Make')
+
+            # Flatten Colocation Info
+            export_row['Colocation'] = row['Colocation Info'].get('Colocation')
+            export_row['Name of Colocation Vendors'] = row['Colocation Info'].get('Name of Colocation Vendors')
+            export_row['Load of Each Vendor'] = row['Colocation Info'].get('Load of Each Vendor')
+            export_row['Total Load'] = row['Colocation Info'].get('Total Load')
+
+            # Flatten Building Info
+            export_row['Building Status'] = row['Building Info'].get('Building Status')
+            export_row['Wall/Doors Condition'] = row['Building Info'].get('Wall/Doors Condition')
+
+            # Flatten Alarms
+            for i in range(max_alarms):
+                alarm = row['Alarms'][i] if i < len(row['Alarms']) else {}
+                export_row[f'Alarm {i+1} AC Main Failure'] = alarm.get('AC Main Failure')
+                export_row[f'Alarm {i+1} DC Low Voltages'] = alarm.get('DC Low Voltages')
+                export_row[f'Alarm {i+1} Rectifier Failure'] = alarm.get('Rectifier Failure')
+
+            # Flatten Earthings
+            for i in range(max_earthings):
+                earthing = row['Earthings'][i] if i < len(row['Earthings']) else {}
+                export_row[f'Earthing {i+1} Value'] = earthing.get('Earthing Value')
+                export_row[f'Earthing {i+1} No of Pits'] = earthing.get('No of Pits')
+
+            # Flatten Fire Extinguishers
+            for i in range(max_fire_extinguishers):
+                fe = row['Fire Extinguishers'][i] if i < len(row['Fire Extinguishers']) else {}
+                export_row[f'FE {i+1} Installed'] = fe.get('Installed')
+                export_row[f'FE {i+1} No of FEs'] = fe.get('No of FEs')
+                export_row[f'FE {i+1} Type of Gas'] = fe.get('Type of Gas')
+                export_row[f'FE {i+1} Date of Expiry'] = fe.get('Date of Expiry')
+
+            # Flatten PMR Infos
+            for i in range(max_pmr_infos):
+                pmr = row['PMR Infos'][i] if i < len(row['PMR Infos']) else {}
+                export_row[f'PMR {i+1} Performed'] = pmr.get('PMR Performed')
+                export_row[f'PMR {i+1} Last Performed Date'] = pmr.get('Last Performed Date')
+
+            export_data.append(export_row)
+
         # Define section groups for labeling dynamically
         section_groups = {
-            'Site Data': ['SN', 'Region', 'Domain', 'Site Name', 'Site LIC', 'FLC', 'Site Category', 'NEs Installed', 'Latitude', 'Longitude', 'Tower Available', 'Towers'],
-            'Power Information': ['Power Info'] + [f'Rectifier {i} Make' for i in range(1, max_rectifiers + 1)] + [f'Rectifier {i} Capacity' for i in range(1, max_rectifiers + 1)] + 
-                             [f'Rectifier {i} No of Modules' for i in range(1, max_rectifiers + 1)] + [f'Rectifier {i} Capacity of Each Module' for i in range(1, max_rectifiers + 1)] + 
-                             [f'Rectifier {i} Working Modules' for i in range(1, max_rectifiers + 1)] + [f'Rectifier {i} Faulty Modules' for i in range(1, max_rectifiers + 1)] + 
-                             [f'Rectifier {i} Space for New Modules' for i in range(1, max_rectifiers + 1)] + [f'Rectifier {i} Grounding' for i in range(1, max_rectifiers + 1)] + 
-                             [f'Rectifier {i} SPD' for i in range(1, max_rectifiers + 1)] + [f'Rectifier {i} SPD Model' for i in range(1, max_rectifiers + 1)] + 
-                             [f'Rectifier {i} Total Installed SPDs' for i in range(1, max_rectifiers + 1)] + [f'Rectifier {i} No of Faulty SPDs' for i in range(1, max_rectifiers + 1)],
-            'DG Information': ['DGs'],
-            'Battery Bank Information': ['Battery Banks'],
-            'AC Units Information': ['AC Units'],
-            'Solar Information': ['Solar Info'],
-            'Colocation Information': ['Colocation Info'],
-            'Building Information': ['Building Info'],
-            'Alarms': ['Alarms'],
-            'Earthings': ['Earthings'],
-            'Fire Extinguishers': ['Fire Extinguishers'],
-            'PMR Information': ['PMR Infos']
+            'Site Data': ['SN', 'Region', 'Domain', 'Site Name', 'Site LIC', 'FLC', 'Site Category', 'NEs Installed', 'Latitude', 'Longitude', 'Tower Available'] + [f'Tower {i+1} Type/Height' for i in range(max_towers)],
+            'Power Information': ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Working Status (Power)', 'Name of NEs Connected', 'Load of Individual NE'] + 
+                             [f'Rectifier {i+1} Make' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Capacity' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} No of Modules' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Capacity of Each Module' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Working Modules' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Faulty Modules' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Space for New Modules' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Grounding' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} SPD' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} SPD Model' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} Total Installed SPDs' for i in range(max_rectifiers)] + 
+                             [f'Rectifier {i+1} No of Faulty SPDs' for i in range(max_rectifiers)],
+            'DG Information': [f'DG {i+1} Installed DG' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Engine Make' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Installation Year' for i in range(max_dgs)] + 
+                             [f'DG {i+1} DG Status' for i in range(max_dgs)] + 
+                             [f'DG {i+1} DG Starting Battery' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Smart Switch Installed' for i in range(max_dgs)] + 
+                             [f'DG {i+1} ATS Installed' for i in range(max_dgs)] + 
+                             [f'DG {i+1} ATS Capacity' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Name of Faulty ATS Parts' for i in range(max_dgs)] + 
+                             [f'DG {i+1} No of Faulty ATS Parts' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Load on DG P1' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Load on DG P2' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Load on DG P3' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Site Load Total' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Site Load P1' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Site Load P2' for i in range(max_dgs)] + 
+                             [f'DG {i+1} Site Load P3' for i in range(max_dgs)],
+            'Battery Bank Information': [f'Battery {i+1} Make' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Capacity' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Type' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} No of Cells/Bank' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Date of Installation' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Load on Battery Bank' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Practical Backup Time' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Installed (New/Used)' for i in range(max_battery_banks)] + 
+                                       [f'Battery {i+1} Moved From' for i in range(max_battery_banks)],
+            'AC Units Information': [f'AC {i+1} Location' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Working Status' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Make' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Capacity (Tons)' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Type' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Mount Type' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Date of Installation' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Sequence Controller Installed' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} AC Load' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Total AC Load' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Fault Nature' for i in range(max_ac_units)] + 
+                                   [f'AC {i+1} Estimate to Repair' for i in range(max_ac_units)],
+            'Solar Information': ['Total Solar Size', 'PV Solar Panel Capacity', 'No of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make'],
+            'Colocation Information': ['Colocation', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load'],
+            'Building Information': ['Building Status', 'Wall/Doors Condition'],
+            'Alarms': [f'Alarm {i+1} AC Main Failure' for i in range(max_alarms)] + 
+                     [f'Alarm {i+1} DC Low Voltages' for i in range(max_alarms)] + 
+                     [f'Alarm {i+1} Rectifier Failure' for i in range(max_alarms)],
+            'Earthings': [f'Earthing {i+1} Value' for i in range(max_earthings)] + 
+                        [f'Earthing {i+1} No of Pits' for i in range(max_earthings)],
+            'Fire Extinguishers': [f'FE {i+1} Installed' for i in range(max_fire_extinguishers)] + 
+                                 [f'FE {i+1} No of FEs' for i in range(max_fire_extinguishers)] + 
+                                 [f'FE {i+1} Type of Gas' for i in range(max_fire_extinguishers)] + 
+                                 [f'FE {i+1} Date of Expiry' for i in range(max_fire_extinguishers)],
+            'PMR Information': [f'PMR {i+1} Performed' for i in range(max_pmr_infos)] + 
+                              [f'PMR {i+1} Last Performed Date' for i in range(max_pmr_infos)]
         }
 
-        # Create DataFrame with all columns
-        df = pd.DataFrame(table_data)
+        # Create DataFrame with flattened data
+        df = pd.DataFrame(export_data)
 
         # Reorder columns according to section groups
         ordered_columns = []
@@ -1533,5 +1737,6 @@ def filters():
         )
 
     return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter, max_rectifiers=max_rectifiers)
+    
 if __name__ == '__main__':
     app.run(debug=True)
