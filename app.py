@@ -1677,6 +1677,7 @@ def export():
         flash(f'Error exporting data: {str(e)}')
         logging.error(f"Error exporting data: {str(e)}", exc_info=True)
         return redirect(url_for('index'))
+        test
         
 @app.route('/view_exchanges')
 @login_required
