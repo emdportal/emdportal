@@ -1649,7 +1649,6 @@ def export():
             colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
             building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
             history_format = workbook.add_format({'bg_color': '#FFCC99', 'border': 1})
-            summary_format = workbook.add_format({'bg_color': '#FFFF99', 'bold': True, 'border': 1})
 
             sections = [
                 ("General Information", general_info_headers, general_info_format),
@@ -1689,31 +1688,6 @@ def export():
 
             for idx, row in df.iterrows():
                 worksheet.write_row(idx + 2, 0, row.tolist())
-
-            # Append the summary row with the example data provided
-            summary_row = [''] * len(all_headers)
-            summary_headers = [
-                'Latest Battery Make',
-                'Latest Battery Capacity (AH)',
-                'Latest Battery Installation Date',
-                'Latest PMR Performed (Y/N)',
-                'Latest PMR Last Performed Date'
-            ]
-            summary_data = {
-                'Latest Battery Make': 'Narada',
-                'Latest Battery Capacity (AH)': 100.0,
-                'Latest Battery Installation Date': '2025-04-22',
-                'Latest PMR Performed (Y/N)': 'Yes',  # Converting 'true' to 'Yes' for consistency
-                'Latest PMR Last Performed Date': '2025-02-27'
-            }
-            for header, value in summary_data.items():
-                col_idx = all_headers.index(header)
-                summary_row[col_idx] = value
-
-            # Write the summary row
-            summary_row_idx = len(data) + 2
-            worksheet.write(summary_row_idx, 0, 'Summary', summary_format)
-            worksheet.write_row(summary_row_idx, 0, summary_row, summary_format)
 
             for idx, col in enumerate(all_headers):
                 lengths = [len(str(val)) for val in df[col] if pd.notna(val)]
