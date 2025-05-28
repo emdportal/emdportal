@@ -1657,9 +1657,14 @@ def export():
             for idx, row in df.iterrows():
                 worksheet.write_row(idx + 2, 0, row.tolist())
 
-            for idx, header in enumerate(all_headers):
-                max_len = max((len(str(df[header].iloc[i])) for i in range(len(df)) if pd.notna(df[header].iloc[i])) + [len(header) + 2])
+            for idx, col in enumerate(all_headers):
+                # Fix the max_len calculation by converting generator to list and combining properly
+                lengths = [len(str(val)) for val in df[col] if pd.notna(val)]
+                max_len = max(lengths + [len(col) + 2]) if lengths else len(col) + 2
                 worksheet.set_column(idx, idx, max_len)
+
+            # Optionally, freeze the header row
+            worksheet.freeze_panes(2, 0)
 
         output.seek(0)
         return send_file(
