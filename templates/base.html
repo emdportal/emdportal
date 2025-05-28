@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -13,29 +13,27 @@
             background-color: #f8fafc;
         }
         .sidebar-bg {
-            background: #fff;
+            background: linear-gradient(135deg, #4338ca 0%, #a21caf 100%);
+            /* indigo-700 to fuchsia-700 */
             box-shadow: 2px 0 16px rgba(44, 62, 80, .06);
         }
         .sidebar-pill {
             transition: background 0.2s, color 0.2s;
+            color: #fff;
         }
         .sidebar-pill.active, .sidebar-pill:hover {
-            background: linear-gradient(90deg, #06b6d4 0%, #10b981 100%);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.07);
+            background: linear-gradient(90deg, #f59e42 0%, #f43f5e 100%);
+            /* amber-500 to rose-500 */
+            color: #fff !important;
+            box-shadow: 0 4px 16px rgba(245, 158, 66, 0.12);
         }
         .sidebar-pill .icon {
             min-width: 22px;
             margin-right: .8em;
         }
-        .mobile-sidebar {
-            transition: left 0.3s;
-        }
-        .mobile-sidebar.closed {
-            left: -100%;
-        }
-        .mobile-sidebar.open {
-            left: 0;
+        .sidebar-bg .sidebar-pill {
+            color: #fff;
+            font-weight: 500;
         }
         @media (max-width: 1024px) {
             .sidebar-bg {
@@ -43,6 +41,26 @@
             }
             .main-content {
                 margin-left: 0;
+            }
+        }
+        @media (min-width: 1025px) {
+            .main-content {
+                margin-left: 16rem; /* 64px * 4 = 256px (w-64) */
+            }
+        }
+        /* Ensure mobile header title always centers */
+        @media (max-width: 1024px) {
+            .mobile-header-title {
+                position: absolute;
+                left: 0; right: 0; top: 0; bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none;
+                font-weight: 700;
+                font-size: 1.25rem;
+                color: #312e81;
+                z-index: 1;
             }
         }
     </style>
@@ -54,80 +72,128 @@
     <aside class="sidebar-bg fixed top-0 left-0 h-full w-64 px-6 py-7 flex flex-col z-40 hidden lg:flex">
         <div class="mb-8 flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
-            <span class="font-bold text-lg text-[#134e4a]">EMD Portal</span>
+            <span class="font-bold text-lg text-white drop-shadow">EMD Portal</span>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#06b6d4] to-[#10b981] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-fuchsia-600 to-amber-400 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <div class="text-base text-[#134e4a] font-semibold">{{ session.get('username', 'User') }}</div>
-            <div class="text-xs text-[#67e8f9]">{{ session.get('region', 'Unknown') }}</div>
+            <div class="text-base text-white font-semibold">{{ session.get('username', 'User') }}</div>
+            <div class="text-xs text-amber-200">{{ session.get('region', 'Unknown') }}</div>
         </div>
         <nav class="flex-1 flex flex-col gap-2">
             <a href="{{ url_for('index') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('index') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                </span>
                 <span>Dashboard</span>
             </a>
             <a href="{{ url_for('add') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('add') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </span>
                 <span>Add Exchange</span>
             </a>
             <a href="{{ url_for('view_exchanges') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </span>
                 <span>View Exchanges</span>
             </a>
             <a href="{{ url_for('filters') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('filters') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </span>
                 <span>Filters</span>
             </a>
             <a href="{{ url_for('export') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('export') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </span>
                 <span>Export Data</span>
             </a>
             <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#ef4444] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </span>
                 <span>Logout</span>
             </a>
         </nav>
     </aside>
 
     <!-- Mobile Sidebar (Drawer) -->
-    <div id="mobileSidebar" class="mobile-sidebar closed fixed top-0 left-0 h-full w-64 px-6 py-7 bg-white z-50 flex flex-col lg:hidden sidebar-bg">
+    <div id="mobileSidebar" class="mobile-sidebar closed fixed top-0 left-0 h-full w-64 px-6 py-7 z-50 flex flex-col lg:hidden sidebar-bg">
         <div class="mb-8 flex items-center gap-3">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-lg shadow" />
-            <span class="font-bold text-lg text-[#134e4a]">EMD Portal</span>
+            <span class="font-bold text-lg text-white drop-shadow">EMD Portal</span>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#06b6d4] to-[#10b981] flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-fuchsia-600 to-amber-400 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
-            <div class="text-base text-[#134e4a] font-semibold">{{ session.get('username', 'User') }}</div>
-            <div class="text-xs text-[#67e8f9]">{{ session.get('region', 'Unknown') }}</div>
+            <div class="text-base text-white font-semibold">{{ session.get('username', 'User') }}</div>
+            <div class="text-xs text-amber-200">{{ session.get('region', 'Unknown') }}</div>
         </div>
         <nav class="flex-1 flex flex-col gap-2">
             <!-- repeat menu as above -->
             <a href="{{ url_for('index') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('index') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                </span>
                 <span>Dashboard</span>
             </a>
             <a href="{{ url_for('add') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('add') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </span>
                 <span>Add Exchange</span>
             </a>
             <a href="{{ url_for('view_exchanges') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('view_exchanges') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </span>
                 <span>View Exchanges</span>
             </a>
             <a href="{{ url_for('filters') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('filters') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </span>
                 <span>Filters</span>
             </a>
             <a href="{{ url_for('export') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('export') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </span>
                 <span>Export Data</span>
             </a>
             <a href="{{ url_for('logout') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full text-[#ef4444] hover:text-white {{ 'active' if request.path == url_for('logout') else '' }}">
-                <span class="icon"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></span>
+                <span class="icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </span>
                 <span>Logout</span>
             </a>
         </nav>
@@ -137,16 +203,18 @@
     <!-- Header -->
     <header class="fixed left-0 lg:left-64 right-0 top-0 h-16 bg-white shadow flex items-center justify-between px-4 z-30">
         <div class="flex items-center">
-            <button id="mobileSidebarBtn" class="lg:hidden mr-3 p-2 rounded-md hover:bg-gray-100">
+            <button id="mobileSidebarBtn" class="lg:hidden mr-3 p-2 rounded-md hover:bg-gray-100 relative z-10">
                 <svg width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
             <span class="font-bold text-xl text-[#134e4a] hidden lg:block">EMD Portal</span>
         </div>
+        <!-- Mobile: Center header title -->
+        <span class="mobile-header-title lg:hidden">EMD Portal</span>
         <div class="flex items-center gap-3">
             <span class="hidden md:block text-gray-700 font-medium">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fuchsia-600 to-amber-400 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
         </div>
@@ -166,16 +234,6 @@
         {% endif %}
     {% endwith %}
     {% block content %}
-    {# 
-        If this is your dashboard page (index.html), 
-        make sure you include your chart/graph HTML and JS here!
-        Example:
-        <canvas id="myChart"></canvas>
-        <script>
-          var ctx = document.getElementById('myChart').getContext('2d');
-          // Chart.js initialization...
-        </script>
-    #}
     {% endblock %}
     </main>
 
