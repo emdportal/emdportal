@@ -87,7 +87,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Working Status (Power)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Name of NEs Connected</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Load of Individual NE</th>
-                    {% for i in range(1, (table_data|map(attribute='Power Info')|map(attribute='Rectifiers')|map('length')|max)|default(1) + 1) %}
+                    {% for i in range(1, max_rectifiers + 1) %}
                         <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Make</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} Capacity</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-teal-800 uppercase tracking-wider">Rectifier {{ i }} No of Modules</th>
@@ -203,33 +203,20 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Working Status'] }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Name of NEs Connected'] }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row['Power Info']['Load of Individual NE'] }}</td>
-                    {% for rectifier in row['Power Info']['Rectifiers'] %}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.make_of_rectifier }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.rectifier_capacity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.no_of_modules }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.capacity_of_each_module }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.working_modules }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.faulty_modules }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.space_for_new_modules }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.grounding_of_rectifier }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.spd_in_rectifier }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.spd_model }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.total_installed_spds }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.no_of_faulty_spds }}</td>
-                    {% endfor %}
-                    {% for _ in range((row['Power Info']['Rectifiers']|length), (table_data|map(attribute='Power Info')|map(attribute='Rectifiers')|map('length')|max)|default(0)) %}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                    {% for i in range(max_rectifiers) %}
+                        {% set rectifier = row['Power Info']['Rectifiers'][i] if row['Power Info']['Rectifiers']|length > i else None %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.make_of_rectifier if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.rectifier_capacity if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.no_of_modules if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.capacity_of_each_module if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.working_modules if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.faulty_modules if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.space_for_new_modules if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.grounding_of_rectifier if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.spd_in_rectifier if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.spd_model if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.total_installed_spds if rectifier else '' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rectifier.no_of_faulty_spds if rectifier else '' }}</td>
                     {% endfor %}
                     {% for dg in row.DGs %}
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ dg['Installed DG'] }}</td>
