@@ -1508,18 +1508,18 @@ def filters():
             export_row['Load of Individual NE'] = row['Power Info']['Load of Individual NE']
             for i in range(max_rectifiers):
                 rectifier = row['Power Info']['Rectifiers'][i] if i < len(row['Power Info']['Rectifiers']) else None
-                export_row[f'Rectifier {i+1} Make'] = rectifier.make_of_rectifier if rectifier else None
-                export_row[f'Rectifier {i+1} Capacity'] = rectifier.rectifier_capacity if rectifier else None
-                export_row[f'Rectifier {i+1} No of Modules'] = rectifier.no_of_modules if rectifier else None
-                export_row[f'Rectifier {i+1} Capacity of Each Module'] = rectifier.capacity_of_each_module if rectifier else None
-                export_row[f'Rectifier {i+1} Working Modules'] = rectifier.working_modules if rectifier else None
-                export_row[f'Rectifier {i+1} Faulty Modules'] = rectifier.faulty_modules if rectifier else None
-                export_row[f'Rectifier {i+1} Space for New Modules'] = rectifier.space_for_new_modules if rectifier else None
-                export_row[f'Rectifier {i+1} Grounding'] = rectifier.grounding_of_rectifier if rectifier else None
-                export_row[f'Rectifier {i+1} SPD'] = rectifier.spd_in_rectifier if rectifier else None
-                export_row[f'Rectifier {i+1} SPD Model'] = rectifier.spd_model if rectifier else None
-                export_row[f'Rectifier {i+1} Total Installed SPDs'] = rectifier.total_installed_spds if rectifier else None
-                export_row[f'Rectifier {i+1} No of Faulty SPDs'] = rectifier.no_of_faulty_spds if rectifier else None
+                export_row[f'Rectifier {i+1} Make'] = rectifier.get('make_of_rectifier') if rectifier else None
+                export_row[f'Rectifier {i+1} Capacity'] = rectifier.get('rectifier_capacity') if rectifier else None
+                export_row[f'Rectifier {i+1} No of Modules'] = rectifier.get('no_of_modules') if rectifier else None
+                export_row[f'Rectifier {i+1} Capacity of Each Module'] = rectifier.get('capacity_of_each_module') if rectifier else None
+                export_row[f'Rectifier {i+1} Working Modules'] = rectifier.get('working_modules') if rectifier else None
+                export_row[f'Rectifier {i+1} Faulty Modules'] = rectifier.get('faulty_modules') if rectifier else None
+                export_row[f'Rectifier {i+1} Space for New Modules'] = rectifier.get('space_for_new_modules') if rectifier else None
+                export_row[f'Rectifier {i+1} Grounding'] = rectifier.get('grounding_of_rectifier') if rectifier else None
+                export_row[f'Rectifier {i+1} SPD'] = rectifier.get('spd_in_rectifier') if rectifier else None
+                export_row[f'Rectifier {i+1} SPD Model'] = rectifier.get('spd_model') if rectifier else None
+                export_row[f'Rectifier {i+1} Total Installed SPDs'] = rectifier.get('total_installed_spds') if rectifier else None
+                export_row[f'Rectifier {i+1} No of Faulty SPDs'] = rectifier.get('no_of_faulty_spds') if rectifier else None
 
             # Flatten DGs
             for i in range(max_dgs):
@@ -1737,6 +1737,7 @@ def filters():
         )
 
     return render_template('filters.html', table_data=table_data, available_domains=available_domains, available_categories=available_categories, selected_domain=domain_filter, selected_category=category_filter, max_rectifiers=max_rectifiers)
+
     
 if __name__ == '__main__':
     app.run(debug=True)
