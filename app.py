@@ -1143,187 +1143,278 @@ def export():
 
         data = []
         for exchange in exchanges:
-            row = {
+            row = {}
+
+            # General Information
+            row.update({
                 'SN': exchange.sn,
                 'Region': exchange.region,
                 'Domain': exchange.domain,
-                'Site Name': exchange.site_name,
-                'Site LIC': exchange.site_lic,
+                'Exchange Name': exchange.site_name,
+                'Exchange LIC': exchange.site_lic,
                 'FLC': exchange.flc,
                 'Site Category': exchange.site_category,
-                'NEs Installed': exchange.nes_installed,
+                'NEs Installed (Complete Detail)': exchange.nes_installed,
                 'Latitude': exchange.latitude,
                 'Longitude': exchange.longitude,
-                'Tower Available': exchange.tower_available
-            }
-
-            # Handle Towers
+                'Tower Available (Y/N)': exchange.tower_available
+            })
             for i in range(max_towers):
                 tower = exchange.towers[i] if i < len(exchange.towers) else None
-                row[f'Tower {i+1} Type/Height'] = tower.tower_type_height if tower else None
+                row[f'Type and Height of Tower {i+1}'] = tower.tower_type_height if tower else None
 
-            # Handle Power Information and Rectifiers
+            # Power Information
             if exchange.power_info:
                 row.update({
                     'WAPDA Ref Number': exchange.power_info.wapda_ref_number,
                     'Transformer Capacity': exchange.power_info.transformer_capacity,
                     'Transformer Earthing': exchange.power_info.transformer_earthing,
-                    'Working Status (Power)': exchange.power_info.working_status,
-                    'Name of NEs Connected': exchange.power_info.name_of_nes_connected,
-                    'Load of Individual NE': exchange.power_info.load_of_individual_ne,
+                    'Installed DGs': exchange.power_info.installed_dgs,
                 })
-                if exchange.power_info.rectifiers:
-                    for i in range(max_rectifiers):
-                        rectifier = exchange.power_info.rectifiers[i] if i < len(exchange.power_info.rectifiers) else None
-                        if rectifier:
-                            row.update({
-                                f'Rectifier {i+1} Make': rectifier.get('make_of_rectifier'),
-                                f'Rectifier {i+1} Capacity': rectifier.get('rectifier_capacity'),
-                                f'Rectifier {i+1} No of Modules': rectifier.get('no_of_modules'),
-                                f'Rectifier {i+1} Capacity of Each Module': rectifier.get('capacity_of_each_module'),
-                                f'Rectifier {i+1} Working Modules': rectifier.get('working_modules'),
-                                f'Rectifier {i+1} Faulty Modules': rectifier.get('faulty_modules'),
-                                f'Rectifier {i+1} Space for New Modules': rectifier.get('space_for_new_modules'),
-                                f'Rectifier {i+1} Grounding of Rectifier': rectifier.get('grounding_of_rectifier'),
-                                f'Rectifier {i+1} SPD in Rectifier': rectifier.get('spd_in_rectifier'),
-                                f'Rectifier {i+1} SPD Model': rectifier.get('spd_model'),
-                                f'Rectifier {i+1} Total Installed SPDs': rectifier.get('total_installed_spds'),
-                                f'Rectifier {i+1} No of Faulty SPDs': rectifier.get('no_of_faulty_spds')
-                            })
+                for i in range(max_dgs):
+                    dg = exchange.dgs[i] if i < len(exchange.dgs) else None
+                    row.update({
+                        f'Engine Make {i+1}': dg.engine_make if dg else None,
+                        f'Installation Year {i+1}': dg.installation_year if dg else None,
+                        f'DG Status {i+1}': dg.dg_status if dg else None,
+                        f'DG Starting Battery {i+1}': dg.dg_starting_battery if dg else None,
+                        f'Smart Switch Installed {i+1} (Y/N)': dg.smart_switch_installed if dg else None,
+                        f'ATS Installed {i+1} (Y/N)': dg.ats_installed if dg else None,
+                        f'ATS Capacity {i+1}': dg.ats_capacity if dg else None,
+                        f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)': dg.name_of_faulty_ats_parts if dg else None,
+                        f'No of Faulty ATS Parts {i+1}': dg.no_of_faulty_ats_parts if dg else None,
+                        f'Load on DG P1 {i+1}': dg.load_on_dg_p1 if dg else None,
+                        f'Load on DG P2 {i+1}': dg.load_on_dg_p2 if dg else None,
+                        f'Load on DG P3 {i+1}': dg.load_on_dg_p3 if dg else None,
+                        f'Site Load Total {i+1}': dg.site_load_total if dg else None,
+                        f'Site Load P1 {i+1}': dg.site_load_p1 if dg else None,
+                        f'Site Load P2 {i+1}': dg.site_load_p2 if dg else None,
+                        f'Site Load P3 {i+1}': dg.site_load_p3 if dg else None
+                    })
+                for i in range(max_rectifiers):
+                    rectifier = exchange.power_info.rectifiers[i] if i < len(exchange.power_info.rectifiers) else None
+                    if rectifier:
+                        row.update({
+                            f'Make of Rectifier {i+1}': rectifier.get('make_of_rectifier'),
+                            f'Working Status {i+1} (Y/N)': rectifier.get('working_status'),
+                            f'Rectifier Capacity {i+1} (A)': rectifier.get('rectifier_capacity'),
+                            f'No. of Modules {i+1}': rectifier.get('no_of_modules'),
+                            f'Capacity of Each Module {i+1} (A)': rectifier.get('capacity_of_each_module'),
+                            f'Working Modules {i+1} (No.)': rectifier.get('working_modules'),
+                            f'Faulty Modules {i+1} (No.)': rectifier.get('faulty_modules'),
+                            f'Space for New Modules {i+1} (No.)': rectifier.get('space_for_new_modules'),
+                            f'Name of NEs Connected with Rectifier {i+1}': rectifier.get('name_of_nes_connected'),
+                            f'Load of Individual NE {i+1} (A)': rectifier.get('load_of_individual_ne'),
+                            f'Grounding of Rectifier {i+1} (Y/N)': rectifier.get('grounding_of_rectifier'),
+                            f'SPD in Rectifier {i+1} (Y/N)': rectifier.get('spd_in_rectifier'),
+                            f'SPD Model {i+1} (V and A Rating)': rectifier.get('spd_model'),
+                            f'Total Installed SPDs {i+1}': rectifier.get('total_installed_spds'),
+                            f'No of Faulty SPDs {i+1}': rectifier.get('no_of_faulty_spds')
+                        })
 
-            # Handle DGs
-            for i in range(max_dgs):
-                dg = exchange.dgs[i] if i < len(exchange.dgs) else None
-                row.update({
-                    f'DG {i+1} Installed DG': dg.installed_dg if dg else None,
-                    f'DG {i+1} Engine Make': dg.engine_make if dg else None,
-                    f'DG {i+1} Installation Year': dg.installation_year if dg else None,
-                    f'DG {i+1} DG Status': dg.dg_status if dg else None,
-                    f'DG {i+1} DG Starting Battery': dg.dg_starting_battery if dg else None,
-                    f'DG {i+1} Smart Switch Installed': dg.smart_switch_installed if dg else None,
-                    f'DG {i+1} ATS Installed': dg.ats_installed if dg else None,
-                    f'DG {i+1} ATS Capacity': dg.ats_capacity if dg else None,
-                    f'DG {i+1} Name of Faulty ATS Parts': dg.name_of_faulty_ats_parts if dg else None,
-                    f'DG {i+1} No of Faulty ATS Parts': dg.no_of_faulty_ats_parts if dg else None,
-                    f'DG {i+1} Load on DG P1': dg.load_on_dg_p1 if dg else None,
-                    f'DG {i+1} Load on DG P2': dg.load_on_dg_p2 if dg else None,
-                    f'DG {i+1} Load on DG P3': dg.load_on_dg_p3 if dg else None,
-                    f'DG {i+1} Site Load Total': dg.site_load_total if dg else None,
-                    f'DG {i+1} Site Load P1': dg.site_load_p1 if dg else None,
-                    f'DG {i+1} Site Load P2': dg.site_load_p2 if dg else None,
-                    f'DG {i+1} Site Load P3': dg.site_load_p3 if dg else None
-                })
-
-            # Handle Battery Banks
+            # Battery Bank Information
             for i in range(max_batteries):
                 battery = exchange.battery_banks[i] if i < len(exchange.battery_banks) else None
                 row.update({
-                    f'Battery {i+1} Make of Battery': battery.make_of_battery if battery else None,
-                    f'Battery {i+1} Battery Capacity': battery.battery_capacity if battery else None,
-                    f'Battery {i+1} Battery Type': battery.battery_type if battery else None,
-                    f'Battery {i+1} No of Cells/Bank': battery.no_of_cells_bank if battery else None,
-                    f'Battery {i+1} Date of Installation': battery.date_of_installation if battery else None,
-                    f'Battery {i+1} Load on Battery Bank': battery.load_on_battery_bank if battery else None,
-                    f'Battery {i+1} Practical Backup Time': battery.practical_backup_time if battery else None,
-                    f'Battery {i+1} Battery Installed (New/Used)': battery.battery_installed_new_or_used if battery else None,
-                    f'Battery {i+1} Battery Moved From': battery.battery_moved_from if battery else None
+                    f'Make of Battery {i+1}': battery.make_of_battery if battery else None,
+                    f'Battery Capacity {i+1} (AH)': battery.battery_capacity if battery else None,
+                    f'Battery Type {i+1} (2V/12V)': battery.battery_type if battery else None,
+                    f'No. of Cells/Bank {i+1}': battery.no_of_cells_bank if battery else None,
+                    f'Date of Installation {i+1}': battery.date_of_installation if battery else None,
+                    f'Load on Battery Bank {i+1} (A)': battery.load_on_battery_bank if battery else None,
+                    f'Practical Backup Time {i+1} (Hrs)': battery.practical_backup_time if battery else None,
+                    f'Battery Installed {i+1} New or Used': battery.battery_installed_new_or_used if battery else None,
+                    f'Battery Moved From {i+1} (Incase Used Installed)': battery.battery_moved_from if battery else None
                 })
 
-            # Handle AC Units
+            # AC Units Information
             for i in range(max_acs):
                 ac = exchange.ac_units[i] if i < len(exchange.ac_units) else None
                 row.update({
-                    f'AC Unit {i+1} Location': ac.location_of_ac_unit if ac else None,
-                    f'AC Unit {i+1} Working Status': ac.working_status if ac else None,
-                    f'AC Unit {i+1} AC Make': ac.ac_make if ac else None,
-                    f'AC Unit {i+1} Capacity (Tons)': ac.capacity_tons if ac else None,
-                    f'AC Unit {i+1} Type of AC': ac.type_of_ac if ac else None,
-                    f'AC Unit {i+1} Mount Type': ac.mount_type if ac else None,
-                    f'AC Unit {i+1} Date of Installation': ac.date_of_installation if ac else None,
-                    f'AC Unit {i+1} Sequence Controller Installed': ac.sequence_controller_installed if ac else None,
-                    f'AC Unit {i+1} AC Load': ac.ac_load if ac else None,
-                    f'AC Unit {i+1} Total AC Load': ac.total_ac_load if ac else None,
-                    f'AC Unit {i+1} Fault Nature of AC Unit': ac.fault_nature_of_ac_unit if ac else None,
-                    f'AC Unit {i+1} Estimate to Repair AC': ac.estimate_to_repair_ac if ac else None
+                    f'Location of AC Unit {i+1}': ac.location_of_ac_unit if ac else None,
+                    f'Working Status {i+1} (Y/N)': ac.working_status if ac else None,
+                    f'AC Make {i+1}': ac.ac_make if ac else None,
+                    f'Capacity {i+1} (Tons)': ac.capacity_tons if ac else None,
+                    f'Type of AC {i+1}': ac.type_of_ac if ac else None,
+                    f'Mount Type {i+1}': ac.mount_type if ac else None,
+                    f'Date of Installation {i+1}': ac.date_of_installation if ac else None,
+                    f'Sequence Controller Installed {i+1} (Y/N)': ac.sequence_controller_installed if ac else None,
+                    f'AC Load {i+1}': ac.ac_load if ac else None,
+                    f'Total AC Load {i+1}': ac.total_ac_load if ac else None,
+                    f'Fault Nature of AC Unit {i+1}': ac.fault_nature_of_ac_unit if ac else None,
+                    f'Estimate to Repair AC {i+1}': ac.estimate_to_repair_ac if ac else None
                 })
 
-            # Handle Solar Information
+            # Installed Solar Information
             if exchange.solar_info:
                 row.update({
-                    'Total Solar Size': exchange.solar_info.total_solar_size,
-                    'PV Solar Panel Capacity': exchange.solar_info.pv_solar_panel_capacity,
-                    'No of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed,
+                    'Total Solar Size (KW)': exchange.solar_info.total_solar_size,
+                    'PV Solar Panel Capacity (W)': exchange.solar_info.pv_solar_panel_capacity,
+                    'No. of PV Panels Installed': exchange.solar_info.no_of_pv_panels_installed,
                     'Make of PV Panels': exchange.solar_info.make_of_pv_panels,
-                    'Charge Controller Make': exchange.solar_info.charge_controller_make
+                    'Charge Controller Make': exchange.solar_info.charge_controller_make,
+                    'No. of Charge Controllers': exchange.solar_info.no_of_charge_controllers,
+                    'Charge Controller Capacity (A)': exchange.solar_info.charge_controller_capacity,
+                    'Inverter Make': exchange.solar_info.inverter_make,
+                    'Inverter Capacity (KW)': exchange.solar_info.inverter_capacity,
+                    'No. of Inverters': exchange.solar_info.no_of_inverters,
+                    'On Grid/Hybrid?': exchange.solar_info.on_grid_hybrid,
+                    'Roof Top/Ground?': exchange.solar_info.roof_top_ground
                 })
 
-            # Handle Colocation Information
+            # Earthing
+            for i in range(max_earthings):
+                earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
+                row.update({
+                    f'Earthing Value {i+1}': earthing.earthing_value if earthing else None,
+                    f'No. of Pits {i+1}': earthing.no_of_pits if earthing else None
+                })
+
+            # Fire Extinguishers
+            for i in range(max_fire_extinguishers):
+                fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers) else None
+                row.update({
+                    f'FE Installed {i+1}': fire_ext.fe_installed if fire_ext else None,
+                    f'No. of FEs {i+1}': fire_ext.no_of_fes if fire_ext else None,
+                    f'Type of Gas {i+1}': fire_ext.type_of_gas if fire_ext else None,
+                    f'Date of Expiry {i+1}': fire_ext.date_of_expiry if fire_ext else None
+                })
+
+            # PMR Information
+            for i in range(max_pmrs):
+                pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
+                row.update({
+                    f'PMR Performed {i+1} (Y/N)': pmr.pmr_performed if pmr else None,
+                    f'Last Performed Date {i+1}': pmr.last_performed_date if pmr else None
+                })
+
+            # Alarm Extension
+            for i in range(max_alarms):
+                alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
+                row.update({
+                    f'AC Main Failure {i+1} (Y/N)': alarm.ac_main_failure if alarm else None,
+                    f'DC Low Voltages {i+1} (Y/N)': alarm.dc_low_voltages if alarm else None,
+                    f'Rectifier Failure {i+1} (Y/N)': alarm.rectifier_failure if alarm else None
+                })
+
+            # Colocation Information
             if exchange.colocation_info:
                 row.update({
-                    'Colocation': exchange.colocation_info.colocation,
+                    'Colocation (Y/N)': exchange.colocation_info.colocation,
                     'Name of Colocation Vendors': exchange.colocation_info.name_of_colocation_vendors,
                     'Load of Each Vendor': exchange.colocation_info.load_of_each_vendor,
                     'Total Load': exchange.colocation_info.total_load
                 })
 
-            # Handle Building Information
+            # Building Information
             if exchange.building_info:
                 row.update({
-                    'Building Status': exchange.building_info.building_status,
-                    'Wall/Doors Condition': exchange.building_info.wall_doors_condition,
-                })
-
-            # Handle Alarms
-            for i in range(max_alarms):
-                alarm = exchange.alarms[i] if i < len(exchange.alarms) else None
-                row.update({
-                    f'Alarm {i+1} AC Main Failure': alarm.ac_main_failure if alarm else None,
-                    f'Alarm {i+1} DC Low Voltages': alarm.dc_low_voltages if alarm else None,
-                    f'Alarm {i+1} Rectifier Failure': alarm.rectifier_failure if alarm else None
-                })
-
-            # Handle Earthings
-            for i in range(max_earthings):
-                earthing = exchange.earthings[i] if i < len(exchange.earthings) else None
-                row.update({
-                    f'Earthing {i+1} Value': earthing.earthing_value if earthing else None,
-                    f'Earthing {i+1} No of Pits': earthing.no_of_pits if earthing else None
-                })
-
-            # Handle Fire Extinguishers
-            for i in range(max_fire_extinguishers):
-                fire_ext = exchange.fire_extinguishers[i] if i < len(exchange.fire_extinguishers) else None
-                row.update({
-                    f'Fire Extinguisher {i+1} Installed': fire_ext.fe_installed if fire_ext else None,
-                    f'Fire Extinguisher {i+1} No of FEs': fire_ext.no_of_fes if fire_ext else None,
-                    f'Fire Extinguisher {i+1} Type of Gas': fire_ext.type_of_gas if fire_ext else None,
-                    f'Fire Extinguisher {i+1} Date of Expiry': fire_ext.date_of_expiry if fire_ext else None
-                })
-
-            # Handle PMRs
-            for i in range(max_pmrs):
-                pmr = exchange.pmr_infos[i] if i < len(exchange.pmr_infos) else None
-                row.update({
-                    f'PMR {i+1} Performed': pmr.pmr_performed if pmr else None,
-                    f'PMR {i+1} Last Performed Date': pmr.last_performed_date if pmr else None
+                    'Building Status (Good/Poor/Worst)': exchange.building_info.building_status,
+                    'Wall/Doors Condition': exchange.building_info.wall_doors_condition
                 })
 
             data.append(row)
 
         df = pd.DataFrame(data)
-        
-        # Ensure columns are sorted for consistency
-        df = df.reindex(sorted(df.columns), axis=1)
 
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='Exchanges')
-            worksheet = writer.sheets['Exchanges']
+            workbook = writer.book
+            worksheet = workbook.add_worksheet('Exchanges')
+
+            # Define colors based on the original Excel sheet
+            header_format = workbook.add_format({'bg_color': '#4BACC6', 'font_color': 'white', 'bold': True, 'border': 1})
+            general_info_format = workbook.add_format({'bg_color': '#D3D3D3', 'border': 1})
+            power_info_format = workbook.add_format({'bg_color': '#ADD8E6', 'border': 1})
+            battery_format = workbook.add_format({'bg_color': '#90EE90', 'border': 1})
+            ac_format = workbook.add_format({'bg_color': '#FFB6C1', 'border': 1})
+            solar_format = workbook.add_format({'bg_color': '#FFD700', 'border': 1})
+            earthing_format = workbook.add_format({'bg_color': '#DDA0DD', 'border': 1})
+            fire_ext_format = workbook.add_format({'bg_color': '#FFA07A', 'border': 1})
+            pmr_format = workbook.add_format({'bg_color': '#98FB98', 'border': 1})
+            alarm_format = workbook.add_format({'bg_color': '#B0C4DE', 'border': 1})
+            colocation_format = workbook.add_format({'bg_color': '#F0E68C', 'border': 1})
+            building_format = workbook.add_format({'bg_color': '#E6E6FA', 'border': 1})
+
+            # Write section headers
+            row = 0
+            col = 0
+            worksheet.merge_range(row, col, row, col + 11, 'General Information', header_format)
+            row += 1
+            worksheet.write_row(row, col, ['SN', 'Region', 'Domain', 'Exchange Name', 'Exchange LIC', 'FLC', 'Site Category', 'NEs Installed (Complete Detail)', 'Latitude', 'Longitude', 'Tower Available (Y/N)'] + [f'Type and Height of Tower {i+1}' for i in range(max_towers)], general_info_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 11, 'Power Information', header_format)
+            row += 1
+            power_headers = ['WAPDA Ref Number', 'Transformer Capacity', 'Transformer Earthing', 'Installed DGs'] + [f'Engine Make {i+1}', f'Installation Year {i+1}', f'DG Status {i+1}', f'DG Starting Battery {i+1}', f'Smart Switch Installed {i+1} (Y/N)', f'ATS Installed {i+1} (Y/N)', f'ATS Capacity {i+1}', f'Name of Faulty ATS Parts {i+1} (SS,Relays,Contactor etc)', f'No of Faulty ATS Parts {i+1}', f'Load on DG P1 {i+1}', f'Load on DG P2 {i+1}', f'Load on DG P3 {i+1}', f'Site Load Total {i+1}', f'Site Load P1 {i+1}', f'Site Load P2 {i+1}', f'Site Load P3 {i+1}' for i in range(max_dgs)] + [f'Make of Rectifier {i+1}', f'Working Status {i+1} (Y/N)', f'Rectifier Capacity {i+1} (A)', f'No. of Modules {i+1}', f'Capacity of Each Module {i+1} (A)', f'Working Modules {i+1} (No.)', f'Faulty Modules {i+1} (No.)', f'Space for New Modules {i+1} (No.)', f'Name of NEs Connected with Rectifier {i+1}', f'Load of Individual NE {i+1} (A)', f'Grounding of Rectifier {i+1} (Y/N)', f'SPD in Rectifier {i+1} (Y/N)', f'SPD Model {i+1} (V and A Rating)', f'Total Installed SPDs {i+1}', f'No of Faulty SPDs {i+1}' for i in range(max_rectifiers)]
+            worksheet.write_row(row, col, power_headers, power_info_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 8, 'Battery Bank Information', header_format)
+            row += 1
+            battery_headers = [f'Make of Battery {i+1}', f'Battery Capacity {i+1} (AH)', f'Battery Type {i+1} (2V/12V)', f'No. of Cells/Bank {i+1}', f'Date of Installation {i+1}', f'Load on Battery Bank {i+1} (A)', f'Practical Backup Time {i+1} (Hrs)', f'Battery Installed {i+1} New or Used', f'Battery Moved From {i+1} (Incase Used Installed)' for i in range(max_batteries)]
+            worksheet.write_row(row, col, battery_headers, battery_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 11, 'AC Units Information', header_format)
+            row += 1
+            ac_headers = [f'Location of AC Unit {i+1}', f'Working Status {i+1} (Y/N)', f'AC Make {i+1}', f'Capacity {i+1} (Tons)', f'Type of AC {i+1}', f'Mount Type {i+1}', f'Date of Installation {i+1}', f'Sequence Controller Installed {i+1} (Y/N)', f'AC Load {i+1}', f'Total AC Load {i+1}', f'Fault Nature of AC Unit {i+1}', f'Estimate to Repair AC {i+1}' for i in range(max_acs)]
+            worksheet.write_row(row, col, ac_headers, ac_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 11, 'Installed Solar Information', header_format)
+            row += 1
+            solar_headers = ['Total Solar Size (KW)', 'PV Solar Panel Capacity (W)', 'No. of PV Panels Installed', 'Make of PV Panels', 'Charge Controller Make', 'No. of Charge Controllers', 'Charge Controller Capacity (A)', 'Inverter Make', 'Inverter Capacity (KW)', 'No. of Inverters', 'On Grid/Hybrid?', 'Roof Top/Ground?']
+            worksheet.write_row(row, col, solar_headers, solar_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 1, 'Earthing', header_format)
+            row += 1
+            earthing_headers = [f'Earthing Value {i+1}', f'No. of Pits {i+1}' for i in range(max_earthings)]
+            worksheet.write_row(row, col, earthing_headers, earthing_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 3, 'Fire Extinguishers', header_format)
+            row += 1
+            fire_ext_headers = [f'FE Installed {i+1}', f'No. of FEs {i+1}', f'Type of Gas {i+1}', f'Date of Expiry {i+1}' for i in range(max_fire_extinguishers)]
+            worksheet.write_row(row, col, fire_ext_headers, fire_ext_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 1, 'PMR Information', header_format)
+            row += 1
+            pmr_headers = [f'PMR Performed {i+1} (Y/N)', f'Last Performed Date {i+1}' for i in range(max_pmrs)]
+            worksheet.write_row(row, col, pmr_headers, pmr_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 2, 'Alarm Extension', header_format)
+            row += 1
+            alarm_headers = [f'AC Main Failure {i+1} (Y/N)', f'DC Low Voltages {i+1} (Y/N)', f'Rectifier Failure {i+1} (Y/N)' for i in range(max_alarms)]
+            worksheet.write_row(row, col, alarm_headers, alarm_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 3, 'Colocation Information', header_format)
+            row += 1
+            colocation_headers = ['Colocation (Y/N)', 'Name of Colocation Vendors', 'Load of Each Vendor', 'Total Load']
+            worksheet.write_row(row, col, colocation_headers, colocation_format)
+            row += 1
+
+            worksheet.merge_range(row, col, row, col + 1, 'Building Information', header_format)
+            row += 1
+            building_headers = ['Building Status (Good/Poor/Worst)', 'Wall/Doors Condition']
+            worksheet.write_row(row, col, building_headers, building_format)
+            row += 2  # Skip a row before data
+
+            # Write data
+            for idx, exchange_data in enumerate(data):
+                current_row = row + idx
+                worksheet.write_row(current_row, col, [exchange_data.get(header, '') for header in general_info_headers + power_headers + battery_headers + ac_headers + solar_headers + earthing_headers + fire_ext_headers + pmr_headers + alarm_headers + colocation_headers + building_headers])
+
+            # Auto-adjust column widths
             for idx, col in enumerate(df.columns):
                 max_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
                 worksheet.set_column(idx, idx, max_len)
+
         output.seek(0)
-        
         return send_file(
             output,
             download_name='exchanges.xlsx',
