@@ -13,19 +13,17 @@
             background-color: #f8fafc;
         }
         .sidebar-bg {
-            background: linear-gradient(135deg, #4338ca 0%, #a21caf 100%);
-            /* indigo-700 to fuchsia-700 */
+            /* Indigo to purple (matches your View Exchanges header) */
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             box-shadow: 2px 0 16px rgba(44, 62, 80, .06);
         }
         .sidebar-pill {
             transition: background 0.2s, color 0.2s;
-            color: #fff;
         }
         .sidebar-pill.active, .sidebar-pill:hover {
-            background: linear-gradient(90deg, #f59e42 0%, #f43f5e 100%);
-            /* amber-500 to rose-500 */
+            background: #14b8a6; /* teal-600 */
             color: #fff !important;
-            box-shadow: 0 4px 16px rgba(245, 158, 66, 0.12);
+            box-shadow: 0 4px 16px rgba(20, 184, 166, 0.11);
         }
         .sidebar-pill .icon {
             min-width: 22px;
@@ -45,10 +43,9 @@
         }
         @media (min-width: 1025px) {
             .main-content {
-                margin-left: 16rem; /* 64px * 4 = 256px (w-64) */
+                margin-left: 16rem;
             }
         }
-        /* Ensure mobile header title always centers */
         @media (max-width: 1024px) {
             .mobile-header-title {
                 position: absolute;
@@ -59,7 +56,7 @@
                 pointer-events: none;
                 font-weight: 700;
                 font-size: 1.25rem;
-                color: #312e81;
+                color: #334155;
                 z-index: 1;
             }
         }
@@ -75,11 +72,11 @@
             <span class="font-bold text-lg text-white drop-shadow">EMD Portal</span>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-fuchsia-600 to-amber-400 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-500 to-teal-700 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
             <div class="text-base text-white font-semibold">{{ session.get('username', 'User') }}</div>
-            <div class="text-xs text-amber-200">{{ session.get('region', 'Unknown') }}</div>
+            <div class="text-xs text-teal-100">{{ session.get('region', 'Unknown') }}</div>
         </div>
         <nav class="flex-1 flex flex-col gap-2">
             <a href="{{ url_for('index') }}" class="sidebar-pill flex items-center px-4 py-2 rounded-full {{ 'active' if request.path == url_for('index') else '' }}">
@@ -140,11 +137,11 @@
             <span class="font-bold text-lg text-white drop-shadow">EMD Portal</span>
         </div>
         <div class="mb-8 flex flex-col items-center">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-fuchsia-600 to-amber-400 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-teal-500 to-teal-700 flex items-center justify-center text-white text-2xl font-bold mb-2 shadow">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
             <div class="text-base text-white font-semibold">{{ session.get('username', 'User') }}</div>
-            <div class="text-xs text-amber-200">{{ session.get('region', 'Unknown') }}</div>
+            <div class="text-xs text-teal-100">{{ session.get('region', 'Unknown') }}</div>
         </div>
         <nav class="flex-1 flex flex-col gap-2">
             <!-- repeat menu as above -->
@@ -208,13 +205,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <span class="font-bold text-xl text-[#134e4a] hidden lg:block">EMD Portal</span>
+            <span class="font-bold text-xl text-[#334155] hidden lg:block">EMD Portal</span>
         </div>
-        <!-- Mobile: Center header title -->
         <span class="mobile-header-title lg:hidden">EMD Portal</span>
         <div class="flex items-center gap-3">
             <span class="hidden md:block text-gray-700 font-medium">{{ session.get('username', 'User') }} ({{ session.get('region', 'Unknown') }})</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-fuchsia-600 to-amber-400 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-bold cursor-pointer" onclick="window.location.href='{{ url_for('logout') }}'">
                 {{ session.get('username', 'User')|first|upper }}
             </div>
         </div>
@@ -242,6 +238,13 @@
         const sidebarBtn = document.getElementById('mobileSidebarBtn');
         const mobileSidebar = document.getElementById('mobileSidebar');
         const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
+        // Ensure sidebar is closed on load
+        if (mobileSidebar && !mobileSidebar.classList.contains('closed')) {
+            mobileSidebar.classList.add('closed');
+        }
+        if (mobileSidebarOverlay && !mobileSidebarOverlay.classList.contains('hidden')) {
+            mobileSidebarOverlay.classList.add('hidden');
+        }
         if (sidebarBtn) {
             sidebarBtn.addEventListener('click', () => {
                 mobileSidebar.classList.remove('closed');
